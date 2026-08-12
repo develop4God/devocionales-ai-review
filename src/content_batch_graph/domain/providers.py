@@ -14,9 +14,13 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from dotenv import load_dotenv
 from langchain_core.language_models.chat_models import BaseChatModel
 
-_CONFIG_PATH = Path(__file__).resolve().parents[3] / "config" / "providers.yml"
+_REPO_ROOT = Path(__file__).resolve().parents[3]
+_CONFIG_PATH = _REPO_ROOT / "config" / "providers.yml"
+
+load_dotenv(dotenv_path=_REPO_ROOT / ".env")
 
 _config: dict[str, Any] | None = None
 
@@ -30,13 +34,23 @@ def _load_config() -> dict[str, Any]:
 
 
 def _build_model(provider: dict[str, Any]) -> BaseChatModel:
+    package = provider["package"]
+
+    # Local providers run on-machine and need no API key.
+    if package == "ollama":
+        from langchain_ollama import ChatOllama
+
+        return ChatOllama(
+            model=provider["model"],
+            base_url=provider.get("base_url", "http://localhost:11434"),
+        )
+
     api_key = os.environ.get(provider["env_var"])
     if not api_key:
         raise RuntimeError(
             f"Provider '{provider['id']}' requires {provider['env_var']} to be set."
         )
 
-    package = provider["package"]
     if package == "anthropic":
         from langchain_anthropic import ChatAnthropic
 
@@ -49,6 +63,10 @@ def _build_model(provider: dict[str, Any]) -> BaseChatModel:
             api_key=api_key,
             base_url=provider.get("base_url"),
         )
+    if package == "cerebras":
+        from langchain_cerebras import ChatCerebras
+
+        return ChatCerebras(model=provider["model"], api_key=api_key)
     raise ValueError(f"Unknown provider package: {package!r}")
 
 

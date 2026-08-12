@@ -3,21 +3,55 @@
 # that resolves a model through domain/providers.py. Priority breaks ties when more
 # than one provider is enabled; lower number = tried first.
 #
+# client_type: "api" (cloud, needs env_var API key) or "local" (runs on-machine via
+#              Ollama, no key needed).
 # package: which LangChain integration class to use for this provider.
 #   "anthropic" -> langchain_anthropic.ChatAnthropic
 #   "openai"    -> langchain_openai.ChatOpenAI (also covers any OpenAI-compatible
-#                  endpoint via base_url — DashScope, Groq, Fireworks, Ollama, etc.)
+#                  endpoint via base_url — DashScope, Groq, Fireworks, etc.)
+#   "cerebras"  -> langchain_cerebras.ChatCerebras
+#   "ollama"    -> langchain_ollama.ChatOllama (local only)
 
 providers:
-  - id: anthropic_default
-    name: "Anthropic/claude-sonnet"
+  - id: ollama_local
+    name: "Ollama/qwen2.5:0.5b (local)"
     priority: 1
     enabled: true
+    client_type: local
+    package: ollama
+    model: "qwen2.5:0.5b"
+    base_url: "http://localhost:11434"
+
+  - id: cerebras_default
+    name: "Cerebras/qwen-3-235b"
+    priority: 2
+    enabled: true
+    client_type: api
+    package: cerebras
+    model: "qwen-3-235b-a22b-instruct-2507"
+    env_var: CEREBRAS_API_KEY
+
+  - id: anthropic_default
+    name: "Anthropic/claude-sonnet"
+    priority: 3
+    enabled: true
+    client_type: api
     package: anthropic
     model: "claude-sonnet-4-20250514"
     env_var: ANTHROPIC_API_KEY
 
+  - id: openai_default
+    name: "OpenAI/gpt-4o-mini"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    model: "gpt-4o-mini"
+    env_var: OPENAI_API_KEY
+
 settings:
-  default_provider: anthropic_default
+  # ollama_local while the cloud providers (cerebras/openai) have known, currently-
+  # unresolved packaging issues — see PLAN.md "Open architecture decisions".
+  default_provider: ollama_local
   max_retries: 2
   retry_delay_s: 5
