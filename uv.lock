@@ -383,15 +383,15 @@ wheels = [
 
 [[package]]
 name = "langchain-cerebras"
-version = "0.8.1"
+version = "0.8.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "langchain-core" },
     { name = "langchain-openai" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/33/85/a9b55464a5978d40ce476d9a7ac32727cc180f5edbbff2dc27bab4bfa9d3/langchain_cerebras-0.8.1.tar.gz", hash = "sha256:2861b90e85312feffb9bd64f981abfb27ceb46da2356a541d99942a3b5403474", size = 11129, upload-time = "2025-11-23T21:52:39.991Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/64/d8/76356d5361b3dd6e1febcc62cc83acc01a88f7fca43b836d4e3a72434a37/langchain_cerebras-0.8.2.tar.gz", hash = "sha256:1594f87d08955a141269d48527d9a636827f6cb60167c447d8c5969eeaa9c8c7", size = 11267, upload-time = "2025-11-24T18:14:56.356Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/12/25/807102cc1fec30f4f709bdb4225c290144219254dd665a98d193395ecfd6/langchain_cerebras-0.8.1-py3-none-any.whl", hash = "sha256:a3f0b9dc1f99747d2a5fa574b58bc8d3e7ebc8cd99bd226dec40fa11c87606da", size = 9958, upload-time = "2025-11-23T21:52:38.908Z" },
+    { url = "https://files.pythonhosted.org/packages/fc/f9/239509fccf433f7cb34f8d2cf15885e4eda5e04f1f3110da295543fbaec5/langchain_cerebras-0.8.2-py3-none-any.whl", hash = "sha256:ca956bd8906e4760d903d3b9c614913488a87e44ee61522fafd66267dfb6582f", size = 9961, upload-time = "2025-11-24T18:14:55.305Z" },
 ]
 
 [[package]]

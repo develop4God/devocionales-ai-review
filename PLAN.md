@@ -64,21 +64,45 @@ GEP's `client_type` distinction, so testing isn't blocked on cloud provider issu
 
 ## Slice 2 — Real model call in the flag pass
 
-**Status: in progress — unblocked via local Ollama, cloud providers have known issues.**
+**Status: done — proven end-to-end against real content via local Ollama.**
 
 Provider testing history (for the next session, so these aren't re-discovered):
 - **OpenAI**: key valid, wiring correct, but account has `insufficient_quota` (no
   billing credits) — not a code problem, needs credits added at
   platform.openai.com/settings/organization/billing if OpenAI is wanted later.
-- **Cerebras**: currently **broken** — `langchain-cerebras==0.8.1` imports
-  `_convert_chunk_to_generation_chunk` from `langchain_openai.chat_models.base`, which
-  doesn't exist in current `langchain-openai` (tried 0.3.34 through 1.4.3, same
-  failure on all). This is a real upstream incompatibility in `langchain-cerebras`
-  itself, not a version-pin problem we can fix by adjusting our own `pyproject.toml`.
-  Revisit when `langchain-cerebras` publishes a release compatible with current
-  `langchain-openai`.
-- **Local Ollama**: works, see Slice 1.6. This is the provider actually used to build
-  and test Slice 2 for now.
+- **Cerebras**: was **broken** on `langchain-cerebras==0.8.1` (imported
+  `_convert_chunk_to_generation_chunk` from `langchain_openai.chat_models.base`,
+  removed upstream). **Fixed**: `langchain-cerebras==0.8.2` (released 2025-11-24)
+  resolves the import; `pyproject.toml`'s existing `>=0.8,<0.9` pin already permitted
+  it, `uv.lock` just needed `uv lock --upgrade-package langchain-cerebras` to actually
+  pick it up (the installed `.venv` had silently drifted ahead of the lockfile during
+  manual testing — resynced with `uv sync --extra dev`).
+- **Local Ollama**: works, see Slice 1.6. Used to build and prove Slice 2's mechanics
+  initially; no longer the configured default (see model comparison below).
+
+**Cerebras model comparison (2026-08-12)**, run against real `devocionales-json`
+content with the `native_reader` role, comparing `gpt-oss-120b`, `zai-glm-4.7`, and
+`gemma-4-31b` — all three share identical rate/token limits (5 req/min, 2400/day,
+30K tok/min, 1M tok/day), so that wasn't a differentiator:
+- **`gpt-oss-120b`** (chosen, now `default_provider`): only **Production**-status
+  model of the three; consistent 1–5s latency; correctly quoted the deliberate typo
+  verbatim; was the most willing to actually surface real findings on the devotional
+  excerpt (the other two returned zero findings on the same borderline-awkward text —
+  plausibly a legitimate stricter-sensitivity judgment call on their part, not a
+  compliance failure, since all three caught the unambiguous typo case identically).
+- **`zai-glm-4.7`**: correct behavior in testing, but scheduled for Cerebras
+  deprecation **2026-08-17** — ruled out as a lasting default on that basis alone.
+- **`gemma-4-31b`**: still **Preview** status; one run spiked to 61.6s on a trivial
+  clean-text case (vs. ~1–2s normal) — too unstable to trust as default right now.
+- All three hit transient `429 queue_exceeded` errors under shared free-tier/preview
+  traffic load during testing — environmental, not a code bug; retries succeeded.
+- `providers.yml` was cleaned up after the comparison: `zai-glm-4.7`/`gemma-4-31b`
+  entries were removed (they were only added to run this comparison, not meant to
+  stay as permanent config); `cerebras_default` (`qwen-3-235b`, untouched by this
+  comparison) and `ollama_local` remain as other available providers.
+- `domain/flag.py::run_flag_pass` gained a `provider_id: str | None = None` param
+  (additive, defaults preserve prior behavior) specifically to make this kind of
+  side-by-side comparison possible without editing config between runs.
 - Also fixed along the way: `langchain-openai` was pinned `>=0.3,<0.4` (very stale;
   current is 1.4.x) from an initial guess that was never revisited — corrected to
   `>=1.4,<2.0`. Same category of mistake as the earlier `langgraph-checkpoint-sqlite`
@@ -86,16 +110,37 @@ Provider testing history (for the next session, so these aren't re-discovered):
   dependency graph actually needs, worth double-checking pins more carefully going
   forward rather than trusting an initial guess.
 
-- [ ] Design the role/persona shape as data (persona, instructions, flag categories) —
-      not hardcoded per content type, matching the "role-agnostic" direction discussed
-- [ ] Populate exactly one real role first (native-speaker linguistic check), proven
-      against real content before any second role is designed
-- [ ] Replace `domain/flag.py`'s stub body with a real call: `get_model()` +
-      `.with_structured_output()` against a `Finding`-shaped Pydantic schema
-- [ ] Test against a real file from `devocionales-json` (not synthetic fixtures) —
-      per architect's stated preference for proving against real content
-- [ ] Verify `verify_pass` still correctly rejects any hallucinated/unverifiable
-      findings the real model produces (it should — `verify.py` doesn't change)
+- [x] Design the role/persona shape as data — `config/roles.yml` +
+      `domain/roles.get_role()`, mirroring `providers.yml`'s no-hardcoding pattern.
+      Persona is a template string with `{language}` substituted at call time; each
+      role declares its own `categories` list.
+- [x] Populate exactly one real role: `native_reader` (typo / grammar /
+      awkward_phrasing, comments in English, quotes verbatim) — matches the manual
+      protocol description given for this role. Pattern-repetition summarization
+      (originally part of the same description) was scoped out to Slice 6 (durable
+      pattern memory), where PLAN.md already reserves it.
+- [x] `domain/flag.py`'s stub replaced with a real call: `get_model()` +
+      `ChatPromptTemplate` (system persona / human source text) +
+      `.with_structured_output()` against a Pydantic schema built per-role via
+      `create_model()`, with `category` constrained to a `Literal` of the role's
+      declared categories (schema-level enforcement — a free-text description alone
+      wasn't reliably followed by the small local model). New required state field:
+      `BatchState.language`.
+- [x] Tested against a real file from `devocionales-json`
+      (`Devocional_year_2025_en_NIV.json`, a real `reflexion` field) — 5 findings, all
+      verbatim-verified, categories all valid after the Literal constraint was added.
+- [x] `verify_pass`/`verify_findings` confirmed still correctly separates
+      verified/rejected — the local model (qwen2.5:0.5b) was observed "correcting" a
+      typo's `quoted_text` instead of quoting it verbatim in one manual test; that
+      finding was correctly rejected, not passed through. `verify.py` itself did not
+      change. `tests/test_graph.py` now monkeypatches `run_flag_pass` so graph-
+      mechanics tests stay fast/deterministic; real-model behavior is covered
+      separately in `tests/test_flag.py`.
+
+**Note for later roles:** small local models drift from free-text instructions
+(category naming) but comply with schema-level constraints (`Literal`). Prefer
+encoding a role's hard constraints in the generated schema over relying on prompt
+wording alone, especially while testing against `ollama_local`.
 
 ## Slice 3 — Fix + validate loop
 

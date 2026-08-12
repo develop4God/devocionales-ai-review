@@ -13,9 +13,18 @@
 #   "ollama"    -> langchain_ollama.ChatOllama (local only)
 
 providers:
+  - id: cerebras_gpt_oss_120b
+    name: "Cerebras/gpt-oss-120b"
+    priority: 1
+    enabled: true
+    client_type: api
+    package: cerebras
+    model: "gpt-oss-120b"
+    env_var: CEREBRAS_API_KEY
+
   - id: ollama_local
     name: "Ollama/qwen2.5:0.5b (local)"
-    priority: 1
+    priority: 2
     enabled: true
     client_type: local
     package: ollama
@@ -24,7 +33,7 @@ providers:
 
   - id: cerebras_default
     name: "Cerebras/qwen-3-235b"
-    priority: 2
+    priority: 3
     enabled: true
     client_type: api
     package: cerebras
@@ -33,7 +42,7 @@ providers:
 
   - id: anthropic_default
     name: "Anthropic/claude-sonnet"
-    priority: 3
+    priority: 4
     enabled: true
     client_type: api
     package: anthropic
@@ -42,7 +51,7 @@ providers:
 
   - id: openai_default
     name: "OpenAI/gpt-4o-mini"
-    priority: 4
+    priority: 5
     enabled: true
     client_type: api
     package: openai
@@ -50,8 +59,12 @@ providers:
     env_var: OPENAI_API_KEY
 
 settings:
-  # ollama_local while the cloud providers (cerebras/openai) have known, currently-
-  # unresolved packaging issues — see PLAN.md "Open architecture decisions".
-  default_provider: ollama_local
+  # cerebras_gpt_oss_120b: chosen after comparing it against zai-glm-4.7 and
+  # gemma-4-31b (see PLAN.md) — same rate/token limits across all three, but
+  # gpt-oss-120b is the only Production-status model (the other two are Preview,
+  # and zai-glm-4.7 is scheduled for deprecation 2026-08-17), gave the most
+  # consistent low latency, and was the most willing to actually surface real
+  # findings on real content rather than under-flag.
+  default_provider: cerebras_gpt_oss_120b
   max_retries: 2
   retry_delay_s: 5
