@@ -1,21 +1,24 @@
 [project]
-name = "reader-langgraph"
+name = "content-batch-graph"
 version = "0.1.0"
-description = "A simulated native-speaker reader, orchestrated as a LangGraph pipeline."
+description = "A LangGraph pipeline automating batch content review: translate/generate, independent critic rounds, verified triage, fix, validate, human confirmation."
 requires-python = ">=3.11"
 dependencies = [
-    "langgraph",
-    "langchain-core",
-    "pyyaml",
+    "langgraph>=1.2,<2.0",
+    "langgraph-checkpoint-sqlite>=3.1,<4.0",
+    "langchain-core>=1.5,<2.0",
+    "langchain-openai>=0.3,<0.4",
+    "pyyaml>=6.0,<7.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "ruff",
+    "pytest",
 ]
 
 [project.scripts]
-reader = "reader_langgraph.cli:main"
+content-batch = "content_batch_graph.cli:main"
 
 [build-system]
 requires = ["setuptools>=68"]
