@@ -38,6 +38,10 @@ class BatchState(TypedDict):
     file_path: str  # the file being reviewed, on disk
     file_text: str  # its content, read once by the flag node
     language: str  # the language file_text is written in, e.g. "Spanish"
+    entry_id: str | None  # the reviewed entry's own stable id, for identification
+    field_path: str | None  # dot-path locating file_text within file_path's JSON, e.g.
+    # "data.fr.2025-08-01.0.reflexion" — used by validate_pass to splice
+    # fixed_text back in and confirm the real file's structure isn't broken
 
     # ── Flag pass output ────────────────────────────────────────────────────
     raw_findings: list[Finding]  # everything the flag pass claimed, unverified
