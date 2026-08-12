@@ -25,6 +25,14 @@ class VerifiedFinding(Finding):
     verified: Literal[True]
 
 
+class CriticFinding(VerifiedFinding):
+    """A VerifiedFinding judged by a second, independent AI pass for correctness."""
+
+    is_valid: bool  # the critic's judgment: is this actually a real issue?
+    replacement_text: str | None  # exact surgical replacement, if is_valid
+    critic_reasoning: str  # why, for human review
+
+
 class BatchState(TypedDict):
     # ── Identity of this run ──────────────────────────────────────────────
     file_path: str  # the file being reviewed, on disk
@@ -40,6 +48,11 @@ class BatchState(TypedDict):
         Finding
     ]  # findings NOT found verbatim — dropped, not trusted
 
+    # ── Critic pass output ──────────────────────────────────────────────────
+    critic_findings: list[
+        CriticFinding
+    ]  # verified findings judged for correctness + given a surgical replacement
+
     # ── Human gate ───────────────────────────────────────────────────────────
     human_decision: Literal["approved", "rejected"] | None
 
@@ -47,6 +60,12 @@ class BatchState(TypedDict):
     fixed_text: str | None  # file_text with approved findings corrected
     fix_summary: str | None  # concise human-readable summary of what changed
     fix_attempts: int  # how many times fix_pass has run this batch, for loop-cap
+
+    # ── Drift check pass output ─────────────────────────────────────────────
+    drift_detected: (
+        bool | None
+    )  # did the surgical fix fail to resolve or introduce a new issue?
+    drift_notes: str | None  # the second AI's explanation, for human review
 
     # ── Validate pass output ────────────────────────────────────────────────
     validation_passed: bool | None

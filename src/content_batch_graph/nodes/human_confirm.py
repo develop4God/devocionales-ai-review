@@ -14,11 +14,19 @@ from content_batch_graph.state import BatchState
 
 
 def human_confirm(state: BatchState) -> dict:
-    decision = interrupt(
-        {
+    if state.get("drift_detected"):
+        payload = {
+            "drift_detected": state["drift_detected"],
+            "drift_notes": state["drift_notes"],
+            "fixed_text": state["fixed_text"],
+            "question": "Drift detected after fix. Approve to retry, anything else to stop.",
+        }
+    else:
+        payload = {
             "verified_findings": state["verified_findings"],
             "rejected_findings": state["rejected_findings"],
-            "question": "Approve these verified findings?",
+            "critic_findings": state.get("critic_findings", []),
+            "question": "Approve these critic-reviewed findings?",
         }
-    )
+    decision = interrupt(payload)
     return {"human_decision": decision}
