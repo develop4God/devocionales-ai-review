@@ -34,44 +34,28 @@ issue with that span. Decide:
 Judge only the quoted span and the claimed issue. Do not propose unrelated \
 changes."""
 
-_DICTIONARY_GROUNDING_TEMPLATE = """\
 
-You have been given real dictionary lookup results for the KWF (Komisyon sa \
-Wikang Filipino) — the official Filipino language authority — to ground your \
-judgment. Trust this dictionary data over your own unaided memory of Filipino \
-spelling, since a specific word's real vs. non-standard status is exactly what \
-the dictionary settles.
-
-{lookup_summary}"""
-
-
-def _describe_lookup(label: str, lookup: dict) -> str:
-    if lookup["found"]:
-        return (
-            f"- {label} {lookup['word']!r}: FOUND in the KWF dictionary "
-            f"({lookup['part_of_speech']}) — {lookup['definition']}"
-        )
-    return f"- {label} {lookup['word']!r}: NOT FOUND in the KWF dictionary."
-
-
-def _build_dictionary_grounding(quoted_text: str) -> str:
+def _check_dictionary_for_typo(quoted_text: str) -> bool | None:
     """
-    Looks up quoted_text (and, if it's a single word, the word alone) in the real
-    KWF dictionary and formats the result as grounding context for the critic
-    prompt. Only meaningful for single-word typo claims — returns "" for anything
-    else, so multi-word spans fall back to the model's own judgment unchanged.
+    Checks quoted_text against the real KWF dictionary as the source of truth for
+    a typo claim. Returns:
+      - False if the word IS found (a real word can't be a typo — dismiss the
+        claim outright, no further review needed)
+      - None if the word is NOT found, or the check can't run (multi-word span,
+        dictionary-site failure) — this is NOT evidence of a typo (Filipino
+        dictionaries only list root words, not every inflected/affixed form, so a
+        miss is inconclusive) — falls through to the critic's own judgment
     """
     word = quoted_text.strip()
     if not word or " " in word:
-        return ""
+        return None
     try:
         lookup = lookup_word(word)
     except httpx.HTTPError:
         # A dictionary-site failure (network, 5xx) should never block the pipeline
         # — fall back to the model's unaided judgment rather than erroring out.
-        return ""
-    summary = _describe_lookup("Quoted word", lookup)
-    return _DICTIONARY_GROUNDING_TEMPLATE.format(lookup_summary=summary)
+        return None
+    return False if lookup["found"] else None
 
 
 class _CriticResponse(BaseModel):
@@ -100,14 +84,31 @@ def run_critic_pass(
     Calls a real model, independent of the original flag_pass call, to judge one
     verified finding and propose its exact surgical replacement text.
 
-    For Filipino typo findings, the prompt is grounded with a real KWF dictionary
-    lookup of the quoted word — this is a headword-existence check, not something
-    that applies to grammar/awkward_phrasing findings, which aren't about whether a
-    single word exists.
+    For Filipino typo findings, the real KWF dictionary is checked first as the
+    source of truth: if the quoted word is a real dictionary entry, the typo claim
+    is dismissed immediately, no model call needed — a real word can't be a typo.
+    If the word isn't found, that's inconclusive (Filipino dictionaries only list
+    root words, not every inflected form) and falls through to the critic's own
+    judgment below, same as any other finding.
     """
-    persona = _CRITIC_PERSONA.format(language=language)
     if language == "Filipino" and finding["category"] == "typo":
-        persona += _build_dictionary_grounding(finding["quoted_text"])
+        dictionary_verdict = _check_dictionary_for_typo(finding["quoted_text"])
+        if dictionary_verdict is False:
+            return CriticFinding(
+                quoted_text=finding["quoted_text"],
+                issue=finding["issue"],
+                category=finding["category"],
+                verified=True,
+                is_valid=False,
+                replacement_text=None,
+                critic_reasoning=(
+                    f"{finding['quoted_text']!r} is a real word in the KWF "
+                    "(Komisyon sa Wikang Filipino) dictionary — dismissed as a "
+                    "typo claim without further review."
+                ),
+            )
+
+    persona = _CRITIC_PERSONA.format(language=language)
     model = get_model(provider_id).with_structured_output(_CriticResponse)
     prompt = ChatPromptTemplate.from_messages(
         [
