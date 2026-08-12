@@ -1,0 +1,23 @@
+# Provider definitions for content_batch_graph's model calls.
+# No provider is hardcoded in Python — add one here, it's available to every node
+# that resolves a model through domain/providers.py. Priority breaks ties when more
+# than one provider is enabled; lower number = tried first.
+#
+# package: which LangChain integration class to use for this provider.
+#   "anthropic" -> langchain_anthropic.ChatAnthropic
+#   "openai"    -> langchain_openai.ChatOpenAI (also covers any OpenAI-compatible
+#                  endpoint via base_url — DashScope, Groq, Fireworks, Ollama, etc.)
+
+providers:
+  - id: anthropic_default
+    name: "Anthropic/claude-sonnet"
+    priority: 1
+    enabled: true
+    package: anthropic
+    model: "claude-sonnet-4-20250514"
+    env_var: ANTHROPIC_API_KEY
+
+settings:
+  default_provider: anthropic_default
+  max_retries: 2
+  retry_delay_s: 5
