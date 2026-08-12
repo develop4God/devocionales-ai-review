@@ -10,11 +10,25 @@ from content_batch_graph.domain.scan import (
 
 
 def _write_devotional(
-    path: Path, language: str, date: str, entry_id: str, reflexion: str
+    path: Path,
+    language: str,
+    date: str,
+    entry_id: str,
+    reflexion: str = "",
+    oracion: str = "",
 ) -> None:
     data = {
         "data": {
-            language: {date: [{"id": entry_id, "date": date, "reflexion": reflexion}]}
+            language: {
+                date: [
+                    {
+                        "id": entry_id,
+                        "date": date,
+                        "reflexion": reflexion,
+                        "oracion": oracion,
+                    }
+                ]
+            }
         }
     }
     path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
@@ -74,6 +88,43 @@ def test_scan_file_for_pattern_counts_multiple_occurrences(tmp_path: Path):
 
     assert len(matches) == 1
     assert matches[0]["occurrences"] == 2
+
+
+def test_scan_file_for_pattern_matches_oracion_too(tmp_path: Path):
+    file_path = tmp_path / "Devocional_year_2025_fil_ASND.json"
+    _write_devotional(
+        file_path,
+        "fil",
+        "2025-08-01",
+        "entry1",
+        reflexion="Walang typo dito.",
+        oracion="Panalangin na may espirituwal na kahulugan.",
+    )
+
+    matches = scan_file_for_pattern(str(file_path), "fil", _pattern())
+
+    assert len(matches) == 1
+    assert matches[0]["field_path"] == "data.fil.2025-08-01.0.oracion"
+
+
+def test_scan_file_for_pattern_matches_both_fields_independently(tmp_path: Path):
+    file_path = tmp_path / "Devocional_year_2025_fil_ASND.json"
+    _write_devotional(
+        file_path,
+        "fil",
+        "2025-08-01",
+        "entry1",
+        reflexion="May espirituwal na kahulugan ito.",
+        oracion="Panalangin na may espirituwal na kahulugan.",
+    )
+
+    matches = scan_file_for_pattern(str(file_path), "fil", _pattern())
+
+    assert len(matches) == 2
+    assert {m["field_path"] for m in matches} == {
+        "data.fil.2025-08-01.0.reflexion",
+        "data.fil.2025-08-01.0.oracion",
+    }
 
 
 def test_scan_file_for_pattern_returns_empty_when_no_match(tmp_path: Path):

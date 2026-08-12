@@ -18,6 +18,28 @@ from content_batch_graph.domain.dictionary import lookup_word
 from content_batch_graph.domain.providers import get_model
 from content_batch_graph.state import CriticFinding, VerifiedFinding
 
+# Unicode hyphen lookalikes observed being substituted by the model for a plain
+# ASCII "-" when proposing a replacement (e.g. U+2011 NON-BREAKING HYPHEN in a
+# Portuguese clitic pronoun fix, "amar-te" -> "amar‑te") — visually identical in a
+# diff, but a real character-level corruption if applied to the corpus. Scoped to
+# hyphen variants only, not quote-style normalization: curly quotes can be the
+# correct orthographic form in some languages, so those are left to the critic's
+# own judgment rather than force-normalized here.
+_HYPHEN_LOOKALIKES = {
+    "‐": "-",  # HYPHEN
+    "‑": "-",  # NON-BREAKING HYPHEN
+    "‒": "-",  # FIGURE DASH
+    "–": "-",  # EN DASH
+    "—": "-",  # EM DASH
+}
+
+
+def _normalize_replacement_text(text: str) -> str:
+    for lookalike, ascii_equivalent in _HYPHEN_LOOKALIKES.items():
+        text = text.replace(lookalike, ascii_equivalent)
+    return text
+
+
 _CRITIC_PERSONA = """\
 You are an independent {language} language critic reviewing one specific claim \
 about a piece of {language} text. You did not make the original claim — judge it \
@@ -132,13 +154,17 @@ def run_critic_pass(
         }
     )
 
+    replacement_text = response.replacement_text or None
+    if replacement_text:
+        replacement_text = _normalize_replacement_text(replacement_text)
+
     return CriticFinding(
         quoted_text=finding["quoted_text"],
         issue=finding["issue"],
         category=finding["category"],
         verified=True,
         is_valid=response.is_valid,
-        replacement_text=response.replacement_text or None,
+        replacement_text=replacement_text,
         critic_reasoning=response.reasoning,
     )
 

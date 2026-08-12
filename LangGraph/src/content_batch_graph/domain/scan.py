@@ -35,12 +35,15 @@ def find_devotional_files(corpus_dir: str, language: str) -> list[str]:
     return sorted(glob.glob(pattern))
 
 
+_SCANNED_FIELDS = ("reflexion", "oracion")
+
+
 def scan_file_for_pattern(
     file_path: str, language: str, pattern: PatternEntry
 ) -> list[ScanMatch]:
     """
-    Reads one devotional JSON file and returns a ScanMatch for every reflexion field
-    containing pattern['quoted_text'] verbatim. Read-only — never modifies the file.
+    Reads one devotional JSON file and returns a ScanMatch for every reflexion/oracion
+    field containing pattern['quoted_text'] verbatim. Read-only — never modifies the file.
     """
     with open(file_path, encoding="utf-8") as f:
         document = json.load(f)
@@ -49,19 +52,20 @@ def scan_file_for_pattern(
     lang_data = document.get("data", {}).get(language, {})
     for date, entries in lang_data.items():
         for i, entry in enumerate(entries):
-            reflexion = entry.get("reflexion", "")
-            count = reflexion.count(pattern["quoted_text"])
-            if count > 0:
-                matches.append(
-                    ScanMatch(
-                        file_path=file_path,
-                        field_path=f"data.{language}.{date}.{i}.reflexion",
-                        entry_id=entry.get("id"),
-                        quoted_text=pattern["quoted_text"],
-                        replacement_text=pattern["replacement_text"],
-                        occurrences=count,
+            for field in _SCANNED_FIELDS:
+                text = entry.get(field, "")
+                count = text.count(pattern["quoted_text"])
+                if count > 0:
+                    matches.append(
+                        ScanMatch(
+                            file_path=file_path,
+                            field_path=f"data.{language}.{date}.{i}.{field}",
+                            entry_id=entry.get("id"),
+                            quoted_text=pattern["quoted_text"],
+                            replacement_text=pattern["replacement_text"],
+                            occurrences=count,
+                        )
                     )
-                )
     return matches
 
 

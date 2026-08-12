@@ -234,6 +234,34 @@ def test_run_critic_pass_skips_dictionary_check_for_non_filipino_language(
     assert called["count"] == 0
 
 
+def test_run_critic_pass_normalizes_hyphen_lookalikes_in_replacement(monkeypatch):
+    import content_batch_graph.domain.critic as critic_module
+
+    class _FakeModel:
+        def with_structured_output(self, schema):
+            return self
+
+        def __call__(self, _inputs):
+            # U+2011 NON-BREAKING HYPHEN, as seen from a real Cerebras response —
+            # visually identical to "-" but a different character.
+            return SimpleNamespace(
+                is_valid=True, replacement_text="amar‑te", reasoning="why"
+            )
+
+    monkeypatch.setattr(
+        critic_module, "get_model", lambda provider_id=None: _FakeModel()
+    )
+
+    result = run_critic_pass(
+        "some text with amar-Te in it",
+        _finding("amar-Te", "capitalization issue", category="awkward_phrasing"),
+        "Portuguese",
+    )
+
+    assert result["replacement_text"] == "amar-te"
+    assert "‑" not in result["replacement_text"]
+
+
 def test_run_critic_pass_skips_dictionary_check_for_non_typo_category(monkeypatch):
     import content_batch_graph.domain.critic as critic_module
 
