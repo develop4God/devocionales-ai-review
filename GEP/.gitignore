@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+*.sqlite3
+*.db
+*.log
+.ruff_cache/
+.gep_session.json
+.gep_daily_tokens.json
