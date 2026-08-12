@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "quoted_text": "espirituwal",
+    "replacement_text": "espiritwal",
+    "language": "fil",
+    "category": "typo",
+    "source_entry_id": "Juan155ASND20250801",
+    "source_file_path": "/home/develop4god/Projects/devocionales-json/Devocional_year_2025_fil_ASND.json"
+  }
+]
