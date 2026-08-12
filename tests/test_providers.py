@@ -32,3 +32,12 @@ def test_get_model_uses_default_provider_when_none_given(monkeypatch):
 def test_get_model_local_provider_needs_no_api_key():
     model = get_model("ollama_local")
     assert type(model).__name__ == "ChatOllama"
+
+
+def test_get_model_passes_max_retries_from_config(monkeypatch):
+    # settings.max_retries in providers.yml previously wasn't wired into the
+    # constructed model at all — a 429 raised immediately instead of retrying with
+    # backoff. Confirms it's now actually passed through.
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "fake-key-for-construction-only")
+    model = get_model("anthropic_default")
+    assert model.max_retries == 2

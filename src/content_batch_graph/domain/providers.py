@@ -33,10 +33,11 @@ def _load_config() -> dict[str, Any]:
     return _config
 
 
-def _build_model(provider: dict[str, Any]) -> BaseChatModel:
+def _build_model(provider: dict[str, Any], max_retries: int) -> BaseChatModel:
     package = provider["package"]
 
-    # Local providers run on-machine and need no API key.
+    # Local providers run on-machine and need no API key or retry handling —
+    # there's no shared rate limit to hit.
     if package == "ollama":
         from langchain_ollama import ChatOllama
 
@@ -54,7 +55,9 @@ def _build_model(provider: dict[str, Any]) -> BaseChatModel:
     if package == "anthropic":
         from langchain_anthropic import ChatAnthropic
 
-        return ChatAnthropic(model=provider["model"], api_key=api_key)
+        return ChatAnthropic(
+            model=provider["model"], api_key=api_key, max_retries=max_retries
+        )
     if package == "openai":
         from langchain_openai import ChatOpenAI
 
@@ -62,11 +65,14 @@ def _build_model(provider: dict[str, Any]) -> BaseChatModel:
             model=provider["model"],
             api_key=api_key,
             base_url=provider.get("base_url"),
+            max_retries=max_retries,
         )
     if package == "cerebras":
         from langchain_cerebras import ChatCerebras
 
-        return ChatCerebras(model=provider["model"], api_key=api_key)
+        return ChatCerebras(
+            model=provider["model"], api_key=api_key, max_retries=max_retries
+        )
     raise ValueError(f"Unknown provider package: {package!r}")
 
 
@@ -74,10 +80,15 @@ def get_model(provider_id: str | None = None) -> BaseChatModel:
     """
     Returns a real LangChain chat model for the given provider id, or the configured
     default_provider if none is given. Raises if the required API key isn't set.
+
+    The model is constructed with settings.max_retries from providers.yml, so a
+    transient 429 (rate limit) is retried with backoff by the underlying SDK client
+    instead of raising immediately.
     """
     config = _load_config()
     provider_id = provider_id or config["settings"]["default_provider"]
     providers = {p["id"]: p for p in config["providers"] if p.get("enabled", True)}
     if provider_id not in providers:
         raise ValueError(f"Provider '{provider_id}' not found or not enabled.")
-    return _build_model(providers[provider_id])
+    max_retries = config["settings"].get("max_retries", 2)
+    return _build_model(providers[provider_id], max_retries)
