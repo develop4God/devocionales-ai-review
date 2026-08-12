@@ -1,10 +1,12 @@
 """
 The graph definition. One StateGraph, wired here and nowhere else.
 
-First slice: flag -> verify -> human_confirm. Later phases (translate fan-out, fix,
-real-tool validation, round-2 independence, final cross-check, index update, rule
-proposal) are added as their own nodes and edges when they're built — this file grows,
-it is never duplicated.
+flag -> verify -> human_confirm -> (approved) -> fix -> validate -> (passed) -> END
+                                 -> (rejected) -> END       -> (failed, under cap) -> fix
+
+Later phases (translate fan-out, round-2 independence, final cross-check, index
+update, rule proposal) are added as their own nodes and edges when they're built —
+this file grows, it is never duplicated.
 """
 
 from __future__ import annotations
@@ -14,10 +16,26 @@ from pathlib import Path
 from langgraph.checkpoint.sqlite import SqliteSaver
 from langgraph.graph import END, START, StateGraph
 
+from content_batch_graph.nodes.fix_pass import fix_pass
 from content_batch_graph.nodes.flag_pass import flag_pass
 from content_batch_graph.nodes.human_confirm import human_confirm
+from content_batch_graph.nodes.validate_pass import validate_pass
 from content_batch_graph.nodes.verify_pass import verify_pass
 from content_batch_graph.state import BatchState
+
+MAX_FIX_ATTEMPTS = 3
+
+
+def _after_human_confirm(state: BatchState) -> str:
+    return "fix_pass" if state["human_decision"] == "approved" else END
+
+
+def _after_validate(state: BatchState) -> str:
+    if state["validation_passed"]:
+        return END
+    if state["fix_attempts"] >= MAX_FIX_ATTEMPTS:
+        return END
+    return "fix_pass"
 
 
 def build_graph():
@@ -26,11 +44,15 @@ def build_graph():
     builder.add_node("flag_pass", flag_pass)
     builder.add_node("verify_pass", verify_pass)
     builder.add_node("human_confirm", human_confirm)
+    builder.add_node("fix_pass", fix_pass)
+    builder.add_node("validate_pass", validate_pass)
 
     builder.add_edge(START, "flag_pass")
     builder.add_edge("flag_pass", "verify_pass")
     builder.add_edge("verify_pass", "human_confirm")
-    builder.add_edge("human_confirm", END)
+    builder.add_conditional_edges("human_confirm", _after_human_confirm)
+    builder.add_edge("fix_pass", "validate_pass")
+    builder.add_conditional_edges("validate_pass", _after_validate)
 
     return builder
 

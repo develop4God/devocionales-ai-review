@@ -144,14 +144,37 @@ wording alone, especially while testing against `ollama_local`.
 
 ## Slice 3 — Fix + validate loop
 
-**Status: not started.**
+**Status: done — proven end-to-end against real content.**
 
-- [ ] `fix_pass` node — proposes a correction for each human-approved finding
-- [ ] `validate_pass` node — real programmatic checks (JSON validity at minimum; more
-      once a real content type/schema is chosen)
-- [ ] Loop-back edge: validate fails → back to fix; validate passes → continue
-      (the piece GEP never had — a structural guarantee a fix didn't introduce a
-      regression, not just an LLM's self-assessment)
+- [x] `fix_pass` node (`domain/fix.py`, `nodes/fix_pass.py`) — a single real model
+      call rewrites the whole `file_text`, applying the minimal correction for each
+      `human_decision == "approved"` finding, and returns a concise `fix_summary` for
+      human review. Fully automatic — no per-finding approval step, per architect's
+      direction (no per-language fix criteria to encode manually; one AI step, one
+      summary to review after).
+- [x] `validate_pass` node (`domain/validate.py`, `nodes/validate_pass.py`) — real
+      programmatic check, no LLM: `json.loads()` on `fixed_text`. Matches PLAN.md's
+      stated minimum; schema/field-level checks deferred until a content-type adapter
+      is designed (still an open architecture decision, see below).
+- [x] Loop-back edge: `validate_pass` fails → back to `fix_pass`, capped at
+      `MAX_FIX_ATTEMPTS = 3` (`graph.py`) so a persistently-broken fix can't loop
+      forever; validate passes → `END`.
+- [x] `human_confirm` gained a real conditional edge: `approved` → `fix_pass`,
+      anything else → `END`. Previously `human_confirm` always went straight to
+      `END` regardless of decision — this is the first slice where the decision
+      actually branches the graph. `BatchState` gained `fixed_text`, `fix_summary`,
+      `fix_attempts`, `validation_passed`, `validation_error`.
+- [x] Proven end-to-end against real `devocionales-json` content (the same
+      `Devocional_year_2025_en_NIV.json` entry used for Slice 2): flag → verify (4
+      verified, 0 rejected) → human_confirm(approved) → fix (real corrections: a
+      comma splice, an unclear Isaiah 55:7 citation phrase, an awkward prayer-closing
+      rephrase) → validate (`validation_passed: True`, JSON structure intact,
+      `fix_attempts: 1`).
+- [x] Graph tests (`test_graph.py`) stub `run_fix_pass` the same way `run_flag_pass`
+      is stubbed, so graph-mechanics tests stay fast/deterministic; two pre-existing
+      tests that resumed with `"approved"` were silently making real (rate-limited)
+      Cerebras calls once fix_pass was wired in and needed the same stub added.
+      Real-model behavior has its own tests in `test_fix.py`/`test_validate.py`.
 
 ## Slice 4 — Two independent critic rounds
 

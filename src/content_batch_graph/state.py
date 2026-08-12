@@ -42,3 +42,12 @@ class BatchState(TypedDict):
 
     # ── Human gate ───────────────────────────────────────────────────────────
     human_decision: Literal["approved", "rejected"] | None
+
+    # ── Fix pass output ─────────────────────────────────────────────────────
+    fixed_text: str | None  # file_text with approved findings corrected
+    fix_summary: str | None  # concise human-readable summary of what changed
+    fix_attempts: int  # how many times fix_pass has run this batch, for loop-cap
+
+    # ── Validate pass output ────────────────────────────────────────────────
+    validation_passed: bool | None
+    validation_error: str | None
