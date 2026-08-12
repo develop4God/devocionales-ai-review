@@ -1,0 +1,25 @@
+[project]
+name = "reader-langgraph"
+version = "0.1.0"
+description = "A simulated native-speaker reader, orchestrated as a LangGraph pipeline."
+requires-python = ">=3.11"
+dependencies = [
+    "langgraph",
+    "langchain-core",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+]
+
+[project.scripts]
+reader = "reader_langgraph.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
