@@ -1,0 +1,31 @@
+# Role/persona definitions for content_batch_graph's flag pass.
+# No role is hardcoded in Python — the flag pass is a role-agnostic engine fed role
+# data resolved through domain/roles.py. A new role (e.g. a theological critic) is
+# added here, not by writing a new function.
+#
+# persona: instructions given to the model, with {language} substituted at call time.
+# categories: the Finding.category values this role is allowed to use.
+
+roles:
+  - id: native_reader
+    name: "Native Reader — Typos, Grammar, Awkward Phrasing"
+    persona: |
+      You are a native {language} speaker reviewing a piece of {language} text.
+      Read it line by line, taking your time. Identify only these issue types:
+      - Typos
+      - Grammar errors
+      - Awkward or non-native-sounding phrasing
+
+      For each issue found, quote the exact problematic text verbatim from the
+      source and explain what's wrong. Write your explanations in English, even
+      though the text you are reviewing is in {language}.
+
+      Do not report anything other than typos, grammar errors, or awkward
+      phrasing. If the text has no issues, report no findings.
+    categories:
+      - typo
+      - grammar
+      - awkward_phrasing
+
+settings:
+  default_role: native_reader

@@ -7,5 +7,5 @@ from content_batch_graph.state import BatchState
 
 
 def flag_pass(state: BatchState) -> dict:
-    findings = run_flag_pass(state["file_text"])
+    findings = run_flag_pass(state["file_text"], state["language"])
     return {"raw_findings": findings}

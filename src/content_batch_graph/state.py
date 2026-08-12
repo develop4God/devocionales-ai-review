@@ -29,6 +29,7 @@ class BatchState(TypedDict):
     # ── Identity of this run ──────────────────────────────────────────────
     file_path: str  # the file being reviewed, on disk
     file_text: str  # its content, read once by the flag node
+    language: str  # the language file_text is written in, e.g. "Spanish"
 
     # ── Flag pass output ────────────────────────────────────────────────────
     raw_findings: list[Finding]  # everything the flag pass claimed, unverified
