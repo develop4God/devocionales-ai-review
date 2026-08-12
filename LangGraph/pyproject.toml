@@ -2,7 +2,7 @@
 name = "content-batch-graph"
 version = "0.1.0"
 description = "A LangGraph pipeline automating batch content review: translate/generate, independent critic rounds, verified triage, fix, validate, human confirmation."
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "langgraph>=1.2,<2.0",
     "langgraph-checkpoint-sqlite>=3.1,<4.0",
@@ -13,6 +13,7 @@ dependencies = [
     "python-dotenv>=1.2,<2.0",
     "langchain-cerebras>=0.8,<0.9",
     "langchain-ollama>=1.1,<2.0",
+    "devocionales-json",
 ]
 
 [project.optional-dependencies]
@@ -30,3 +31,10 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.uv.sources]
+# Local sibling checkout, editable — devocionales-json is a separate repo on this
+# machine, not a workspace member. review_fields.py (on its reorg-shared-validation
+# branch, not yet merged to main) was purpose-built for this project's field-path
+# format; this stays live as that branch evolves instead of a one-time copy.
+devocionales-json = { path = "../../devocionales-json", editable = true }
