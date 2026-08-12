@@ -1,5 +1,7 @@
 from content_batch_graph.domain.review_report import (
+    build_pending_review,
     build_review_report,
+    format_pending_review_text,
     format_report_text,
 )
 
@@ -122,3 +124,97 @@ def test_format_report_text_produces_readable_output():
     assert "model judgment only" in text
     assert "drift_detected: False" in text
     assert "Validation: True" in text
+
+
+def test_build_pending_review_splits_typo_from_stylistic():
+    findings = [
+        _finding("teh", "the", category="typo"),
+        _finding("quite clear", "very clear", category="awkward_phrasing"),
+    ]
+
+    review = build_pending_review(findings, "entry1", "English")
+
+    assert len(review["mechanical"]) == 1
+    assert review["mechanical"][0]["index"] == 0
+    assert review["mechanical"][0]["quoted_text"] == "teh"
+
+    assert len(review["stylistic"]) == 1
+    assert review["stylistic"][0]["index"] == 1
+    assert review["stylistic"][0]["category"] == "awkward_phrasing"
+
+
+def test_build_pending_review_skips_rejected_findings():
+    findings = [
+        _finding("teh", "the", category="typo"),
+        _finding("fine text", None, is_valid=False, category="typo"),
+    ]
+
+    review = build_pending_review(findings, "entry1", "English")
+
+    assert len(review["mechanical"]) == 1
+    assert review["mechanical"][0]["quoted_text"] == "teh"
+
+
+def test_build_pending_review_preserves_original_indices_across_tiers():
+    # A rejected finding sits between two applicable ones — indices in the report
+    # must still match their real position in critic_findings, not a re-numbered
+    # position within mechanical/stylistic.
+    findings = [
+        _finding("teh", "the", category="typo"),
+        _finding("fine text", None, is_valid=False, category="typo"),
+        _finding("quite clear", "very clear", category="awkward_phrasing"),
+    ]
+
+    review = build_pending_review(findings, "entry1", "English")
+
+    assert review["mechanical"][0]["index"] == 0
+    assert review["stylistic"][0]["index"] == 2
+
+
+def test_build_pending_review_includes_field_path():
+    findings = [_finding("teh", "the", category="typo")]
+
+    review = build_pending_review(
+        findings, "entry1", "English", field_path="data.en.2025-08-01.0.reflexion"
+    )
+
+    assert review["field_path"] == "data.en.2025-08-01.0.reflexion"
+    assert review["mechanical"][0]["field_path"] == "data.en.2025-08-01.0.reflexion"
+
+
+def test_build_pending_review_marks_kwf_grounded():
+    findings = [
+        _finding(
+            "espirituwal",
+            "espiritwal",
+            category="typo",
+            reasoning="real word in the KWF dictionary — dismissed.",
+        )
+    ]
+
+    review = build_pending_review(findings, "entry1", "Filipino")
+
+    assert review["mechanical"][0]["grounded"] is True
+
+
+def test_format_pending_review_text_produces_readable_output():
+    findings = [
+        _finding("teh", "the", category="typo", reasoning="Common typo."),
+        _finding(
+            "quite clear",
+            "very clear",
+            category="awkward_phrasing",
+            reasoning="Reads a bit stiff.",
+        ),
+    ]
+
+    review = build_pending_review(
+        findings, "entry1", "English", field_path="data.en.2025-08-01.0.reflexion"
+    )
+    text = format_pending_review_text(review)
+
+    assert "entry1" in text
+    assert "data.en.2025-08-01.0.reflexion" in text
+    assert "[0] 'teh' -> 'the'" in text
+    assert "[1] [awkward_phrasing] 'quite clear' -> 'very clear'" in text
+    assert "Reads a bit stiff." in text

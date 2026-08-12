@@ -7,7 +7,12 @@ from content_batch_graph.state import BatchState
 
 
 def fix_pass(state: BatchState) -> dict:
-    findings = state["critic_findings"] if state["human_decision"] == "approved" else []
+    decision = state["human_decision"] or {}
+    apply_indices = decision.get("apply", [])
+    critic_findings = state["critic_findings"]
+    findings = [
+        critic_findings[i] for i in apply_indices if 0 <= i < len(critic_findings)
+    ]
     fixed_text, summary = run_fix_pass(state["file_text"], findings)
     return {
         "fixed_text": fixed_text,

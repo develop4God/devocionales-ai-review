@@ -20,6 +20,17 @@ def _stub_one_finding(source_text: str, language: str) -> list[Finding]:
     return [Finding(quoted_text="teh", issue="Likely typo.", category="typo")]
 
 
+def _stub_two_findings(source_text: str, language: str) -> list[Finding]:
+    return [
+        Finding(quoted_text="teh", issue="Likely typo.", category="typo"),
+        Finding(
+            quoted_text="quite clear",
+            issue="Awkward phrasing.",
+            category="awkward_phrasing",
+        ),
+    ]
+
+
 def _stub_critic_valid(source_text, findings, language):
     return [
         CriticFinding(
@@ -28,8 +39,8 @@ def _stub_critic_valid(source_text, findings, language):
             category=f["category"],
             verified=True,
             is_valid=True,
-            replacement_text="the",
-            critic_reasoning="Confirmed typo.",
+            replacement_text="the" if f["quoted_text"] == "teh" else "very clear",
+            critic_reasoning="Confirmed.",
         )
         for f in findings
     ]
@@ -43,6 +54,16 @@ def _stub_fix(file_text, findings):
     for f in applicable:
         fixed = fixed.replace(f["quoted_text"], f["replacement_text"])
     return fixed, "Fixed 1 typo: 'teh' -> 'the'."
+
+
+def _stub_fix_selected(file_text, findings):
+    applicable = [f for f in findings if f["is_valid"] and f["replacement_text"]]
+    if not applicable:
+        return file_text, "No approved findings to fix."
+    fixed = file_text
+    for f in applicable:
+        fixed = fixed.replace(f["quoted_text"], f["replacement_text"])
+    return fixed, f"Fixed {len(applicable)} finding(s)."
 
 
 def _stub_fix_produces_invalid_json(file_text, findings):
@@ -70,7 +91,7 @@ def test_graph_pauses_at_human_confirm_with_verified_findings(monkeypatch):
 
     assert "__interrupt__" in result
     payload = result["__interrupt__"][0].value
-    assert payload["question"] == "Approve these critic-reviewed findings?"
+    assert payload["question"].startswith("Which critic-reviewed findings")
     assert len(payload["verified_findings"]) == 1
     assert payload["verified_findings"][0]["quoted_text"] == "teh"
     assert payload["rejected_findings"] == []
@@ -90,9 +111,9 @@ def test_graph_resumes_and_records_human_decision(monkeypatch):
         {"file_path": "fake.txt", "file_text": "teh typo here", "language": "English"},
         config=config,
     )
-    final = graph.invoke(Command(resume="approved"), config=config)
+    final = graph.invoke(Command(resume={"apply": [0]}), config=config)
 
-    assert final["human_decision"] == "approved"
+    assert final["human_decision"] == {"apply": [0]}
     assert len(final["verified_findings"]) == 1
 
 
@@ -115,9 +136,9 @@ def test_graph_checkpoint_survives_separate_graph_instance(monkeypatch):
     assert "__interrupt__" in result
 
     graph_b, _ = compile_graph(db_path)
-    final = graph_b.invoke(Command(resume="approved"), config=config)
+    final = graph_b.invoke(Command(resume={"apply": [0]}), config=config)
 
-    assert final["human_decision"] == "approved"
+    assert final["human_decision"] == {"apply": [0]}
     assert final["verified_findings"][0]["quoted_text"] == "teh"
 
 
@@ -157,7 +178,7 @@ def test_graph_approved_decision_runs_fix_and_validate(monkeypatch):
         },
         config=config,
     )
-    final = graph.invoke(Command(resume="approved"), config=config)
+    final = graph.invoke(Command(resume={"apply": [0]}), config=config)
 
     assert final["fixed_text"] == '{"text": "the typo here"}'
     assert "Fixed 1 typo" in final["fix_summary"]
@@ -178,9 +199,9 @@ def test_graph_rejected_decision_skips_fix_and_validate(monkeypatch):
         {"file_path": "fake.txt", "file_text": "teh typo here", "language": "English"},
         config=config,
     )
-    final = graph.invoke(Command(resume="rejected"), config=config)
+    final = graph.invoke(Command(resume={"apply": []}), config=config)
 
-    assert final["human_decision"] == "rejected"
+    assert final["human_decision"] == {"apply": []}
     assert final.get("fixed_text") is None
     assert final.get("validation_passed") is None
 
@@ -202,7 +223,7 @@ def test_graph_validate_failure_loops_back_to_fix_then_stops_at_cap(monkeypatch)
         {"file_path": "fake.txt", "file_text": "teh typo here", "language": "English"},
         config=config,
     )
-    final = graph.invoke(Command(resume="approved"), config=config)
+    final = graph.invoke(Command(resume={"apply": [0]}), config=config)
 
     assert final["validation_passed"] is False
     assert final["fix_attempts"] == 3
@@ -227,7 +248,7 @@ def test_graph_drift_detected_pauses_at_human_confirm_again(monkeypatch):
         },
         config=config,
     )
-    result = graph.invoke(Command(resume="approved"), config=config)
+    result = graph.invoke(Command(resume={"apply": [0]}), config=config)
 
     assert "__interrupt__" in result
     payload = result["__interrupt__"][0].value
@@ -235,5 +256,32 @@ def test_graph_drift_detected_pauses_at_human_confirm_again(monkeypatch):
     assert payload["drift_detected"] is True
     assert result.get("validation_passed") is None
 
-    final = graph.invoke(Command(resume="rejected"), config=config)
-    assert final["human_decision"] == "rejected"
+    final = graph.invoke(Command(resume={"apply": []}), config=config)
+    assert final["human_decision"] == {"apply": []}
+
+
+def test_graph_applies_only_selected_finding_indices(monkeypatch):
+    # Two findings surface; the human approves only index 0 ("teh" -> "the"),
+    # leaving index 1 ("quite clear" -> "very clear") untouched — proving fix_pass
+    # applies exactly the selected findings, not all-or-nothing.
+    monkeypatch.setattr(flag_pass_module, "run_flag_pass", _stub_two_findings)
+    monkeypatch.setattr(critic_pass_module, "run_critic_pass_batch", _stub_critic_valid)
+    monkeypatch.setattr(fix_pass_module, "run_fix_pass", _stub_fix_selected)
+    monkeypatch.setattr(drift_check_pass_module, "run_drift_check", _stub_no_drift)
+    graph, _ = compile_graph(_fresh_db_path())
+    config = {"configurable": {"thread_id": "test-partial-apply"}}
+
+    graph.invoke(
+        {
+            "file_path": "fake.txt",
+            "file_text": "This has teh typo, and it is quite clear too.",
+            "language": "English",
+        },
+        config=config,
+    )
+    final = graph.invoke(Command(resume={"apply": [0]}), config=config)
+
+    assert final["human_decision"] == {"apply": [0]}
+    assert "the typo" in final["fixed_text"]
+    assert "quite clear" in final["fixed_text"]  # index 1 was NOT applied
+    assert "very clear" not in final["fixed_text"]

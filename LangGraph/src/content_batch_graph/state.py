@@ -58,7 +58,11 @@ class BatchState(TypedDict):
     ]  # verified findings judged for correctness + given a surgical replacement
 
     # ── Human gate ───────────────────────────────────────────────────────────
-    human_decision: Literal["approved", "rejected"] | None
+    # {"apply": [i, j, ...]} — indices into critic_findings to actually apply;
+    # an empty or missing "apply" list means dismiss everything and stop. Per-finding
+    # rather than all-or-nothing so a human can approve one finding out of several
+    # without accepting the rest.
+    human_decision: dict | None
 
     # ── Fix pass output ─────────────────────────────────────────────────────
     fixed_text: str | None  # file_text with approved findings corrected

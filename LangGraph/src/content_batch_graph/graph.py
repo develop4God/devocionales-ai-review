@@ -33,7 +33,8 @@ MAX_FIX_ATTEMPTS = 3
 
 
 def _after_human_confirm(state: BatchState) -> str:
-    return "fix_pass" if state["human_decision"] == "approved" else END
+    decision = state["human_decision"] or {}
+    return "fix_pass" if decision.get("apply") else END
 
 
 def _after_drift_check(state: BatchState) -> str:

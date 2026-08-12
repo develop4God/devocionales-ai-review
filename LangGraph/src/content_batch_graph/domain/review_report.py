@@ -50,6 +50,106 @@ class ReviewReport(TypedDict):
     validation_passed: bool | None
 
 
+# Categories treated as mechanically verifiable (safe to summarize tersely) vs.
+# stylistic judgment calls (advisory only, never auto-applied) — see domain/critic.py's
+# KWF dictionary grounding, which only ever applies to "typo".
+_MECHANICAL_CATEGORIES = {"typo"}
+
+
+class PendingFinding(TypedDict):
+    index: int  # position in critic_findings — what human_decision["apply"] references
+    field_path: str | None
+    category: str
+    quoted_text: str
+    replacement_text: str | None
+    grounded: bool
+    critic_reasoning: str
+
+
+class PendingReview(TypedDict):
+    """A pre-decision report built straight from critic_findings, before any fix has
+    been applied — what a reviewer reads to decide human_decision["apply"]."""
+
+    entry_id: str | None
+    language: str
+    field_path: str | None
+    mechanical: list[PendingFinding]  # typo-category, dictionary-groundable
+    stylistic: list[PendingFinding]  # grammar/awkward_phrasing, judgment calls only
+
+
+def build_pending_review(
+    critic_findings: list[dict],
+    entry_id: str | None,
+    language: str,
+    field_path: str | None = None,
+) -> PendingReview:
+    """
+    Splits critic_findings into mechanical (typo) vs. stylistic (everything else)
+    tiers, each entry carrying its index into critic_findings so a reviewer's
+    decision can be expressed as human_decision = {"apply": [indices]} directly.
+    Only findings with is_valid=True and a replacement_text are included — a
+    critic-rejected claim has nothing to apply and isn't a real decision to make.
+    """
+    mechanical: list[PendingFinding] = []
+    stylistic: list[PendingFinding] = []
+
+    for i, f in enumerate(critic_findings):
+        if not f.get("is_valid") or not f.get("replacement_text"):
+            continue
+        reasoning = f.get("critic_reasoning", "")
+        entry = PendingFinding(
+            index=i,
+            field_path=field_path,
+            category=f["category"],
+            quoted_text=f["quoted_text"],
+            replacement_text=f.get("replacement_text"),
+            grounded="KWF" in reasoning,
+            critic_reasoning=reasoning,
+        )
+        if f["category"] in _MECHANICAL_CATEGORIES:
+            mechanical.append(entry)
+        else:
+            stylistic.append(entry)
+
+    return PendingReview(
+        entry_id=entry_id,
+        language=language,
+        field_path=field_path,
+        mechanical=mechanical,
+        stylistic=stylistic,
+    )
+
+
+def format_pending_review_text(review: PendingReview) -> str:
+    """Renders a PendingReview as plain text — meant to be read by the reviewer
+    (human or AI) deciding what to apply, before any fix has happened."""
+    lines = [
+        f"=== Pending review: {review['entry_id']} ({review['language']}) ===",
+    ]
+    if review["field_path"]:
+        lines.append(f"field: {review['field_path']}")
+
+    lines.append("")
+    lines.append(f"-- Mechanical (typo) — {len(review['mechanical'])} --")
+    for f in review["mechanical"]:
+        source = "KWF-grounded" if f["grounded"] else "model judgment"
+        lines.append(
+            f"  [{f['index']}] {f['quoted_text']!r} -> {f['replacement_text']!r} "
+            f"({source})"
+        )
+
+    lines.append("")
+    lines.append(f"-- Stylistic (suggestions only) — {len(review['stylistic'])} --")
+    for f in review["stylistic"]:
+        lines.append(
+            f"  [{f['index']}] [{f['category']}] {f['quoted_text']!r} -> "
+            f"{f['replacement_text']!r}"
+        )
+        lines.append(f"      reasoning: {f['critic_reasoning']}")
+
+    return "\n".join(lines)
+
+
 def _word_level_diff(before: str, after: str) -> tuple[list[WordChange], int, int]:
     before_words = before.split()
     after_words = after.split()
