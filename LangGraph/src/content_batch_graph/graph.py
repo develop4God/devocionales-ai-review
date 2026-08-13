@@ -77,6 +77,12 @@ def compile_graph(checkpoint_path: str | Path):
     Compiles the graph with a real SqliteSaver checkpointer at checkpoint_path.
     A checkpointer is required for interrupt()/Command(resume=...) to survive across
     separate process invocations, not just within one Python process's memory.
+
+    Real runs should use a path under data/checkpoints/ (gitignored, but a durable
+    location on disk — matches domain/pattern_memory.py's data/ convention), not
+    /tmp: an ephemeral filesystem defeats the point of checkpointing at all, since
+    the whole reason for a real checkpointer over MemorySaver is surviving past the
+    current process. tests/ use tempfile.mktemp() deliberately, for isolation.
     """
     conn_cm = SqliteSaver.from_conn_string(str(checkpoint_path))
     checkpointer = conn_cm.__enter__()

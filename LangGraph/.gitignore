@@ -8,5 +8,6 @@ venv/
 data/audit/
 data/genomes/
 data/logs/
+data/checkpoints/
 *.log
 .DS_Store
