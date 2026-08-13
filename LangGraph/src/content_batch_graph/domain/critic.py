@@ -103,6 +103,17 @@ def _dismiss_known_false_positive(
     pattern, else None. Only ever narrows an is_valid=True verdict to False — never
     the reverse, since a false negative here just falls back to normal human review.
     """
+    if replacement_text is not None and replacement_text == quoted_text:
+        # A no-op "fix" — observed directly (2026-08-12, Arabic devotional review):
+        # the critic returned is_valid=True with replacement_text byte-for-byte
+        # identical to quoted_text. Applying this would silently do nothing while
+        # still consuming a fix_pass replace call and reporting a false "APPLIED"
+        # to the reviewer — a quality gate every language needs, not just one.
+        return (
+            f"replacement_text is byte-for-byte identical to quoted_text "
+            f"({quoted_text!r}) — dismissed as a no-op, not a real fix."
+        )
+
     if language != "Brazilian Portuguese" or not replacement_text:
         return None
 

@@ -263,6 +263,23 @@ def test_run_critic_pass_normalizes_hyphen_lookalikes_in_replacement(monkeypatch
     assert "‑" not in result["replacement_text"]
 
 
+def test_dismiss_known_false_positive_matches_identical_replacement():
+    # Real bug observed 2026-08-12 (Arabic devotional review): critic returned
+    # is_valid=True with replacement_text byte-for-byte identical to quoted_text.
+    reason = _dismiss_known_false_positive("Arabic", "املأنا", "املأنا")
+    assert reason is not None
+    assert "no-op" in reason.lower()
+
+
+def test_dismiss_known_false_positive_identical_replacement_applies_to_any_language():
+    reason = _dismiss_known_false_positive("English", "the same", "the same")
+    assert reason is not None
+
+
+def test_dismiss_known_false_positive_does_not_flag_genuinely_different_replacement():
+    assert _dismiss_known_false_positive("English", "teh", "the") is None
+
+
 def test_dismiss_known_false_positive_matches_proclise_to_enclise():
     reason = _dismiss_known_false_positive(
         "Brazilian Portuguese", "me alegrar", "alegrar-me"
@@ -294,6 +311,36 @@ def test_dismiss_known_false_positive_returns_none_when_replacement_is_unrelated
         _dismiss_known_false_positive("Brazilian Portuguese", "me alegrar", "sorrir")
         is None
     )
+
+
+def test_run_critic_pass_dismisses_identical_replacement(monkeypatch):
+    # Real bug observed 2026-08-12 (Arabic devotional review): the critic returned
+    # is_valid=True with replacement_text identical to quoted_text — a no-op "fix"
+    # that would silently do nothing while reporting a false "APPLIED".
+    import content_batch_graph.domain.critic as critic_module
+
+    class _FakeModel:
+        def with_structured_output(self, schema):
+            return self
+
+        def __call__(self, _inputs):
+            return SimpleNamespace(
+                is_valid=True, replacement_text="املأنا", reasoning="Fixed."
+            )
+
+    monkeypatch.setattr(
+        critic_module, "get_model", lambda provider_id=None: _FakeModel()
+    )
+
+    result = run_critic_pass(
+        "some text with املأنا in it",
+        _finding("املأنا", "possible typo", category="typo"),
+        "Arabic",
+    )
+
+    assert result["is_valid"] is False
+    assert result["replacement_text"] is None
+    assert "no-op" in result["critic_reasoning"].lower()
 
 
 def test_run_critic_pass_dismisses_proclise_flagged_as_error_in_brazilian_portuguese(
