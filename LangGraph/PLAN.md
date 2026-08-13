@@ -176,9 +176,94 @@ wording alone, especially while testing against `ollama_local`.
       Cerebras calls once fix_pass was wired in and needed the same stub added.
       Real-model behavior has its own tests in `test_fix.py`/`test_validate.py`.
 
+## Slice 3.5 — Independent critic pass (single round) + surgical fix + drift check
+
+**Status: done — proven end-to-end, including two real production bugs found
+and fixed via real multi-language corpus testing (2026-08-12).**
+
+This is NOT Slice 4's "two independent rounds" — it's the single-critic-pass
+foundation that Slice 4 will need. Built (and evolved) across several sessions;
+documented together here since PLAN.md fell behind actual git history for a
+while and this reconciles it.
+
+- [x] `critic_pass` node (`domain/critic.py`, `nodes/critic_pass.py`) — one real,
+      independent model call **per finding** (not one batched call for all
+      findings), specifically to avoid the "halo effect" bias one call over a
+      list of findings would risk. Judges `is_valid` + proposes exact
+      `replacement_text` + `critic_reasoning`.
+- [x] `drift_check_pass` node (`domain/drift.py`) — re-checks the fixed text for
+      new/unresolved issues after a fix is applied; wired into the graph with a
+      real conditional edge (`drift_check_pass` → `human_confirm` again on
+      drift, → `validate_pass` on clean).
+- [x] KWF (Komisyon sa Wikang Filipino) dictionary grounding
+      (`domain/dictionary.py`) — live query against kwfdiksiyonaryo.ph. Only
+      ever used as a **hard dismiss**: a real KWF headword can never be a typo,
+      short-circuits before any model call. A miss is never treated as
+      evidence of a typo (Filipino dictionaries list roots, not every
+      inflected form) — falls through to the critic's own judgment.
+- [x] Unicode hyphen-lookalike normalization — the model was observed
+      substituting U+2011 (non-breaking hyphen) for a plain ASCII "-" in
+      proposed replacements; normalized post-call, before the replacement is
+      trusted by anything downstream.
+- [x] **Per-finding human approval**: `human_decision` changed from
+      `Literal["approved","rejected"]` to `{"apply": [indices into
+      critic_findings]}` — a human can approve one finding out of several
+      without accepting the rest. Real architect stop-point (state schema +
+      human-review semantics), confirmed before implementing.
+- [x] `build_pending_review`/`format_pending_review_text`
+      (`domain/review_report.py`) — a pre-decision report built straight from
+      `critic_findings`, splitting mechanical (typo, dictionary-groundable)
+      vs. stylistic (judgment-call, advisory-only) tiers with stable indices
+      for the `apply` list. **Meant to be read by the AI doing the review, not
+      pasted at the human** — the architect explicitly wants plain-language
+      summaries and a recommendation, not raw JSON.
+- [x] `build_review_report`/`format_report_text` — the older, complementary
+      **post-fix** report (word-level diff, grounded-vs-judgment-only tagging,
+      context windows) for confirming what a completed fix actually changed.
+
+**Two real production bugs found via real multi-language corpus testing
+(hi/ar/es/en/fil, 2026-08-12) and fixed the same session:**
+
+- **Brazilian Portuguese próclise/ênclise false positive**: the critic flagged
+  correct Brazilian Portuguese pronoun placement ("me alegrar") as an error and
+  proposed the European-Portuguese form ("alegrar-me") instead — the persona
+  was never told which regional standard applies. Fixed with a **post-verdict**
+  mechanical dismiss check in `critic.py` (`_dismiss_known_false_positive`),
+  deliberately never shown to the model before judgment — priming a model with
+  "here's the rule" before it judges risks hallucinated compliance rather than
+  real reasoning (architect's own diagnosis, confirmed as the right shape to
+  apply to any future dismiss rule).
+- **No-op replacement bug** (language-agnostic): the critic returned
+  `is_valid=True` with `replacement_text` byte-for-byte identical to
+  `quoted_text` (observed on Arabic) — a phantom "fix" that would silently do
+  nothing while reporting a false "APPLIED". Same post-verdict dismiss
+  mechanism, checked first, applies to every language.
+
+**Controlled-error test (2026-08-12)** — confirms the mechanism itself works:
+3 deliberately injected errors (typo, grammar, awkward phrasing) into a real
+English entry were all caught, verified, and correctly fixed end-to-end
+(flag→verify→critic→fix→drift_check→validate); a 4th flag_pass over-reach was
+correctly rejected by critic_pass before reaching the human gate.
+
+**Open problem, not yet solved**: two real 5-entry corpus batches (Portuguese;
+then hi/ar/es/en/fil) produced near-zero *trustworthy* findings — most
+"findings" on already-reviewed real corpus text turned out to be false
+positives on manual verification (the próclise/no-op bugs above, plus an
+unaddressed Hindi false positive on "दाखलता" (vine, a correct theological
+term) and a Filipino false positive on "pagkaasa" (reliance, a different real
+word than "pag-asa"/hope)). Working theory: the real corpus is already fairly
+clean, so the critic has little real signal and occasionally manufactures a
+plausible-sounding error under implicit pressure to report something.
+Dictionary grounding only exists for Filipino (KWF) today — Hindi/Arabic/
+generic-Portuguese-beyond-dialect have none. RAG-style grounding (retrieval of
+real facts — dictionary hits, past-confirmed-correct terms — fed to the critic
+before judgment, NOT rule-priming) was discussed as the likely direction but
+not yet built. See Slice 6.
+
 ## Slice 4 — Two independent critic rounds
 
-**Status: not started.**
+**Status: not started** (distinct from Slice 3.5 above — this is the actual
+two-round independence protocol, not yet built).
 
 - [ ] Wrap flag→verify→fix→validate to run twice per phase
 - [ ] Round 2 must be blind to round 1's specific findings (only aware the file
@@ -195,17 +280,69 @@ wording alone, especially while testing against `ollama_local`.
 - [ ] `Send()`-based fan-out — one pipeline run per target language/file, matching
       "spawn one translator per language" from the source protocol
 - [ ] Only meaningful once slices 2–4 work correctly for a single target
+- [ ] Architect mentioned (2026-08-12) having existing logic that could help with
+      year-scale batch processing, possibly related to a "fireworks" provider or
+      technique — not yet clarified, ask directly before assuming what this refers to
+- [ ] Year-scale batch (365 days × 2 fields × N languages) was explicitly deferred
+      until the per-entry report/approval shape was proven — that shape is now built
+      (Slice 3.5 above); this is the natural next step once the above is clarified
 
 ## Slice 6 — Durable pattern memory + final report
 
-**Status: not started.**
+**Status: partially started, outside the graph.**
 
-- [ ] A recurring finding across runs can be proposed as a durable rule (the
-      genome-equivalent from GEP) — proposed only, never written without explicit
-      human confirmation
-- [ ] Final cross-check / summary step, mirroring the source protocol's Phase 3
+- [x] `domain/pattern_memory.py` + `data/pattern_memory.json` — a JSON store of
+      critic-confirmed **typo** fixes only (exact-string-safe; grammar/
+      awkward_phrasing are context-dependent, never banked). Proposed and
+      saved via `save_pattern()`, never auto-applied elsewhere.
+- [x] `domain/scan.py` — given a banked pattern, scans the rest of the corpus
+      for the same literal string and proposes (never applies) the same fix at
+      each match. As of 2026-08-12, scans both `reflexion` AND `oracion`
+      fields (was `reflexion`-only before).
+- [ ] Not yet built: promoting a *recurring* finding across independent runs
+      into a durable rule automatically (today's store only records
+      already-confirmed fixes, not pattern detection across runs).
+- [ ] Final cross-check / summary step, mirroring the source protocol's Phase 3.
+- [ ] RAG-style grounding layer (see Slice 3.5's "open problem") — a natural
+      extension of this slice: instead of just banking confirmed *fixes*,
+      also bank confirmed *dismissals* (words/constructions wrongly flagged,
+      with the evidence for why) and retrieve relevant ones before a critic
+      judges a similar span. Not yet designed.
 
 ---
+
+## Infrastructure (outside the slice sequence)
+
+- **Repo layout (2026-08-12)**: this project moved from repo root into
+  `LangGraph/` (this file's own location), a sibling to a new `GEP/` folder —
+  `GEP_Genome-Evolution-Protocol` migrated from a separate repo
+  (`~/python/DevocionalesAPI`) via `git subtree`, full 187-commit history
+  preserved. Not yet wired to anything in this project; sits as a sibling for
+  now, purely a filesystem consolidation.
+- **`devocionales-json` dependency (2026-08-12)**: wired as a real `uv` path
+  dependency (`[tool.uv.sources]`, editable, points at `../../devocionales-json`
+  on this machine) — not a git/PyPI dependency, since the two repos live as
+  siblings on the same machine and this stays in sync with that repo's
+  `reorg-shared-validation` branch as it evolves. Consumes
+  `shared_validation.checks.review_fields` — a per-content-type field-selector
+  module built by a prior session on the `devocionales-json` side specifically
+  for this project's `field_path` format (`cards.2.content`, dot/digit, no
+  translation step needed to splice a fix back in). Not yet actually called by
+  any node — available, not integrated. `requires-python` bumped `>=3.11` →
+  `>=3.12` to satisfy this dependency.
+- **LangSmith tracing (2026-08-12)**: env-vars-only (`LANGSMITH_TRACING`,
+  `LANGSMITH_API_KEY`, `LANGSMITH_PROJECT` in `.env`), no code change, no new
+  dependency (`langsmith` ships transitively via `langchain-core`). Confirmed
+  working end-to-end. This is now the way to inspect what a run actually did —
+  replaces the ad hoc print-script workflow used for all manual testing so
+  far. LangSmith also offers Annotation Queues (could replace
+  `build_pending_review`'s manual triage with a real reviewer UI) and Datasets
+  (could freeze real test cases — e.g. the controlled-error English test — as
+  a permanent regression suite) — researched, not yet wired in.
+- **Checkpoint path convention**: real runs should use `data/checkpoints/`
+  (gitignored, alongside `data/audit|genomes|logs/`), never `/tmp` — an
+  ephemeral filesystem defeats the point of checkpointing across process
+  restarts. `compile_graph()`'s docstring states this explicitly.
 
 ## Open architecture decisions (not yet made)
 
