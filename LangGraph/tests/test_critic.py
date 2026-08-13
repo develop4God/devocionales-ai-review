@@ -2,6 +2,7 @@ from types import SimpleNamespace
 
 from content_batch_graph.domain.critic import (
     _check_dictionary_for_typo,
+    _dismiss_known_false_positive,
     run_critic_pass,
     run_critic_pass_batch,
 )
@@ -260,6 +261,130 @@ def test_run_critic_pass_normalizes_hyphen_lookalikes_in_replacement(monkeypatch
 
     assert result["replacement_text"] == "amar-te"
     assert "‑" not in result["replacement_text"]
+
+
+def test_dismiss_known_false_positive_matches_proclise_to_enclise():
+    reason = _dismiss_known_false_positive(
+        "Brazilian Portuguese", "me alegrar", "alegrar-me"
+    )
+    assert reason is not None
+    assert "proclise" in reason.lower()
+
+
+def test_dismiss_known_false_positive_returns_none_for_no_replacement():
+    assert (
+        _dismiss_known_false_positive("Brazilian Portuguese", "me alegrar", None)
+        is None
+    )
+
+
+def test_dismiss_known_false_positive_returns_none_for_non_matching_shape():
+    # Multi-word quoted_text doesn't match the pronoun+verb pattern.
+    assert (
+        _dismiss_known_false_positive(
+            "Brazilian Portuguese", "quebra barreiras e une", "quebra barreiras; e une"
+        )
+        is None
+    )
+
+
+def test_dismiss_known_false_positive_returns_none_when_replacement_is_unrelated():
+    # Same quoted_text shape, but the replacement isn't the enclise form of it.
+    assert (
+        _dismiss_known_false_positive("Brazilian Portuguese", "me alegrar", "sorrir")
+        is None
+    )
+
+
+def test_run_critic_pass_dismisses_proclise_flagged_as_error_in_brazilian_portuguese(
+    monkeypatch,
+):
+    import content_batch_graph.domain.critic as critic_module
+
+    class _FakeModel:
+        def with_structured_output(self, schema):
+            return self
+
+        def __call__(self, _inputs):
+            return SimpleNamespace(
+                is_valid=True,
+                replacement_text="alegrar-me",
+                reasoning="Enclise is more standard.",
+            )
+
+    monkeypatch.setattr(
+        critic_module, "get_model", lambda provider_id=None: _FakeModel()
+    )
+
+    result = run_critic_pass(
+        "Que eu possa me alegrar em ver Jesus crescer.",
+        _finding(
+            "me alegrar", "Awkward pronoun placement.", category="awkward_phrasing"
+        ),
+        "Brazilian Portuguese",
+    )
+
+    assert result["is_valid"] is False
+    assert result["replacement_text"] is None
+    assert "proclise" in result["critic_reasoning"].lower()
+
+
+def test_run_critic_pass_does_not_dismiss_enclise_flagged_as_error(monkeypatch):
+    # Guard against over-matching: a genuinely different correction (not the
+    # proclise->enclise shape) on Brazilian Portuguese should NOT be dismissed.
+    import content_batch_graph.domain.critic as critic_module
+
+    class _FakeModel:
+        def with_structured_output(self, schema):
+            return self
+
+        def __call__(self, _inputs):
+            return SimpleNamespace(
+                is_valid=True, replacement_text="corretamente", reasoning="Typo fix."
+            )
+
+    monkeypatch.setattr(
+        critic_module, "get_model", lambda provider_id=None: _FakeModel()
+    )
+
+    result = run_critic_pass(
+        "Ele fez isso corretametne.",
+        _finding("corretametne", "Misspelled word.", category="typo"),
+        "Brazilian Portuguese",
+    )
+
+    assert result["is_valid"] is True
+    assert result["replacement_text"] == "corretamente"
+
+
+def test_run_critic_pass_proclise_dismiss_does_not_apply_to_other_languages(
+    monkeypatch,
+):
+    # The same surface pattern ("me alegrar" -> "alegrar-me") should NOT be
+    # dismissed for a language where this dialect distinction doesn't apply.
+    import content_batch_graph.domain.critic as critic_module
+
+    class _FakeModel:
+        def with_structured_output(self, schema):
+            return self
+
+        def __call__(self, _inputs):
+            return SimpleNamespace(
+                is_valid=True, replacement_text="alegrar-me", reasoning="Fix."
+            )
+
+    monkeypatch.setattr(
+        critic_module, "get_model", lambda provider_id=None: _FakeModel()
+    )
+
+    result = run_critic_pass(
+        "some text",
+        _finding("me alegrar", "issue", category="awkward_phrasing"),
+        "Portuguese",  # not "Brazilian Portuguese"
+    )
+
+    assert result["is_valid"] is True
+    assert result["replacement_text"] == "alegrar-me"
 
 
 def test_run_critic_pass_skips_dictionary_check_for_non_typo_category(monkeypatch):

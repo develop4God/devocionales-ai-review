@@ -10,6 +10,8 @@ findings at once), so each judgment is independent and isn't biased by the other
 
 from __future__ import annotations
 
+import re
+
 import httpx
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field
@@ -78,6 +80,46 @@ def _check_dictionary_for_typo(quoted_text: str) -> bool | None:
         # — fall back to the model's unaided judgment rather than erroring out.
         return None
     return False if lookup["found"] else None
+
+
+# Post-verdict dismiss rules: applied to the critic's OWN judgment after it comes
+# back, never shown to the model beforehand. Priming the model with "here's the
+# rule" before it judges risks it hallucinating compliance rather than actually
+# reasoning about the text — observed directly (2026-08-12, pt_ARC devotional
+# review): the critic flagged correct Brazilian Portuguese próclise ("me alegrar")
+# as an error and proposed European-style ênclise ("alegrar-me") instead, because
+# nothing told it which regional standard applies. Cheap, mechanical, Python-only
+# checks — same shape as _check_dictionary_for_typo, but post-hoc instead of a
+# before-the-call short-circuit, since this needs the critic's own quoted span and
+# proposed replacement to detect the pattern.
+_PROCLISE_TO_ENCLISE_RE = re.compile(r"^(me|te|se|nos|vos)\s+(\w+)$", re.IGNORECASE)
+
+
+def _dismiss_known_false_positive(
+    language: str, quoted_text: str, replacement_text: str | None
+) -> str | None:
+    """
+    Returns a dismissal reason if this critic verdict matches a known false-positive
+    pattern, else None. Only ever narrows an is_valid=True verdict to False — never
+    the reverse, since a false negative here just falls back to normal human review.
+    """
+    if language != "Brazilian Portuguese" or not replacement_text:
+        return None
+
+    match = _PROCLISE_TO_ENCLISE_RE.match(quoted_text.strip())
+    if not match:
+        return None
+    pronoun, verb = match.group(1).lower(), match.group(2).lower()
+
+    expected_enclise = f"{verb}-{pronoun}"
+    if replacement_text.strip().lower() == expected_enclise:
+        return (
+            f"{quoted_text!r} is proclise (pronoun before verb), the standard, "
+            "correct form in Brazilian Portuguese — dismissed. The proposed "
+            f"replacement {replacement_text!r} is enclise, the European "
+            "Portuguese norm, not an error in Brazilian usage."
+        )
+    return None
 
 
 class _CriticResponse(BaseModel):
@@ -158,14 +200,25 @@ def run_critic_pass(
     if replacement_text:
         replacement_text = _normalize_replacement_text(replacement_text)
 
+    is_valid = response.is_valid
+    reasoning = response.reasoning
+    if is_valid:
+        dismiss_reason = _dismiss_known_false_positive(
+            language, finding["quoted_text"], replacement_text
+        )
+        if dismiss_reason:
+            is_valid = False
+            replacement_text = None
+            reasoning = dismiss_reason
+
     return CriticFinding(
         quoted_text=finding["quoted_text"],
         issue=finding["issue"],
         category=finding["category"],
         verified=True,
-        is_valid=response.is_valid,
+        is_valid=is_valid,
         replacement_text=replacement_text,
-        critic_reasoning=response.reasoning,
+        critic_reasoning=reasoning,
     )
 
 
