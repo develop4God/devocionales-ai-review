@@ -39,6 +39,14 @@ def _build_flag_response_schema(role: Role) -> type[BaseModel]:
             str,
             Field(description="What's wrong with the quoted text, in English."),
         ),
+        proposed_text=(
+            str,
+            Field(
+                default="",
+                description="The corrected replacement for quoted_text. Empty if "
+                "no replacement is proposed.",
+            ),
+        ),
         category=(category_type, Field(description="The category of this finding.")),
     )
     return create_model(
@@ -86,6 +94,7 @@ def run_flag_pass(
             quoted_text=f.quoted_text,
             issue=f.issue,
             category=f.category,
+            proposed_text=f.proposed_text or None,
         )
         for f in response.findings
     ]

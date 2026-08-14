@@ -22,6 +22,7 @@ def verify_finding(finding: Finding, source_text: str) -> VerifiedFinding | None
             quoted_text=finding["quoted_text"],
             issue=finding["issue"],
             category=finding["category"],
+            proposed_text=finding.get("proposed_text"),
             verified=True,
         )
     return None

@@ -17,6 +17,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field
 
 from content_batch_graph.domain.dictionary import lookup_word
+from content_batch_graph.domain.language_check import find_match_for, is_supported
 from content_batch_graph.domain.providers import get_model
 from content_batch_graph.state import CriticFinding, VerifiedFinding
 
@@ -165,6 +166,14 @@ def run_critic_pass(
     If the word isn't found, that's inconclusive (Filipino dictionaries only list
     root words, not every inflected form) and falls through to the critic's own
     judgment below, same as any other finding.
+
+    For typo/grammar findings in any language a local LanguageTool server covers,
+    LanguageTool is checked next: if it does NOT independently flag the same
+    quoted span, that's meaningful — a real typo/grammar rule violation would
+    normally trip LanguageTool's own rules too, so a miss dismisses the claim
+    without a critic call. If LanguageTool also flags it, or has no module for
+    this language, or the server is unreachable, that's inconclusive either way and
+    falls through to the critic's own judgment, same as any other finding.
     """
     if language == "Filipino" and finding["category"] == "typo":
         dictionary_verdict = _check_dictionary_for_typo(finding["quoted_text"])
@@ -173,6 +182,7 @@ def run_critic_pass(
                 quoted_text=finding["quoted_text"],
                 issue=finding["issue"],
                 category=finding["category"],
+                proposed_text=finding.get("proposed_text"),
                 verified=True,
                 is_valid=False,
                 replacement_text=None,
@@ -180,6 +190,31 @@ def run_critic_pass(
                     f"{finding['quoted_text']!r} is a real word in the KWF "
                     "(Komisyon sa Wikang Filipino) dictionary — dismissed as a "
                     "typo claim without further review."
+                ),
+            )
+
+    if finding["category"] in ("typo", "grammar") and is_supported(language):
+        try:
+            lt_no_match = (
+                find_match_for(finding["quoted_text"], source_text, language) is None
+            )
+        except httpx.HTTPError:
+            # The LanguageTool server itself is unreachable — inconclusive, not a
+            # dismissal. Falls through to the model's unaided judgment below, same
+            # as a KWF dictionary-site failure does above.
+            lt_no_match = False
+        if lt_no_match:
+            return CriticFinding(
+                quoted_text=finding["quoted_text"],
+                issue=finding["issue"],
+                category=finding["category"],
+                proposed_text=finding.get("proposed_text"),
+                verified=True,
+                is_valid=False,
+                replacement_text=None,
+                critic_reasoning=(
+                    f"LanguageTool ({language}) does not flag {finding['quoted_text']!r} "
+                    "as a typo or grammar issue — dismissed without further review."
                 ),
             )
 
@@ -226,6 +261,7 @@ def run_critic_pass(
         quoted_text=finding["quoted_text"],
         issue=finding["issue"],
         category=finding["category"],
+        proposed_text=finding.get("proposed_text"),
         verified=True,
         is_valid=is_valid,
         replacement_text=replacement_text,

@@ -165,7 +165,13 @@ def test_write_year_collection_defaults_to_the_genomes_path(tmp_path):
 
     out = write_year_collection("xx", "TEST", 1999, [], errors=[])
     try:
-        assert out == batch_io.collection_path("xx", "TEST", 1999)
+        assert out.parent == batch_io.GENOMES_DIR
+        # Timestamped like every other file this pipeline writes (see
+        # batch_io.collection_path) — a retry must never silently clobber a prior
+        # collection, so the exact name can't be predicted ahead of the call; only
+        # the stable prefix/suffix shape is asserted here.
+        assert out.name.startswith("Devocional_year_1999_xx_TEST_gen_o_")
+        assert out.name.endswith(".json")
         assert out.exists()
     finally:
         out.unlink(missing_ok=True)

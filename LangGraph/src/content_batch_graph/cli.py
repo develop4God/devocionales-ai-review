@@ -83,6 +83,7 @@ def _build_year_file(args: argparse.Namespace, provider) -> tuple[Path, int]:
         args.lang,
         args.version,
         args.year,
+        provider.provider_id,
         batch_io.model_slug(provider.model),
         batch_io.utc_timestamp(),
     )
@@ -210,9 +211,10 @@ def cmd_pipeline(args: argparse.Namespace) -> int:
         )
         print(f"  [3/5] Poll every {args.poll_interval}s (timeout {args.timeout}s)")
         print(f"  [4/5] Download results to {results_path}")
-        print(
-            f"  [5/5] Collect into {out_path or batch_io.collection_path(args.lang, args.version, args.year)}"
+        preview_collection = out_path or batch_io.collection_path(
+            args.lang, args.version, args.year, batch_io.utc_timestamp()
         )
+        print(f"  [5/5] Collect into {preview_collection}")
         print("\nNothing submitted. Re-run without --dry-run to execute.")
         return 0
 

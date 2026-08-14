@@ -14,7 +14,7 @@ import re
 from datetime import date
 from pathlib import Path
 
-from content_batch_graph.domain.batch_io import collection_path
+from content_batch_graph.domain.batch_io import collection_path, utc_timestamp
 
 # gen_{lang}_{version}_{year}_{MM-DD} — the date is carried in the id itself, so
 # no side index from the input file is needed to recover it.
@@ -149,12 +149,17 @@ def write_year_collection(
     out_path: Path | None = None,
 ) -> Path:
     """
-    Write one collected year to data/genomes/Devocional_{year}_{lang}_{version}_gen.json.
+    Write one collected year to
+    data/genomes/Devocional_{year}_{lang}_{version}_gen_o_{ts}.json.
 
     The errors summary travels with the data rather than only to stdout, so a
     partial collection is self-describing when someone opens it later.
     """
-    out_path = Path(out_path) if out_path else collection_path(lang, version, year)
+    out_path = (
+        Path(out_path)
+        if out_path
+        else collection_path(lang, version, year, utc_timestamp())
+    )
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     payload = {

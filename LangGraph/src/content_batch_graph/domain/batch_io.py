@@ -45,26 +45,65 @@ def model_slug(model: str) -> str:
 
 
 def batch_input_path(
-    lang: str, version: str, year: int, model_slug: str, ts: str
+    lang: str, version: str, year: int, provider_id: str, model_slug: str, ts: str
 ) -> Path:
-    """data/batch_input/batch_input_{lang}_{version}_{year}_gen_{model_slug}_{ts}.jsonl"""
+    """
+    data/batch_input/input_{lang}_{version}_{year}_{provider_id}_{model_slug}_{ts}.jsonl
+
+    provider_id (the providers.yml entry that produced this file, e.g.
+    "fireworks_batch_devotional_gen") is the real provenance marker — model_slug
+    alone doesn't distinguish two providers that happen to serve the same model
+    name, and a bare "gen" literal said nothing about where the file came from.
+    """
     PATHS.batch_input_dir.mkdir(parents=True, exist_ok=True)
     return (
         PATHS.batch_input_dir
-        / f"batch_input_{lang}_{version}_{year}_gen_{model_slug}_{ts}.jsonl"
+        / f"input_{lang}_{version}_{year}_{provider_id}_{model_slug}_{ts}.jsonl"
     )
 
 
 def batch_output_path(input_path: Path) -> Path:
-    """The results file matching an input file: same stem, under data/batch_output/."""
+    """
+    The results file matching an input file, under data/batch_output/: same stem
+    with "input_" swapped for "output_" (falls back to prefixing "output_" if the
+    input file didn't have an "input_" prefix, e.g. a foreign/custom path).
+    """
     PATHS.batch_output_dir.mkdir(parents=True, exist_ok=True)
-    return PATHS.batch_output_dir / f"{Path(input_path).stem}_results.jsonl"
+    stem = Path(input_path).stem
+    if stem.startswith("input_"):
+        out_name = "output_" + stem.removeprefix("input_")
+    else:
+        out_name = "output_" + stem
+    return PATHS.batch_output_dir / f"{out_name}.jsonl"
 
 
-def collection_path(lang: str, version: str, year: int) -> Path:
-    """data/genomes/Devocional_{year}_{lang}_{version}_gen.json"""
+# devocionales-json has two legacy files with no _{lang}_{version} suffix at all
+# (Devocional_year_2025.json, Devocional_year_2026.json — both es/RVR1960; see
+# devocionales_scripts/validate_devocional_index.py's ("es", "RVR1960", year)
+# mapping). That bare, suffix-less shape is a legacy exception, not the naming
+# rule to follow going forward — collection_path always writes the full
+# _{lang}_{version} suffix, so every file this pipeline produces has a consistent,
+# unambiguous name.
+_DEFAULT_VERSION = "RVR1960"
+
+
+def collection_path(lang: str, version: str | None, year: int, ts: str) -> Path:
+    """
+    data/genomes/Devocional_year_{year}_{lang}_{version}_gen_o_{ts}.json
+
+    version defaults to "RVR1960" if not given — always included in the filename,
+    never omitted, so every file this pipeline writes has the same consistent
+    shape (see _DEFAULT_VERSION above for why a bare, suffix-less name is not
+    used here even though two legacy devocionales-json files have one).
+
+    Timestamped like every other file this pipeline writes: a retry or a re-run
+    after a partial failure must never silently overwrite a prior collection —
+    there'd be no way to tell "attempt 3" from "the only attempt," and no way to
+    compare a failed run's partial output against a successful retry afterward.
+    """
     GENOMES_DIR.mkdir(parents=True, exist_ok=True)
-    return GENOMES_DIR / f"Devocional_{year}_{lang}_{version}_gen.json"
+    version = version or _DEFAULT_VERSION
+    return GENOMES_DIR / f"Devocional_year_{year}_{lang}_{version}_gen_o_{ts}.json"
 
 
 def resolve_batch_input(file_arg: str | Path) -> Path:

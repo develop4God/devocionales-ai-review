@@ -285,3 +285,70 @@ def test_graph_applies_only_selected_finding_indices(monkeypatch):
     assert "the typo" in final["fixed_text"]
     assert "quite clear" in final["fixed_text"]  # index 1 was NOT applied
     assert "very clear" not in final["fixed_text"]
+
+
+def _stub_findings_one_noop_one_real(source_text: str, language: str) -> list[Finding]:
+    return [
+        Finding(
+            quoted_text="teh",
+            issue="Likely typo.",
+            category="typo",
+            proposed_text="the",
+        ),
+        Finding(
+            quoted_text="recieve",
+            issue="Model flagged this but proposed no change.",
+            category="typo",
+            proposed_text="recieve",  # no-op — must be pruned before critic_pass
+        ),
+    ]
+
+
+def test_graph_prune_pass_cuts_noop_finding_before_critic(monkeypatch):
+    # native_reader_batch-style findings carry proposed_text. One is a real fix
+    # ("teh" -> "the"), the other is a no-op the flag pass shouldn't have raised.
+    # prune_pass must cut the no-op for free, before critic_pass ever sees it, and
+    # surface it in discarded_findings for calibration — not silently vanish it.
+    critic_calls = []
+
+    def _stub_critic_records_calls(source_text, findings, language):
+        critic_calls.extend(findings)
+        return [
+            CriticFinding(
+                quoted_text=f["quoted_text"],
+                issue=f["issue"],
+                category=f["category"],
+                proposed_text=f.get("proposed_text"),
+                verified=True,
+                is_valid=True,
+                replacement_text="the",
+                critic_reasoning="Confirmed.",
+            )
+            for f in findings
+        ]
+
+    monkeypatch.setattr(
+        flag_pass_module, "run_flag_pass", _stub_findings_one_noop_one_real
+    )
+    monkeypatch.setattr(
+        critic_pass_module, "run_critic_pass_batch", _stub_critic_records_calls
+    )
+    graph, _ = compile_graph(_fresh_db_path())
+    config = {"configurable": {"thread_id": "test-prune"}}
+
+    result = graph.invoke(
+        {
+            "file_path": "fake.txt",
+            "file_text": "This has teh typo, and did not recieve the memo.",
+            "language": "English",
+        },
+        config=config,
+    )
+
+    # Only the real fix reached critic_pass — the no-op was cut by prune_pass.
+    assert [f["quoted_text"] for f in critic_calls] == ["teh"]
+
+    payload = result["__interrupt__"][0].value
+    assert len(payload["discarded_findings"]) == 1
+    assert payload["discarded_findings"][0]["quoted_text"] == "recieve"
+    assert "no-op" in payload["discarded_findings"][0]["reason"]
