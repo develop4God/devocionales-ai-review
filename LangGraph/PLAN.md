@@ -374,6 +374,72 @@ entrypoint. Batch mode is additive, mirroring how `native_reader` /
 `native_reader_batch` and `client_type: api` / `client_type: batch` already
 coexist in this codebase's own config files.
 
+**Update (2026-08-14, real implementation + a real live submit) — corrects
+several assumptions above:**
+
+- `domain/review_gen.py` built (units-from-corpus, `build_review_batch`,
+  `custom_id_for`) — done, tested, matches the RVR1960 legacy-file naming
+  quirk (`Devocional_year_{year}.json`, no `_{lang}_{version}` suffix,
+  `find_devotional_files`'s glob does NOT match it — read directly by path
+  for that file).
+- **`batch_common.BatchClient` was NOT reusable as-is** (contradicts the
+  "transport layer, reusable as-is" line above). It was built assuming
+  Fireworks' batch API mirrors OpenAI's (`/files`, `/batches`) — a real
+  submit attempt returned `404: Path not found: /v1/files`. Full rewrite:
+  Fireworks' real batch API is account-scoped resources
+  (`accounts/{account_id}/datasets`, `.../batchInferenceJobs`), confirmed
+  against `docs.fireworks.ai/guides/batch-inference`. New
+  `batch_common/fireworks_template.py` owns every Fireworks-specific
+  URL/payload shape; `client.py` is now a thin generic HTTP transport that
+  calls into it — mirrors this package's own domain-logic/node split.
+- Three more real (not doc-predicted) errors, found only by actually
+  submitting:
+  1. `base_url` was `.../inference/v1` (the live chat-completions host) —
+     the batch/dataset API is plain `.../v1`. Two different base URLs for
+     two different Fireworks surfaces.
+  2. `create_dataset` needs `exampleCount` in the request body — Fireworks'
+     own API reference marks it read-only and doesn't list it as a request
+     field; the live server's `400` disagreed with its own docs.
+  3. **Job state values are `JOB_STATE_RUNNING`/`JOB_STATE_COMPLETED`/
+     `JOB_STATE_FAILED`/`JOB_STATE_EXPIRED`, not the bare words
+     (`RUNNING`/`COMPLETED`/...) shown in the docs' own "Job states"
+     reference table.** This one would have caused `poll()` to spin until
+     timeout on every real outcome, success or failure — caught only
+     because a real job was being polled live when the mismatch surfaced.
+- Per Fireworks' own documented "Job-level system prompt" shape (and its own
+  "best practices" list — cache optimization, shared system prompt): the
+  system message is stripped from every dataset line and passed once as the
+  batch job's `systemPrompt` instead. `chat_request_record()` (in
+  `batch_common/jsonl.py`, shared by `devotional_gen.py` too) no longer
+  builds `{custom_id, method, url, body: {model, messages}}` (the old,
+  wrong OpenAI-batch envelope) — just `{custom_id, body: {messages}}`,
+  model included only at job-submission time.
+- `scripts/collect_review_batch.py` — first cut of the "collect" step:
+  polls a job id, downloads the output dataset's files once terminal.
+  Deliberately just the pull, no parsing into `Finding` objects yet (that's
+  `domain/review_collect.py`, still not built).
+- **Real live test in progress**: a 366-record half-year batch
+  (`es`/RVR1960, `2025-08-01`→`2026-01-30`, `gpt-oss-20b` — swapped in for
+  cheap pipeline-mechanics validation before spending quota on
+  `deepseek-v4-pro-0813`) was submitted successfully — dataset created,
+  uploaded, job created, all confirmed via the job's own status response
+  (`state: READY`, `exampleCount: "366"`, correct `systemPrompt` echoed
+  back). As of this writing the job has been `JOB_STATE_RUNNING` for 35+
+  minutes with `totalInputRequests: 0` / `totalProcessedRequests: 0` —
+  past the docs' own documented "contact support if a deployment takes
+  >30min to create" threshold, `status.code: OK`, `waitingOnCapacity:
+  false`. Architect decision: keep waiting, not yet treated as stuck.
+  `job_id=native-reader-es-rvr1960-halfyear-job`,
+  `output_dataset_id=native-reader-es-rvr1960-halfyear-out`. Check this job
+  first in any future session before starting a new one.
+- **Still not built**: `domain/review_collect.py` (parse the plain-text
+  `current text: / proposed text: / explanation:` format into
+  `list[Finding]`), and everything in "Still open, genuinely architectural"
+  above (mode-selection location, one graph vs. two, submit/check nodes in
+  `graph.py` itself) — none of that has been touched. Today's work is
+  entirely pre-graph: proving the batch transport and record shape work
+  against the real API.
+
 ## Slice 6 — Durable pattern memory + final report
 
 **Status: partially started, outside the graph.**
