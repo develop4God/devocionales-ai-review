@@ -111,6 +111,43 @@ def test_build_year_dry_run_writes_365_lines_with_no_api_key(capsys):
     assert first["body"]["response_format"] == {"type": "json_object"}
 
 
+def test_build_year_dry_run_single_line_with_native_reader_role(capsys):
+    # A dry-run "does the prompt look right" check before anything reaches
+    # Fireworks: one record, native_reader role, no API key, no network call.
+    rc = cli.main(
+        [
+            "build-year",
+            "--lang",
+            "es",
+            "--version",
+            "RVR1960",
+            "--year",
+            "2026",
+            "--role",
+            "native_reader",
+            "--limit",
+            "1",
+            "--dry-run",
+        ]
+    )
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "Wrote 1 records" in out
+    assert "Dry run" in out
+
+    path = out.splitlines()[0].split("-> ", 1)[1]
+    lines = Path(path).read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 1
+    record = json.loads(lines[0])
+    system_prompt = record["body"]["messages"][0]["content"]
+    # native_reader's own persona text (config/roles.yml), not devotional_author's
+    # (the trailing JSON output contract is shared generation scaffolding, appended
+    # regardless of role — see build_generation_system).
+    assert "native Spanish speaker" in system_prompt
+    assert "typo" in system_prompt.lower()
+    assert "grammar" in system_prompt.lower()
+
+
 def test_build_year_limit_truncates(capsys):
     assert (
         cli.main(
