@@ -110,27 +110,27 @@ def build_review_batch(
     version: str,
     provider: BatchProviderConfig,
     role: Role,
-    max_tokens: int = 2048,
+    max_tokens: int = 4098,
     temperature: float = 0.2,
 ) -> list[dict]:
     """
-    One batch input record per ReviewUnit.
+    One dataset input line per ReviewUnit, system message omitted.
+
+    Every unit shares one system prompt (build_review_system, identical across
+    the whole batch), so it's never repeated per line here — pass it as
+    submit()'s system_prompt instead, Fireworks' documented shape for this exact
+    case (docs.fireworks.ai/guides/batch-inference's "Job-level system prompt"),
+    which keeps the upload small and prompt-caching intact.
 
     Lower default temperature than devotional_gen.py's generation batch (0.7): a
     typo/grammar review pass benefits from consistency, not creative variation.
     """
-    system = build_review_system(lang, role)
     extra: dict[str, Any] = dict(provider.extra_record_fields or {})
 
     return [
         chat_request_record(
             custom_id_for(lang, version, unit.entry_id, unit.field),
-            provider.model,
-            [
-                {"role": "system", "content": system},
-                {"role": "user", "content": build_review_user(unit.text)},
-            ],
-            endpoint=provider.endpoint,
+            [{"role": "user", "content": build_review_user(unit.text)}],
             max_tokens=max_tokens,
             temperature=temperature,
             **extra,

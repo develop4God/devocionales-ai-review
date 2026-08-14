@@ -139,13 +139,14 @@ def test_build_year_dry_run_single_line_with_native_reader_role(capsys):
     lines = Path(path).read_text(encoding="utf-8").splitlines()
     assert len(lines) == 1
     record = json.loads(lines[0])
-    system_prompt = record["body"]["messages"][0]["content"]
-    # native_reader's own persona text (config/roles.yml), not devotional_author's
-    # (the trailing JSON output contract is shared generation scaffolding, appended
-    # regardless of role — see build_generation_system).
-    assert "native Spanish speaker" in system_prompt
-    assert "typo" in system_prompt.lower()
-    assert "grammar" in system_prompt.lower()
+    # The system prompt (native_reader's persona) is never embedded per record —
+    # it's passed as the batch job's own system_prompt at submit time (Fireworks'
+    # documented shape for a shared system message), so the dry-run JSONL alone
+    # only shows the per-day user message. Reviewing the resolved system prompt
+    # itself is domain.devotional_gen.build_generation_system()'s job, not this
+    # file's — see test_devotional_gen.py's own coverage of that function.
+    assert all(m["role"] != "system" for m in record["body"]["messages"])
+    assert record["body"]["messages"][0]["role"] == "user"
 
 
 def test_build_year_limit_truncates(capsys):

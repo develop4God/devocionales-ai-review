@@ -1,5 +1,5 @@
 """
-Provider configuration for the OpenAI-compatible batch API.
+Provider configuration for a batch inference API.
 
 The transport layer (client.py) takes one of these and nothing else — it never
 reads a yml file, an env var name, or a project-specific config loader itself.
@@ -28,6 +28,10 @@ class BatchProviderConfig:
     # Provider-specific extras merged into each request body by the caller
     # (e.g. a reasoning/thinking toggle). Kept opaque here on purpose.
     extra_record_fields: dict | None = field(default=None)
+    # Fireworks' batch API is account-scoped (every path is
+    # accounts/{account_id}/datasets|batchInferenceJobs/...), unlike OpenAI's flat
+    # /files, /batches. None for a provider whose batch API isn't account-scoped.
+    account_id_env_var: str | None = None
 
 
 class BatchAPIError(RuntimeError):
@@ -50,3 +54,23 @@ def api_key_from_env(cfg: BatchProviderConfig) -> str:
             f"Run: export {cfg.env_var}=<your_api_key>"
         )
     return key
+
+
+def account_id_from_env(cfg: BatchProviderConfig) -> str:
+    """
+    Read the account id for this provider out of the environment.
+
+    Only called for a provider whose account_id_env_var is set — an account-scoped
+    batch API (Fireworks) that requires accounts/{account_id}/... in every path.
+    Raises BatchAPIError, same failure shape as api_key_from_env, if the var isn't
+    set despite being declared required by this provider's config.
+    """
+    assert cfg.account_id_env_var is not None
+    account_id = os.environ.get(cfg.account_id_env_var, "")
+    if not account_id:
+        raise BatchAPIError(
+            f"Environment variable {cfg.account_id_env_var!r} is not set "
+            f"(required by provider {cfg.provider_id!r}).\n"
+            f"Run: export {cfg.account_id_env_var}=<your_account_id>"
+        )
+    return account_id

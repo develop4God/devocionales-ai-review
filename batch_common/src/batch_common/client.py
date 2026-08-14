@@ -1,18 +1,25 @@
 """
-OpenAI-compatible batch API client: upload → submit → poll → download.
+Generic batch inference HTTP transport: GET / POST-JSON / POST-multipart, auth
+headers, error wrapping.
 
-Lifted near-verbatim from GEP/batch_client.py, with the GEP-specific
-`from cloud_client import _load_config` coupling replaced by an injected
-BatchProviderConfig. Behavior against the wire is unchanged — same multipart
-upload shape, same endpoints, same terminal-status handling — so results
-collected by either project stay comparable.
+This file knows nothing about any provider's specific URL shape or payload
+fields — that belongs to a template module (see fireworks_template.py) which
+this class calls for "what URL, what body, what does this response mean". A
+second batch provider with a different shape gets its own template module and
+its own BatchClient-like wrapper (or a provider_id branch here dispatching to
+the right template, once a second one actually exists) — not a hardcoded
+Fireworks path baked into this transport layer.
 
 Usage:
     client = BatchClient(cfg)
-    file_id  = client.upload(Path("batch_input.jsonl"))
-    batch_id = client.submit(file_id)
-    out_fid  = client.poll(batch_id)
-    path     = client.download(out_fid, Path("results.jsonl"))
+    client.create_dataset("my-batch-input")
+    client.upload("my-batch-input", Path("batch_input.jsonl"))
+    client.submit(
+        "my-batch-input", output_dataset_id="my-batch-output",
+        job_id="my-batch-job", system_prompt="...",
+    )
+    client.poll("my-batch-job")  # blocks until COMPLETED or raises
+    paths = client.download("my-batch-output", Path("results_dir"))
 """
 
 from __future__ import annotations
@@ -23,24 +30,30 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-from batch_common.config import BatchAPIError, BatchProviderConfig, api_key_from_env
-
-_TERMINAL_STATUSES = frozenset({"completed", "failed", "expired", "cancelled"})
+from batch_common import fireworks_template as fw
+from batch_common.config import (
+    BatchAPIError,
+    BatchProviderConfig,
+    account_id_from_env,
+    api_key_from_env,
+)
 
 
 class BatchClient:
     """
-    OpenAI-compatible batch client.
+    Batch client for an account-scoped provider (Fireworks today).
 
     All configuration arrives through the BatchProviderConfig — this class is
     open for extension (a new provider is a new config) and closed for
-    modification (no per-provider branch lives here).
+    modification (no per-provider branch lives here; shape decisions are
+    delegated to fireworks_template).
     """
 
     def __init__(self, cfg: BatchProviderConfig) -> None:
         self._cfg = cfg
         self._key = api_key_from_env(cfg)
-        self._base = cfg.base_url.rstrip("/")
+        self._account_id = account_id_from_env(cfg)
+        self._base = cfg.base_url
 
     # ── Public properties ─────────────────────────────────────────────────
 
@@ -54,18 +67,18 @@ class BatchClient:
 
     # ── Batch operations ──────────────────────────────────────────────────
 
-    def upload(self, file_path: Path) -> str:
-        """
-        Upload a JSONL file for batch inference via multipart/form-data.
-        Includes the required 'purpose: batch' field. Returns file_id.
-        """
+    def create_dataset(self, dataset_id: str) -> str:
+        """Declares an empty dataset resource for a subsequent upload() to fill."""
+        url, body = fw.create_dataset_request(self._base, self._account_id, dataset_id)
+        self._post_json(url, body)
+        return dataset_id
+
+    def upload(self, dataset_id: str, file_path: Path) -> str:
+        """Multipart-uploads a JSONL file's bytes into an already-created dataset."""
         boundary = "BatchCommon01"
         file_bytes = Path(file_path).read_bytes()
         body = (
             (
-                f"--{boundary}\r\n"
-                f'Content-Disposition: form-data; name="purpose"\r\n\r\n'
-                f"batch\r\n"
                 f"--{boundary}\r\n"
                 f'Content-Disposition: form-data; name="file"; '
                 f'filename="{Path(file_path).name}"\r\n'
@@ -76,86 +89,104 @@ class BatchClient:
         )
 
         req = urllib.request.Request(
-            f"{self._base}/files",
+            fw.upload_dataset_url(self._base, self._account_id, dataset_id),
             data=body,
             method="POST",
         )
         req.add_header("Content-Type", f"multipart/form-data; boundary={boundary}")
         req.add_header("Authorization", f"Bearer {self._key}")
+        self._do(req)
+        return dataset_id
 
-        resp = self._do(req)
-        file_id = resp.get("id") or resp.get("file_id")
-        if not file_id:
-            raise BatchAPIError(f"Upload succeeded but no file_id in response: {resp}")
-        return file_id
-
-    def submit(self, file_id: str) -> str:
-        """
-        Create a batch job via the OpenAI-compatible POST /batches endpoint.
-        Returns batch_id.
-        """
-        payload = {
-            "input_file_id": file_id,
-            "endpoint": self._cfg.endpoint,
-            "completion_window": self._cfg.completion_window,
-        }
-        resp = self._post_json(f"{self._base}/batches", payload)
-        batch_id = resp.get("id") or resp.get("batch_id")
-        if not batch_id:
-            raise BatchAPIError(f"Submit succeeded but no batch_id in response: {resp}")
-        return batch_id
+    def submit(
+        self,
+        input_dataset_id: str,
+        output_dataset_id: str,
+        job_id: str,
+        system_prompt: str | None = None,
+        max_tokens: int | None = None,
+        temperature: float | None = None,
+        top_p: float | None = None,
+    ) -> str:
+        """Creates the batch inference job. Returns job_id (caller-chosen)."""
+        url, payload = fw.submit_job_request(
+            self._base,
+            self._account_id,
+            self._cfg.model,
+            job_id,
+            input_dataset_id,
+            output_dataset_id,
+            system_prompt=system_prompt,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            top_p=top_p,
+        )
+        self._post_json(url, payload)
+        return job_id
 
     def poll(
         self,
-        batch_id: str,
+        job_id: str,
         interval: int = 30,
         timeout: int = 86_400,
     ) -> str:
         """
-        Poll GET /batches/{batch_id} until status is terminal.
-        Returns output_file_id when status == 'completed'.
-        Raises BatchAPIError on failed/expired/cancelled.
-        Raises TimeoutError if timeout is exceeded.
+        Poll until the job reaches a terminal state. Returns the terminal state
+        string ("COMPLETED", or a failure state — see is_failure_state below).
+
+        Does NOT return an output_dataset_id: the docs' own worked example
+        downloads using the same output_dataset_id the caller already chose and
+        passed to submit() — there's no documented field carrying it back in the
+        polling response, so this doesn't invent one. Call download() with that
+        same value once poll() returns "COMPLETED".
+
+        Raises BatchAPIError on a failure state, TimeoutError past timeout.
         """
-        url = f"{self._base}/batches/{batch_id}"
+        url = fw.job_status_url(self._base, self._account_id, job_id)
         deadline = time.monotonic() + timeout
 
         while time.monotonic() < deadline:
             data = self._get_json(url)
-            status = data.get("status", "unknown")
-            counts = data.get("request_counts", {})
-            print(
-                f"    [{status}]  {counts.get('completed', '?')}/"
-                f"{counts.get('total', '?')} completed",
-                flush=True,
-            )
+            state = fw.parse_job_status(data)
+            print(f"    [{state}]", flush=True)
 
-            if status == "completed":
-                fid = data.get("output_file_id")
-                if not fid:
-                    raise BatchAPIError(
-                        f"Batch completed but output_file_id is missing: {data}"
-                    )
-                return fid
+            if state == "COMPLETED":
+                return state
 
-            if status in _TERMINAL_STATUSES:
-                raise BatchAPIError(f"Batch ended with status='{status}': {data}")
+            if fw.is_failure_state(state):
+                raise BatchAPIError(f"Batch job ended with state={state!r}: {data}")
 
             time.sleep(interval)
 
         raise TimeoutError(f"Batch polling timed out after {timeout}s")
 
-    def download(self, file_id: str, dest: Path) -> Path:
-        """Download file content to dest path. Returns dest."""
-        dest = Path(dest)
-        dest.parent.mkdir(parents=True, exist_ok=True)
-        req = urllib.request.Request(
-            f"{self._base}/files/{file_id}/content",
-            headers={"Authorization": f"Bearer {self._key}"},
+    def download(self, output_dataset_id: str, dest_dir: Path) -> list[Path]:
+        """
+        Downloads every file in a completed output dataset into dest_dir.
+        Returns the list of written file paths (results + any separate error file
+        Fireworks includes — never assumed to be exactly one file).
+        """
+        dest_dir = Path(dest_dir)
+        dest_dir.mkdir(parents=True, exist_ok=True)
+
+        manifest_url = fw.download_manifest_request(
+            self._base, self._account_id, output_dataset_id
         )
-        with urllib.request.urlopen(req, timeout=300) as resp:
-            dest.write_bytes(resp.read())
-        return dest
+        manifest = self._post_json(manifest_url, {})
+        signed_urls = fw.parse_download_manifest(manifest)
+        if not signed_urls:
+            raise BatchAPIError(
+                f"No filenameToSignedUrls in download-endpoint response: {manifest}"
+            )
+
+        written: list[Path] = []
+        for filename, signed_url in signed_urls.items():
+            dest = dest_dir / Path(filename).name
+            req = urllib.request.Request(signed_url)
+            with urllib.request.urlopen(req, timeout=300) as resp:
+                dest.write_bytes(resp.read())
+            written.append(dest)
+        return written
 
     # ── HTTP internals ────────────────────────────────────────────────────
 

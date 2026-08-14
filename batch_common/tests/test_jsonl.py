@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 
 import pytest
+
 from batch_common.jsonl import chat_request_record, read_jsonl, write_jsonl
 
 
@@ -46,19 +47,16 @@ def test_read_jsonl_raises_on_malformed_line(tmp_path):
 
 def test_chat_request_record_shape():
     messages = [{"role": "user", "content": "hi"}]
-    rec = chat_request_record("gen_es_RVR1960_2026_01-01", "m/1", messages)
+    rec = chat_request_record("gen_es_RVR1960_2026_01-01", messages)
     assert rec == {
         "custom_id": "gen_es_RVR1960_2026_01-01",
-        "method": "POST",
-        "url": "/v1/chat/completions",
-        "body": {"model": "m/1", "messages": messages},
+        "body": {"messages": messages},
     }
 
 
 def test_chat_request_record_merges_extra_body_fields():
     rec = chat_request_record(
         "id-1",
-        "m/1",
         [],
         max_tokens=2048,
         temperature=0.7,
@@ -69,6 +67,10 @@ def test_chat_request_record_merges_extra_body_fields():
     assert rec["body"]["response_format"] == {"type": "json_object"}
 
 
-def test_chat_request_record_honors_custom_endpoint():
-    rec = chat_request_record("id-1", "m/1", [], endpoint="/v1/responses")
-    assert rec["url"] == "/v1/responses"
+def test_chat_request_record_never_includes_model_method_or_url():
+    # model is job-level (submit_job_request); method/url were the old, wrong
+    # OpenAI-shaped envelope, not part of Fireworks' documented dataset-line format.
+    rec = chat_request_record("id-1", [{"role": "user", "content": "hi"}])
+    assert "model" not in rec["body"]
+    assert "method" not in rec
+    assert "url" not in rec

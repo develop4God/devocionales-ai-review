@@ -1,134 +1,200 @@
-"""BatchClient transport behavior, against a fake urllib layer — never the network."""
+"""
+BatchClient transport behavior against Fireworks' account-scoped batch API, using
+a fake urllib layer — never the network. See fireworks_template.py for the
+provider shape this client wraps.
+"""
 
 from __future__ import annotations
 
 import json
 
 import pytest
-from batch_common.client import BatchClient
-from batch_common.config import BatchAPIError
 from conftest import http_error
 
+from batch_common.client import BatchClient
+from batch_common.config import BatchAPIError
 
-def test_missing_env_var_raises_with_variable_name(cfg, monkeypatch):
+
+def test_missing_api_key_raises_with_variable_name(cfg, account_id, monkeypatch):
     monkeypatch.delenv("FAKE_BATCH_API_KEY", raising=False)
     with pytest.raises(BatchAPIError, match="FAKE_BATCH_API_KEY"):
         BatchClient(cfg)
 
 
-def test_base_url_trailing_slash_is_normalized(cfg, api_key, fake_http):
-    # cfg.base_url ends in "/" — the built URL must not contain "//batches".
-    fake_http.responses.append({"id": "batch-1"})
-    BatchClient(cfg).submit("file-1")
+def test_missing_account_id_raises_with_variable_name(cfg, api_key, monkeypatch):
+    monkeypatch.delenv("FAKE_BATCH_ACCOUNT_ID", raising=False)
+    with pytest.raises(BatchAPIError, match="FAKE_BATCH_ACCOUNT_ID"):
+        BatchClient(cfg)
+
+
+def test_base_url_trailing_slash_is_normalized(cfg, api_key, account_id, fake_http):
+    # cfg.base_url ends in "/" — the built URL must not contain a doubled slash
+    # before "accounts".
+    fake_http.responses.append({"datasetId": "ds-1"})
+    BatchClient(cfg).create_dataset("ds-1")
     assert (
         fake_http.requests[0].full_url
-        == "https://api.example.test/inference/v1/batches"
+        == "https://api.example.test/inference/v1/accounts/test-account/datasets"
     )
 
 
-def test_upload_posts_multipart_and_returns_file_id(cfg, api_key, fake_http, tmp_path):
-    src = tmp_path / "in.jsonl"
-    src.write_text('{"custom_id": "a"}\n', encoding="utf-8")
-    fake_http.responses.append({"id": "file-abc"})
+def test_create_dataset_posts_the_documented_body(cfg, api_key, account_id, fake_http):
+    fake_http.responses.append({"datasetId": "batch-input-dataset"})
+    dataset_id = BatchClient(cfg).create_dataset("batch-input-dataset")
 
-    file_id = BatchClient(cfg).upload(src)
-
-    assert file_id == "file-abc"
+    assert dataset_id == "batch-input-dataset"
     req = fake_http.requests[0]
-    assert req.full_url.endswith("/files")
-    assert req.get_header("Content-type").startswith("multipart/form-data; boundary=")
+    assert req.full_url.endswith("/accounts/test-account/datasets")
     assert req.get_header("Authorization") == "Bearer test-key"
-    body = req.data.decode()
-    assert 'name="purpose"' in body and "batch" in body
-    assert '{"custom_id": "a"}' in body
-
-
-def test_upload_accepts_file_id_alias(cfg, api_key, fake_http, tmp_path):
-    src = tmp_path / "in.jsonl"
-    src.write_text("{}\n", encoding="utf-8")
-    fake_http.responses.append({"file_id": "file-alias"})
-    assert BatchClient(cfg).upload(src) == "file-alias"
-
-
-def test_upload_without_id_in_response_raises(cfg, api_key, fake_http, tmp_path):
-    src = tmp_path / "in.jsonl"
-    src.write_text("{}\n", encoding="utf-8")
-    fake_http.responses.append({"object": "file"})
-    with pytest.raises(BatchAPIError, match="no file_id"):
-        BatchClient(cfg).upload(src)
-
-
-def test_submit_sends_endpoint_and_completion_window_from_config(
-    cfg, api_key, fake_http
-):
-    fake_http.responses.append({"id": "batch-xyz"})
-
-    batch_id = BatchClient(cfg).submit("file-abc")
-
-    assert batch_id == "batch-xyz"
-    payload = json.loads(fake_http.requests[0].data.decode())
-    assert payload == {
-        "input_file_id": "file-abc",
-        "endpoint": "/v1/chat/completions",
-        "completion_window": "24h",
+    assert json.loads(req.data.decode()) == {
+        "datasetId": "batch-input-dataset",
+        "dataset": {"userUploaded": {}},
     }
 
 
-def test_submit_without_id_in_response_raises(cfg, api_key, fake_http):
-    fake_http.responses.append({"object": "batch"})
-    with pytest.raises(BatchAPIError, match="no batch_id"):
-        BatchClient(cfg).submit("file-abc")
-
-
-def test_poll_returns_output_file_id_on_completed(cfg, api_key, fake_http):
-    fake_http.responses += [
-        {"status": "validating"},
-        {"status": "in_progress", "request_counts": {"completed": 3, "total": 10}},
-        {"status": "completed", "output_file_id": "file-out"},
-    ]
-    assert BatchClient(cfg).poll("batch-1", interval=0) == "file-out"
-    assert len(fake_http.requests) == 3
-
-
-@pytest.mark.parametrize("status", ["failed", "expired", "cancelled"])
-def test_poll_raises_on_non_completed_terminal_status(cfg, api_key, fake_http, status):
-    fake_http.responses.append({"status": status})
-    with pytest.raises(BatchAPIError, match=status):
-        BatchClient(cfg).poll("batch-1", interval=0)
-
-
-def test_poll_completed_without_output_file_id_raises(cfg, api_key, fake_http):
-    fake_http.responses.append({"status": "completed"})
-    with pytest.raises(BatchAPIError, match="output_file_id is missing"):
-        BatchClient(cfg).poll("batch-1", interval=0)
-
-
-def test_poll_times_out(cfg, api_key, fake_http):
-    fake_http.responses += [{"status": "in_progress"}] * 5
-    with pytest.raises(TimeoutError, match="timed out"):
-        BatchClient(cfg).poll("batch-1", interval=0, timeout=0)
-
-
-def test_download_writes_bytes_and_creates_parent_dir(
-    cfg, api_key, fake_http, tmp_path
+def test_upload_posts_multipart_to_the_dataset_upload_endpoint(
+    cfg, api_key, account_id, fake_http, tmp_path
 ):
-    fake_http.responses.append(b'{"custom_id": "a"}\n')
-    dest = tmp_path / "nested" / "results.jsonl"
+    src = tmp_path / "in.jsonl"
+    src.write_text('{"custom_id": "a"}\n', encoding="utf-8")
+    fake_http.responses.append({})
 
-    out = BatchClient(cfg).download("file-out", dest)
+    dataset_id = BatchClient(cfg).upload("batch-input-dataset", src)
 
-    assert out == dest
-    assert dest.read_text(encoding="utf-8") == '{"custom_id": "a"}\n'
-    assert fake_http.requests[0].full_url.endswith("/files/file-out/content")
+    assert dataset_id == "batch-input-dataset"
+    req = fake_http.requests[0]
+    assert req.full_url.endswith(
+        "/accounts/test-account/datasets/batch-input-dataset:upload"
+    )
+    assert req.get_header("Content-type").startswith("multipart/form-data; boundary=")
+    assert req.get_header("Authorization") == "Bearer test-key"
+    body = req.data.decode()
+    assert 'name="file"' in body
+    assert '{"custom_id": "a"}' in body
 
 
-def test_http_error_is_wrapped_as_batch_api_error(cfg, api_key, fake_http):
+def test_submit_posts_model_and_dataset_ids(cfg, api_key, account_id, fake_http):
+    fake_http.responses.append({})
+    job_id = BatchClient(cfg).submit(
+        "batch-input-dataset", "batch-output-dataset", "my-batch-job"
+    )
+
+    assert job_id == "my-batch-job"
+    req = fake_http.requests[0]
+    assert req.full_url.endswith(
+        "/accounts/test-account/batchInferenceJobs?batchInferenceJobId=my-batch-job"
+    )
+    payload = json.loads(req.data.decode())
+    assert payload == {
+        "model": "fake/model",
+        "inputDatasetId": "accounts/test-account/datasets/batch-input-dataset",
+        "outputDatasetId": "accounts/test-account/datasets/batch-output-dataset",
+    }
+
+
+def test_submit_includes_system_prompt_and_inference_parameters(
+    cfg, api_key, account_id, fake_http
+):
+    fake_http.responses.append({})
+    BatchClient(cfg).submit(
+        "in-ds",
+        "out-ds",
+        "job-1",
+        system_prompt="You are a helpful assistant.",
+        max_tokens=1024,
+        temperature=0.7,
+        top_p=0.9,
+    )
+
+    payload = json.loads(fake_http.requests[0].data.decode())
+    assert payload["systemPrompt"] == "You are a helpful assistant."
+    assert payload["inferenceParameters"] == {
+        "maxTokens": 1024,
+        "temperature": 0.7,
+        "topP": 0.9,
+    }
+
+
+def test_submit_omits_system_prompt_and_inference_parameters_when_not_given(
+    cfg, api_key, account_id, fake_http
+):
+    fake_http.responses.append({})
+    BatchClient(cfg).submit("in-ds", "out-ds", "job-1")
+
+    payload = json.loads(fake_http.requests[0].data.decode())
+    assert "systemPrompt" not in payload
+    assert "inferenceParameters" not in payload
+
+
+def test_poll_returns_completed_state(cfg, api_key, account_id, fake_http):
+    fake_http.responses += [
+        {"state": "VALIDATING"},
+        {"state": "RUNNING"},
+        {"state": "COMPLETED"},
+    ]
+    assert BatchClient(cfg).poll("job-1", interval=0) == "COMPLETED"
+    assert len(fake_http.requests) == 3
+    assert fake_http.requests[0].full_url.endswith(
+        "/accounts/test-account/batchInferenceJobs/job-1"
+    )
+
+
+@pytest.mark.parametrize("state", ["FAILED", "EXPIRED"])
+def test_poll_raises_on_a_failure_state(cfg, api_key, account_id, fake_http, state):
+    fake_http.responses.append({"state": state})
+    with pytest.raises(BatchAPIError, match=state):
+        BatchClient(cfg).poll("job-1", interval=0)
+
+
+def test_poll_times_out(cfg, api_key, account_id, fake_http):
+    fake_http.responses += [{"state": "RUNNING"}] * 5
+    with pytest.raises(TimeoutError, match="timed out"):
+        BatchClient(cfg).poll("job-1", interval=0, timeout=0)
+
+
+def test_download_fetches_the_manifest_then_every_signed_url(
+    cfg, api_key, account_id, fake_http, tmp_path
+):
+    fake_http.responses += [
+        {
+            "filenameToSignedUrls": {
+                "results.jsonl": "https://signed.example.test/results",
+                "errors.jsonl": "https://signed.example.test/errors",
+            }
+        },
+        b'{"custom_id": "a"}\n',
+        b"",
+    ]
+    dest_dir = tmp_path / "out"
+
+    written = BatchClient(cfg).download("batch-output-dataset", dest_dir)
+
+    assert len(written) == 2
+    assert {p.name for p in written} == {"results.jsonl", "errors.jsonl"}
+    assert (dest_dir / "results.jsonl").read_text(encoding="utf-8") == (
+        '{"custom_id": "a"}\n'
+    )
+    manifest_req = fake_http.requests[0]
+    assert manifest_req.full_url.endswith(
+        "/accounts/test-account/datasets/batch-output-dataset:getDownloadEndpoint"
+    )
+
+
+def test_download_raises_when_manifest_has_no_signed_urls(
+    cfg, api_key, account_id, fake_http, tmp_path
+):
+    fake_http.responses.append({"filenameToSignedUrls": {}})
+    with pytest.raises(BatchAPIError, match="No filenameToSignedUrls"):
+        BatchClient(cfg).download("batch-output-dataset", tmp_path / "out")
+
+
+def test_http_error_is_wrapped_as_batch_api_error(cfg, api_key, account_id, fake_http):
     fake_http.responses.append(http_error(429, "rate limited"))
     with pytest.raises(BatchAPIError, match="HTTP 429: rate limited"):
-        BatchClient(cfg).submit("file-abc")
+        BatchClient(cfg).submit("in-ds", "out-ds", "job-1")
 
 
-def test_model_and_provider_id_properties(cfg, api_key, fake_http):
+def test_model_and_provider_id_properties(cfg, api_key, account_id, fake_http):
     client = BatchClient(cfg)
     assert client.model == "fake/model"
     assert client.provider_id == "fake_batch"

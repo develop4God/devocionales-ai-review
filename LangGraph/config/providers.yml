@@ -64,13 +64,14 @@ providers:
   # priority and is deliberately excluded from get_model() — nothing here builds a
   # live ChatOpenAI, the requests go through the async batch API instead.
   - id: fireworks_batch_devotional_gen
-    name: "Fireworks/deepseek-v4-pro-0813 (batch)"
+    name: "Fireworks/gpt-oss-20b (batch)"
     enabled: true
     client_type: batch
     package: openai
     base_url: "https://api.fireworks.ai/inference/v1"
-    model: "accounts/fireworks/models/deepseek-v4-pro-0813"
+    model: "accounts/fireworks/models/gpt-oss-20b"
     env_var: FIREWORKS_API_KEY
+    account_id_env_var: FIREWORKS_ACCOUNT_ID
     batch:
       supported: true
       endpoint: "/v1/chat/completions"

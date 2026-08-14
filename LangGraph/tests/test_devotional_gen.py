@@ -111,26 +111,31 @@ def test_build_year_batch_custom_ids_are_unique_and_deterministic():
 
 def test_build_year_batch_record_body_shape():
     record = build_year_batch(2026, "es", "RVR1960", PROVIDER, _role())[0]
-    assert record["method"] == "POST"
-    assert record["url"] == "/v1/chat/completions"
     body = record["body"]
-    assert body["model"] == PROVIDER.model
+    # No method/url (old, wrong OpenAI-shaped envelope) and no model in body
+    # (Fireworks sets model at job-submission time, not per dataset line).
+    assert "method" not in record
+    assert "url" not in record
+    assert "model" not in body
     assert body["max_tokens"] == 2048
     assert body["temperature"] == 0.7
     assert body["response_format"] == {"type": "json_object"}
     roles = [m["role"] for m in body["messages"]]
-    assert roles == ["system", "user"]
+    assert roles == ["user"]
 
 
-def test_build_year_batch_shares_one_system_prompt_across_all_records():
+def test_build_year_batch_never_embeds_a_system_message_per_record():
+    # The shared system prompt travels as the batch job's own system_prompt at
+    # submit time (build_generation_system's caller's job) -- never repeated
+    # per dataset line here.
     records = build_year_batch(2026, "es", "RVR1960", PROVIDER, _role())
-    systems = {r["body"]["messages"][0]["content"] for r in records}
-    assert len(systems) == 1
+    for record in records:
+        assert all(m["role"] != "system" for m in record["body"]["messages"])
 
 
 def test_build_year_batch_user_prompts_are_all_distinct():
     records = build_year_batch(2026, "es", "RVR1960", PROVIDER, _role())
-    users = {r["body"]["messages"][1]["content"] for r in records}
+    users = {r["body"]["messages"][0]["content"] for r in records}
     assert len(users) == 365
 
 

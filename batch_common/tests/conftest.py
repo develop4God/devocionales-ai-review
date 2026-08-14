@@ -10,6 +10,7 @@ import urllib.error
 from dataclasses import dataclass, field
 
 import pytest
+
 from batch_common.config import BatchProviderConfig
 
 
@@ -20,6 +21,7 @@ def cfg() -> BatchProviderConfig:
         base_url="https://api.example.test/inference/v1/",
         model="fake/model",
         env_var="FAKE_BATCH_API_KEY",
+        account_id_env_var="FAKE_BATCH_ACCOUNT_ID",
     )
 
 
@@ -27,6 +29,12 @@ def cfg() -> BatchProviderConfig:
 def api_key(monkeypatch) -> str:
     monkeypatch.setenv("FAKE_BATCH_API_KEY", "test-key")
     return "test-key"
+
+
+@pytest.fixture
+def account_id(monkeypatch) -> str:
+    monkeypatch.setenv("FAKE_BATCH_ACCOUNT_ID", "test-account")
+    return "test-account"
 
 
 class _FakeResponse(io.BytesIO):

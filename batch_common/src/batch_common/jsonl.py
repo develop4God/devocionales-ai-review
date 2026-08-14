@@ -1,9 +1,14 @@
 """
-JSONL read/write and OpenAI-compatible batch request-record shaping.
+JSONL read/write and Fireworks batch dataset-line shaping.
 
-One place that knows the batch input record envelope
-({custom_id, method, url, body}), so a consuming project builds only the body's
-model/messages and never re-derives the envelope itself.
+One place that knows the dataset input line envelope ({custom_id, body}), so a
+consuming project builds only the body's messages/parameters and never
+re-derives the envelope itself. Confirmed against docs.fireworks.ai/guides/
+batch-inference 2026-08-14: a dataset line is exactly {"custom_id": ...,
+"body": {"messages": [...], ...}} — no method/url (that was the old, wrong
+OpenAI-/files+/batches-shaped envelope this module carried before the real
+Fireworks API shape was confirmed), and no model field inside body (model is a
+job-level field set once in submit_job_request, not per-line).
 """
 
 from __future__ import annotations
@@ -42,20 +47,21 @@ def read_jsonl(path: Path) -> Iterator[dict]:
 
 def chat_request_record(
     custom_id: str,
-    model: str,
     messages: list[dict],
-    endpoint: str = "/v1/chat/completions",
     **body: object,
 ) -> dict:
     """
-    Build one OpenAI-compatible batch input record.
+    Build one Fireworks batch dataset input line: {custom_id, body}.
 
-    Extra keyword args (max_tokens, temperature, response_format, ...) are merged
-    into the request body alongside model/messages.
+    No model, method, or url — model is set once at job-submission time
+    (see fireworks_template.submit_job_request), not per dataset line. Extra
+    keyword args (max_tokens, temperature, response_format, ...) are merged into
+    body alongside messages.
+
+    A caller whose every row shares one system message should strip it from
+    messages here and pass it separately to submit()'s system_prompt instead —
+    Fireworks injects it as a leading system message into every row that
+    doesn't already start with one, and an identical injected prefix is what
+    makes prompt caching apply across the whole batch.
     """
-    return {
-        "custom_id": custom_id,
-        "method": "POST",
-        "url": endpoint,
-        "body": {"model": model, "messages": messages, **body},
-    }
+    return {"custom_id": custom_id, "body": {"messages": messages, **body}}

@@ -131,22 +131,26 @@ def test_build_review_batch_produces_one_record_per_unit():
 
 def test_build_review_batch_record_body_shape():
     record = build_review_batch(_units(), "es", "RVR1960", PROVIDER, _role())[0]
-    assert record["method"] == "POST"
-    assert record["url"] == "/v1/chat/completions"
     body = record["body"]
-    assert body["model"] == PROVIDER.model
-    assert body["max_tokens"] == 2048
+    # No method/url (old, wrong OpenAI-shaped envelope) and no model in body
+    # (Fireworks sets model at job-submission time, not per dataset line).
+    assert "method" not in record
+    assert "url" not in record
+    assert "model" not in body
+    assert body["max_tokens"] == 4098
     assert body["temperature"] == 0.2
     assert "response_format" not in body
     roles = [m["role"] for m in body["messages"]]
-    assert roles == ["system", "user"]
-    assert body["messages"][1]["content"] == "Text to review:\nUn dia especial."
+    assert roles == ["user"]
+    assert body["messages"][0]["content"] == "Text to review:\nUn dia especial."
 
 
-def test_build_review_batch_shares_one_system_prompt_across_all_units():
+def test_build_review_batch_never_embeds_a_system_message_per_unit():
+    # The shared system prompt (build_review_system) travels as the batch job's
+    # own system_prompt at submit time -- never repeated per dataset line here.
     records = build_review_batch(_units(), "es", "RVR1960", PROVIDER, _role())
-    systems = {r["body"]["messages"][0]["content"] for r in records}
-    assert len(systems) == 1
+    for record in records:
+        assert all(m["role"] != "system" for m in record["body"]["messages"])
 
 
 def test_build_review_batch_honors_overrides():

@@ -1,15 +1,18 @@
 """
-Build a full year of devotional-generation requests as OpenAI-compatible batch records.
+Build a full year of devotional-generation requests as Fireworks batch dataset
+input lines.
 
 Net-new generation logic (the rest of domain/ is review-side). The output schema is
 deliberately minimal — each day is only {date, reflexion, oracion}: no verse
 selection, no verse-of-the-day spine, no para_meditar/tags.
 
-The system prompt is built once and shared by every record in the year. Fireworks
-(like other OpenAI-compatible batch providers) caches a repeated prompt prefix, so
-one identical system block across 365 requests is billed and processed far more
-cheaply than 365 distinct ones — which is also why all per-day variation is pushed
-into the (short) user message.
+The system prompt is built once and shared by every day in the year, but is never
+repeated per dataset line — it's passed as the batch job's own system_prompt
+(Fireworks' documented shape for a dataset where every row shares one system
+message, docs.fireworks.ai/guides/batch-inference's "Job-level system prompt"),
+which is what keeps the shared prefix byte-identical and prompt-caching intact
+across all 365 requests — which is also why all per-day variation is pushed into
+the (short) user message.
 """
 
 from __future__ import annotations
@@ -119,23 +122,18 @@ def build_year_batch(
     temperature: float = 0.7,
 ) -> list[dict]:
     """
-    One batch input record per day of `year`.
+    One dataset input line per day of `year`, system message omitted.
 
-    The system prompt object is built once and referenced by every record, so the
-    serialized prefix is identical line to line.
+    Pass build_generation_system(lang, version, role) as the batch job's own
+    system_prompt at submit time — see this module's docstring for why it's
+    never repeated per line here.
     """
-    system = build_generation_system(lang, version, role)
     extra = dict(provider.extra_record_fields or {})
 
     return [
         chat_request_record(
             custom_id_for(lang, version, day),
-            provider.model,
-            [
-                {"role": "system", "content": system},
-                {"role": "user", "content": build_generation_user(day)},
-            ],
-            endpoint=provider.endpoint,
+            [{"role": "user", "content": build_generation_user(day)}],
             max_tokens=max_tokens,
             temperature=temperature,
             response_format={"type": "json_object"},
