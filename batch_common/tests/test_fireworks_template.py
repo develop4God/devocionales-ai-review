@@ -86,7 +86,10 @@ def test_job_status_url():
 
 
 def test_parse_job_status_returns_state():
-    assert fw.parse_job_status({"state": "RUNNING"}) == "RUNNING"
+    # JOB_STATE_* is the real wire value, confirmed against a live job's poll
+    # response -- not the bare uppercase words from the docs' "Job states"
+    # table, which turned out not to match (see module docstring).
+    assert fw.parse_job_status({"state": "JOB_STATE_RUNNING"}) == "JOB_STATE_RUNNING"
 
 
 def test_parse_job_status_defaults_to_unknown_when_missing():
@@ -94,12 +97,17 @@ def test_parse_job_status_defaults_to_unknown_when_missing():
 
 
 def test_is_failure_state_matches_failed_and_expired():
-    assert fw.is_failure_state("FAILED") is True
-    assert fw.is_failure_state("EXPIRED") is True
+    assert fw.is_failure_state("JOB_STATE_FAILED") is True
+    assert fw.is_failure_state("JOB_STATE_EXPIRED") is True
 
 
 def test_is_failure_state_false_for_completed_and_in_progress_states():
-    for state in ("VALIDATING", "PENDING", "RUNNING", "COMPLETED"):
+    for state in (
+        "JOB_STATE_VALIDATING",
+        "JOB_STATE_PENDING",
+        "JOB_STATE_RUNNING",
+        "JOB_STATE_COMPLETED",
+    ):
         assert fw.is_failure_state(state) is False
 
 

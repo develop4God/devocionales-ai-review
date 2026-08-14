@@ -140,13 +140,14 @@ class BatchClient:
     ) -> str:
         """
         Poll until the job reaches a terminal state. Returns the terminal state
-        string ("COMPLETED", or a failure state — see is_failure_state below).
+        string (fireworks_template.COMPLETED_STATE, or a failure state — see
+        is_failure_state below).
 
         Does NOT return an output_dataset_id: the docs' own worked example
         downloads using the same output_dataset_id the caller already chose and
         passed to submit() — there's no documented field carrying it back in the
         polling response, so this doesn't invent one. Call download() with that
-        same value once poll() returns "COMPLETED".
+        same value once poll() returns COMPLETED_STATE.
 
         Raises BatchAPIError on a failure state, TimeoutError past timeout.
         """
@@ -158,7 +159,7 @@ class BatchClient:
             state = fw.parse_job_status(data)
             print(f"    [{state}]", flush=True)
 
-            if state == "COMPLETED":
+            if state == fw.COMPLETED_STATE:
                 return state
 
             if fw.is_failure_state(state):

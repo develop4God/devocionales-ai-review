@@ -4,10 +4,19 @@ Fireworks batch inference API shape: URL paths, request/response bodies.
 Every Fireworks-specific detail lives here — account-scoped resource paths
 (accounts/{account_id}/datasets, .../batchInferenceJobs), payload field names
 (datasetId, inputDatasetId, systemPrompt, inferenceParameters), and job states
-(VALIDATING/PENDING/RUNNING/COMPLETED/FAILED/EXPIRED) — confirmed against the
-full docs.fireworks.ai/guides/batch-inference page (including its "Job states"
-reference table) 2026-08-14, after an earlier OpenAI-shaped client (POST /files,
-/batches) was proven wrong by a real 404 from the live API.
+— account-scoped paths and payload fields confirmed against the full
+docs.fireworks.ai/guides/batch-inference page 2026-08-14, after an earlier
+OpenAI-shaped client (POST /files, /batches) was proven wrong by a real 404
+from the live API.
+
+Job states are JOB_STATE_* (e.g. "JOB_STATE_RUNNING", "JOB_STATE_COMPLETED"),
+NOT the bare uppercase words (VALIDATING/RUNNING/COMPLETED/...) shown in that
+page's "Job states" reference table — that table turned out to be a simplified
+summary, not the literal wire value. Confirmed directly from a real job's
+poll response (2026-08-14, job native-reader-es-rvr1960-halfyear-job returned
+state="JOB_STATE_RUNNING") after polling with the bare-word version silently
+never matched any known state and would have spun until timeout on both
+success and failure.
 
 Pure functions only: no network I/O, no urllib. client.py (the transport layer)
 imports this module for "what URL, what body, what does this response mean" and
@@ -19,11 +28,11 @@ sibling template module, not a branch inside this one or inside client.py.
 
 from __future__ import annotations
 
-# Bare uppercase words per the docs' "Job states" table — no JOB_STATE_ prefix
-# (an earlier version of this module guessed JOB_STATE_* before the full docs
-# page, including EXPIRED, was available; corrected here against the real
-# reference table).
-_FAILURE_STATES = frozenset({"FAILED", "EXPIRED"})
+# JOB_STATE_ prefix confirmed against a real poll response (see module
+# docstring) — an earlier version of this module used the bare uppercase words
+# from the docs' "Job states" table, which never matched the real wire value.
+COMPLETED_STATE = "JOB_STATE_COMPLETED"
+_FAILURE_STATES = frozenset({"JOB_STATE_FAILED", "JOB_STATE_EXPIRED"})
 
 
 def accounts_url(base_url: str, account_id: str) -> str:
@@ -118,18 +127,18 @@ def parse_job_status(response: dict) -> str:
     There's no documented outputDatasetId field in the polling response body, so
     this doesn't guess at parsing one out.
 
-    "EXPIRED" (job exceeded its chosen 12/24/48/72h window) is treated as a
-    failure state by is_failure_state(), NOT completed — even though the docs
-    note completed rows up to that point are saved and billed under the
+    "JOB_STATE_EXPIRED" (job exceeded its chosen 12/24/48/72h window) is treated
+    as a failure state by is_failure_state(), NOT completed — even though the
+    docs note completed rows up to that point are saved and billed under the
     caller's own output_dataset_id. A caller that wants those partial results
     can still call download() with the same output_dataset_id they submitted;
     this function itself doesn't attempt that recovery.
 
-    Status field name (response["state"]) is as documented at docs.fireworks.ai/
-    guides/batch-inference's Getting Started walkthrough; the exact response
-    body at each state is not independently confirmed against a real job's raw
-    JSON as of this writing — the docs page shows the request shape for polling
-    but not a full example response body.
+    Status field name (response["state"]) and its JOB_STATE_* values are
+    confirmed against a real job's raw poll response, 2026-08-14 (see this
+    module's own docstring) — not just the docs page, which showed the request
+    shape for polling but not a full example response body, and whose "Job
+    states" table used bare words that turned out not to be the real wire value.
     """
     return response.get("state", "unknown")
 

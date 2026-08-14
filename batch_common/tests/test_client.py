@@ -129,19 +129,22 @@ def test_submit_omits_system_prompt_and_inference_parameters_when_not_given(
 
 
 def test_poll_returns_completed_state(cfg, api_key, account_id, fake_http):
+    # JOB_STATE_* values, confirmed against a real poll response -- NOT the
+    # bare uppercase words shown in the docs' "Job states" table, which never
+    # match the real wire value (see fireworks_template.py's module docstring).
     fake_http.responses += [
-        {"state": "VALIDATING"},
-        {"state": "RUNNING"},
-        {"state": "COMPLETED"},
+        {"state": "JOB_STATE_VALIDATING"},
+        {"state": "JOB_STATE_RUNNING"},
+        {"state": "JOB_STATE_COMPLETED"},
     ]
-    assert BatchClient(cfg).poll("job-1", interval=0) == "COMPLETED"
+    assert BatchClient(cfg).poll("job-1", interval=0) == "JOB_STATE_COMPLETED"
     assert len(fake_http.requests) == 3
     assert fake_http.requests[0].full_url.endswith(
         "/accounts/test-account/batchInferenceJobs/job-1"
     )
 
 
-@pytest.mark.parametrize("state", ["FAILED", "EXPIRED"])
+@pytest.mark.parametrize("state", ["JOB_STATE_FAILED", "JOB_STATE_EXPIRED"])
 def test_poll_raises_on_a_failure_state(cfg, api_key, account_id, fake_http, state):
     fake_http.responses.append({"state": state})
     with pytest.raises(BatchAPIError, match=state):
@@ -149,7 +152,7 @@ def test_poll_raises_on_a_failure_state(cfg, api_key, account_id, fake_http, sta
 
 
 def test_poll_times_out(cfg, api_key, account_id, fake_http):
-    fake_http.responses += [{"state": "RUNNING"}] * 5
+    fake_http.responses += [{"state": "JOB_STATE_RUNNING"}] * 5
     with pytest.raises(TimeoutError, match="timed out"):
         BatchClient(cfg).poll("job-1", interval=0, timeout=0)
 
