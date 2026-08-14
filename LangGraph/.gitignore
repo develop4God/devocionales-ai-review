@@ -9,5 +9,13 @@ data/audit/
 data/genomes/
 data/logs/
 data/checkpoints/
+# Generated batch artifacts, like every other data/ subdirectory above. The one
+# committed exception is the reviewed sample below — the architect signs off on a
+# real generated JSONL before any live batch submission happens.
+# (globbed, not `data/batch_input/` — git cannot re-include a file inside an
+# excluded directory, so the negation below would never take effect.)
+data/batch_input/*
+data/batch_output/*
+!data/batch_input/batch_input_es_RVR1960_2026_gen_deepseek-v3p2_20260814_051019.jsonl
 *.log
 .DS_Store

@@ -1,0 +1,22 @@
+[project]
+name = "batch-common"
+version = "0.1.0"
+description = "Shared OpenAI-compatible batch API transport (upload/submit/poll/download) for the devocionales pipelines."
+requires-python = ">=3.10"
+# Stdlib only — this package is deliberately dependency-free so both GEP (plain
+# python3, no venv) and LangGraph (uv-managed) can depend on it without either one
+# pulling the other's dependency tree in.
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "pytest",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

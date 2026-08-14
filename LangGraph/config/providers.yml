@@ -3,8 +3,9 @@
 # that resolves a model through domain/providers.py. Priority breaks ties when more
 # than one provider is enabled; lower number = tried first.
 #
-# client_type: "api" (cloud, needs env_var API key) or "local" (runs on-machine via
-#              Ollama, no key needed).
+# client_type: "api" (cloud, needs env_var API key), "local" (runs on-machine via
+#              Ollama, no key needed), or "batch" (offline OpenAI-compatible batch
+#              API — resolved by domain/batch_providers.py, never by get_model()).
 # package: which LangChain integration class to use for this provider.
 #   "anthropic" -> langchain_anthropic.ChatAnthropic
 #   "openai"    -> langchain_openai.ChatOpenAI (also covers any OpenAI-compatible
@@ -57,6 +58,23 @@ providers:
     package: openai
     model: "gpt-4o-mini"
     env_var: OPENAI_API_KEY
+
+  # Batch-only entry: resolved by domain/batch_providers.py into a
+  # batch_common.BatchProviderConfig for offline JSONL batch generation. It has no
+  # priority and is deliberately excluded from get_model() — nothing here builds a
+  # live ChatOpenAI, the requests go through the async batch API instead.
+  - id: fireworks_batch_devotional_gen
+    name: "Fireworks/deepseek-v3p2 (batch)"
+    enabled: true
+    client_type: batch
+    package: openai
+    base_url: "https://api.fireworks.ai/inference/v1"
+    model: "accounts/fireworks/models/deepseek-v3p2"
+    env_var: FIREWORKS_API_KEY
+    batch:
+      supported: true
+      endpoint: "/v1/chat/completions"
+      completion_window: "24h"
 
 settings:
   # cerebras_gpt_oss_120b: chosen after comparing it against zai-glm-4.7 and
