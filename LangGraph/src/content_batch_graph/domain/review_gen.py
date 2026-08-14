@@ -110,7 +110,7 @@ def build_review_batch(
     version: str,
     provider: BatchProviderConfig,
     role: Role,
-    max_tokens: int = 1024,
+    max_tokens: int = 2048,
     temperature: float = 0.2,
 ) -> list[dict]:
     """

@@ -135,7 +135,7 @@ def test_build_review_batch_record_body_shape():
     assert record["url"] == "/v1/chat/completions"
     body = record["body"]
     assert body["model"] == PROVIDER.model
-    assert body["max_tokens"] == 1024
+    assert body["max_tokens"] == 2048
     assert body["temperature"] == 0.2
     assert "response_format" not in body
     roles = [m["role"] for m in body["messages"]]
