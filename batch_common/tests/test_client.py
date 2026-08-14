@@ -31,7 +31,7 @@ def test_base_url_trailing_slash_is_normalized(cfg, api_key, account_id, fake_ht
     # cfg.base_url ends in "/" — the built URL must not contain a doubled slash
     # before "accounts".
     fake_http.responses.append({"datasetId": "ds-1"})
-    BatchClient(cfg).create_dataset("ds-1")
+    BatchClient(cfg).create_dataset("ds-1", example_count=1)
     assert (
         fake_http.requests[0].full_url
         == "https://api.example.test/inference/v1/accounts/test-account/datasets"
@@ -40,7 +40,9 @@ def test_base_url_trailing_slash_is_normalized(cfg, api_key, account_id, fake_ht
 
 def test_create_dataset_posts_the_documented_body(cfg, api_key, account_id, fake_http):
     fake_http.responses.append({"datasetId": "batch-input-dataset"})
-    dataset_id = BatchClient(cfg).create_dataset("batch-input-dataset")
+    dataset_id = BatchClient(cfg).create_dataset(
+        "batch-input-dataset", example_count=50
+    )
 
     assert dataset_id == "batch-input-dataset"
     req = fake_http.requests[0]
@@ -48,7 +50,7 @@ def test_create_dataset_posts_the_documented_body(cfg, api_key, account_id, fake
     assert req.get_header("Authorization") == "Bearer test-key"
     assert json.loads(req.data.decode()) == {
         "datasetId": "batch-input-dataset",
-        "dataset": {"userUploaded": {}},
+        "dataset": {"userUploaded": {}, "exampleCount": "50"},
     }
 
 

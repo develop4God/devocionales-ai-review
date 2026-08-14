@@ -32,11 +32,24 @@ def accounts_url(base_url: str, account_id: str) -> str:
 
 
 def create_dataset_request(
-    base_url: str, account_id: str, dataset_id: str
+    base_url: str, account_id: str, dataset_id: str, example_count: int
 ) -> tuple[str, dict]:
-    """(url, json body) for POST .../datasets — declares an empty dataset resource."""
+    """
+    (url, json body) for POST .../datasets — declares an empty dataset resource.
+
+    example_count (the number of lines the caller is about to upload) is
+    required by the live API for a userUploaded dataset — confirmed by a real
+    400 ("example_count is required for uploaded datasets") the docs' own
+    request-body example (docs.fireworks.ai/guides/batch-inference,
+    /api-reference/create-dataset) does not show as required; that page's
+    schema even marks exampleCount read-only. The server's own validation
+    error is the authority here, not the doc page.
+    """
     url = f"{accounts_url(base_url, account_id)}/datasets"
-    body = {"datasetId": dataset_id, "dataset": {"userUploaded": {}}}
+    body = {
+        "datasetId": dataset_id,
+        "dataset": {"userUploaded": {}, "exampleCount": str(example_count)},
+    }
     return url, body
 
 

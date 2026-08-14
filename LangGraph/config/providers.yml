@@ -68,7 +68,13 @@ providers:
     enabled: true
     client_type: batch
     package: openai
-    base_url: "https://api.fireworks.ai/inference/v1"
+    # NOT the same host path as the live chat-completions API (.../inference/v1)
+    # — Fireworks' batch/dataset management API (datasets, batchInferenceJobs)
+    # lives under plain /v1, confirmed against every curl example in
+    # docs.fireworks.ai/guides/batch-inference after a real 404 on
+    # .../inference/v1/accounts/{id}/datasets proved the /inference/v1 base wrong
+    # for this entry.
+    base_url: "https://api.fireworks.ai/v1"
     model: "accounts/fireworks/models/gpt-oss-20b"
     env_var: FIREWORKS_API_KEY
     account_id_env_var: FIREWORKS_ACCOUNT_ID

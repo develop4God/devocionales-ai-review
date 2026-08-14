@@ -12,7 +12,7 @@ Fireworks path baked into this transport layer.
 
 Usage:
     client = BatchClient(cfg)
-    client.create_dataset("my-batch-input")
+    client.create_dataset("my-batch-input", example_count=365)
     client.upload("my-batch-input", Path("batch_input.jsonl"))
     client.submit(
         "my-batch-input", output_dataset_id="my-batch-output",
@@ -67,9 +67,17 @@ class BatchClient:
 
     # ── Batch operations ──────────────────────────────────────────────────
 
-    def create_dataset(self, dataset_id: str) -> str:
-        """Declares an empty dataset resource for a subsequent upload() to fill."""
-        url, body = fw.create_dataset_request(self._base, self._account_id, dataset_id)
+    def create_dataset(self, dataset_id: str, example_count: int) -> str:
+        """
+        Declares an empty dataset resource for a subsequent upload() to fill.
+
+        example_count: the number of lines the caller is about to upload via
+        upload() — required by the live API (see fireworks_template.
+        create_dataset_request's docstring for why).
+        """
+        url, body = fw.create_dataset_request(
+            self._base, self._account_id, dataset_id, example_count
+        )
         self._post_json(url, body)
         return dataset_id
 

@@ -16,11 +16,13 @@ def test_accounts_url_strips_trailing_slash_on_base():
 
 
 def test_create_dataset_request_shape():
-    url, body = fw.create_dataset_request(BASE, ACCOUNT, "batch-input-dataset")
+    url, body = fw.create_dataset_request(
+        BASE, ACCOUNT, "batch-input-dataset", example_count=50
+    )
     assert url == f"{BASE}/accounts/{ACCOUNT}/datasets"
     assert body == {
         "datasetId": "batch-input-dataset",
-        "dataset": {"userUploaded": {}},
+        "dataset": {"userUploaded": {}, "exampleCount": "50"},
     }
 
 
