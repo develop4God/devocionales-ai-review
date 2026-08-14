@@ -38,7 +38,7 @@ where = ["src"]
 # machine, not a workspace member. review_fields.py (on its reorg-shared-validation
 # branch, not yet merged to main) was purpose-built for this project's field-path
 # format; this stays live as that branch evolves instead of a one-time copy.
-devocionales-json = { path = "../../devocionales-json", editable = true }
+devocionales-json = { path = "../devocionales-json", editable = true }
 
 # Sibling package in this repo, editable — the OpenAI-compatible batch transport
 # (upload/submit/poll/download) shared with GEP. Stdlib-only, so depending on it
