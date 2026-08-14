@@ -310,3 +310,172 @@ def test_collect_reports_a_missing_results_file(capsys):
         == 1
     )
     assert "not found" in capsys.readouterr().err
+
+
+# ── pipeline ──────────────────────────────────────────────────────────────────
+
+
+def _pipeline_argv(tmp_path, *extra):
+    return [
+        "pipeline",
+        "--lang",
+        "tl",
+        "--version",
+        "ASND",
+        "--year",
+        "2026",
+        "--limit",
+        "2",
+        "--poll-interval",
+        "1",
+        "--out",
+        str(tmp_path / "collected.json"),
+        *extra,
+    ]
+
+
+_GOOD_RESULT_LINE = (
+    json.dumps(
+        {
+            "custom_id": "gen_tl_ASND_2026_01-01",
+            "response": {
+                "body": {
+                    "choices": [
+                        {
+                            "message": {
+                                "content": json.dumps(
+                                    {"reflexion": "R", "oracion": "O"}
+                                )
+                            }
+                        }
+                    ]
+                }
+            },
+        }
+    )
+    + "\n"
+)
+
+
+@pytest.fixture
+def results_writing_client(stub_client, monkeypatch):
+    """Stub whose download() writes a well-formed one-record results file."""
+
+    def download(self, file_id, dest):
+        self.calls.append(("download", file_id, dest))
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text(_GOOD_RESULT_LINE, encoding="utf-8")
+        return dest
+
+    monkeypatch.setattr(_StubClient, "download", download)
+    return stub_client
+
+
+def test_pipeline_dry_run_builds_only_and_makes_no_network_call(tmp_path, capsys):
+    rc = cli.main(_pipeline_argv(tmp_path, "--dry-run"))
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "[1/5] Building batch for tl/ASND/2026" in out
+    assert "2 records written to" in out
+    assert "Dry run — the remaining steps WOULD run" in out
+    for step in ("[2/5]", "[3/5]", "[4/5]", "[5/5]"):
+        assert step in out
+    assert "Nothing submitted" in out
+
+
+def test_pipeline_happy_path_runs_all_five_steps(
+    results_writing_client, tmp_path, capsys
+):
+    rc = cli.main(_pipeline_argv(tmp_path))
+    assert rc == 0
+    kinds = [c[0] for c in results_writing_client.instances[0].calls]
+    assert kinds == ["upload", "submit", "poll", "download"]
+    out = capsys.readouterr().out
+    for step in ("[1/5]", "[2/5]", "[3/5]", "[4/5]", "[5/5]"):
+        assert step in out
+    assert "Pipeline complete." in out
+    assert "records collected: 1" in out
+    assert "errors:            0" in out
+    collected = json.loads((tmp_path / "collected.json").read_text(encoding="utf-8"))
+    assert collected["data"][0]["reflexion"] == "R"
+
+
+def test_pipeline_uses_the_requested_poll_interval(results_writing_client, tmp_path):
+    assert cli.main(_pipeline_argv(tmp_path)) == 0
+    poll_call = next(
+        c for c in results_writing_client.instances[0].calls if c[0] == "poll"
+    )
+    assert poll_call[2] == 1
+
+
+def test_pipeline_stops_when_submit_fails(stub_client, monkeypatch, tmp_path, capsys):
+    def boom(self, file_id):
+        raise BatchAPIError("HTTP 401: bad key")
+
+    monkeypatch.setattr(_StubClient, "submit", boom)
+    assert cli.main(_pipeline_argv(tmp_path)) == 1
+    captured = capsys.readouterr()
+    assert "step 2/5 (submit) failed" in captured.err
+    assert "HTTP 401" in captured.err
+    assert "[3/5]" not in captured.out
+    assert [c[0] for c in stub_client.instances[0].calls] == ["upload"]
+
+
+@pytest.mark.parametrize("status", ["failed", "expired", "cancelled"])
+def test_pipeline_stops_on_a_terminal_poll_status(
+    stub_client, monkeypatch, tmp_path, capsys, status
+):
+    def boom(self, batch_id, interval=30, timeout=86_400):
+        raise BatchAPIError(f"Batch ended with status='{status}'")
+
+    monkeypatch.setattr(_StubClient, "poll", boom)
+    assert cli.main(_pipeline_argv(tmp_path)) == 1
+    captured = capsys.readouterr()
+    assert "step 3/5 (poll) failed" in captured.err
+    assert f"status='{status}'" in captured.err
+    assert "[4/5]" not in captured.out
+    assert "download" not in [c[0] for c in stub_client.instances[0].calls]
+
+
+def test_pipeline_stops_when_poll_times_out(stub_client, monkeypatch, tmp_path, capsys):
+    def boom(self, batch_id, interval=30, timeout=86_400):
+        raise TimeoutError("Batch polling timed out after 5s")
+
+    monkeypatch.setattr(_StubClient, "poll", boom)
+    assert cli.main(_pipeline_argv(tmp_path)) == 1
+    assert "step 3/5 (poll) failed" in capsys.readouterr().err
+
+
+def test_pipeline_stops_when_download_fails(stub_client, monkeypatch, tmp_path, capsys):
+    def boom(self, file_id, dest):
+        raise BatchAPIError("HTTP 500: file gone")
+
+    monkeypatch.setattr(_StubClient, "download", boom)
+    assert cli.main(_pipeline_argv(tmp_path)) == 1
+    captured = capsys.readouterr()
+    assert "step 4/5 (download) failed" in captured.err
+    assert "[5/5]" not in captured.out
+    assert not (tmp_path / "collected.json").exists()
+
+
+def test_pipeline_stops_on_malformed_results(
+    stub_client, monkeypatch, tmp_path, capsys
+):
+    def download(self, file_id, dest):
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_text("this is not jsonl\n", encoding="utf-8")
+        return dest
+
+    monkeypatch.setattr(_StubClient, "download", download)
+    rc = cli.main(_pipeline_argv(tmp_path))
+    captured = capsys.readouterr()
+    assert rc == 1
+    assert "step 5/5 (collect) failed" in captured.err
+
+
+def test_pipeline_rejects_a_non_batch_provider(tmp_path, capsys):
+    rc = cli.main(
+        _pipeline_argv(tmp_path, "--provider", "anthropic_default", "--dry-run")
+    )
+    assert rc == 1
+    assert "batch.supported" in capsys.readouterr().err
