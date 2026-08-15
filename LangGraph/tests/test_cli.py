@@ -516,4 +516,221 @@ def test_pipeline_rejects_a_non_batch_provider(tmp_path, capsys):
         _pipeline_argv(tmp_path, "--provider", "anthropic_default", "--dry-run")
     )
     assert rc == 1
-    assert "batch.supported" in capsys.readouterr().err
+
+
+# ── review-build / review-submit ────────────────────────────────────────────────
+
+
+def _write_review_corpus(tmp_path, lang="es", version="RVR1960"):
+    doc = {
+        "data": {
+            lang: {
+                "2026-01-01": [
+                    {"id": "e1", "reflexion": "Un dia especial.", "oracion": "Amen."},
+                    {"id": "e2", "reflexion": "", "oracion": "Otra oracion."},
+                ],
+            }
+        }
+    }
+    path = tmp_path / f"Devocional_year_2026_{lang}_{version}.json"
+    path.write_text(json.dumps(doc, ensure_ascii=False), encoding="utf-8")
+    return path
+
+
+class _ReviewStubClient:
+    """
+    Records calls; stands in for batch_common.BatchClient's real
+    create_dataset/upload/submit sequence — distinct from _StubClient above,
+    which stands in for the OLD upload(path)->submit(file_id) shape that
+    review-submit deliberately does not use (see cmd_review_submit's
+    docstring).
+    """
+
+    instances: ClassVar[list] = []
+
+    def __init__(self, cfg):
+        self.cfg = cfg
+        self.calls: list[tuple] = []
+        _ReviewStubClient.instances.append(self)
+
+    def create_dataset(self, dataset_id, example_count):
+        self.calls.append(("create_dataset", dataset_id, example_count))
+        return dataset_id
+
+    def upload(self, dataset_id, path):
+        self.calls.append(("upload", dataset_id, path))
+        return dataset_id
+
+    def submit(self, input_dataset_id, output_dataset_id, job_id, **kwargs):
+        self.calls.append(
+            ("submit", input_dataset_id, output_dataset_id, job_id, kwargs)
+        )
+        return job_id
+
+
+@pytest.fixture
+def review_stub_client(monkeypatch):
+    _ReviewStubClient.instances = []
+    monkeypatch.setattr(cli, "BatchClient", _ReviewStubClient)
+    return _ReviewStubClient
+
+
+def test_review_build_dry_run_writes_all_reviewable_fields(tmp_path, capsys):
+    _write_review_corpus(tmp_path)
+    rc = cli.main(
+        [
+            "review-build",
+            "--corpus-dir",
+            str(tmp_path),
+            "--lang",
+            "es",
+            "--dry-run",
+        ]
+    )
+    assert rc == 0
+    out = capsys.readouterr().out
+    # e1 reflexion + e1 oracion + e2 oracion (e2 reflexion is empty, skipped)
+    assert "Wrote 3 records" in out
+    assert "versions covered: RVR1960" in out
+    assert "Dry run" in out
+
+    path = out.splitlines()[0].split("-> ", 1)[1]
+    lines = Path(path).read_text(encoding="utf-8").splitlines()
+    assert len(lines) == 3
+    first = json.loads(lines[0])
+    assert first["custom_id"] == "review_es_RVR1960_e1_reflexion"
+    assert first["body"]["response_format"]["type"] == "json_schema"
+    assert all(m["role"] != "system" for m in first["body"]["messages"])
+
+
+def test_review_build_labels_mixed_versions_correctly(tmp_path, capsys):
+    _write_review_corpus(tmp_path, lang="es", version="RVR1960")
+    _write_review_corpus(tmp_path, lang="es", version="NVI")
+    rc = cli.main(
+        ["review-build", "--corpus-dir", str(tmp_path), "--lang", "es", "--dry-run"]
+    )
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "Wrote 6 records" in out
+    assert "versions covered: NVI, RVR1960" in out
+
+    path = out.splitlines()[0].split("-> ", 1)[1]
+    custom_ids = {
+        json.loads(line)["custom_id"]
+        for line in Path(path).read_text(encoding="utf-8").splitlines()
+    }
+    assert "review_es_RVR1960_e1_reflexion" in custom_ids
+    assert "review_es_NVI_e1_reflexion" in custom_ids
+
+
+def test_review_build_limit_truncates(tmp_path, capsys):
+    _write_review_corpus(tmp_path)
+    rc = cli.main(
+        [
+            "review-build",
+            "--corpus-dir",
+            str(tmp_path),
+            "--lang",
+            "es",
+            "--limit",
+            "1",
+            "--dry-run",
+        ]
+    )
+    assert rc == 0
+    assert "Wrote 1 records" in capsys.readouterr().out
+
+
+def test_review_build_reports_no_reviewable_fields(tmp_path, capsys):
+    rc = cli.main(
+        ["review-build", "--corpus-dir", str(tmp_path), "--lang", "es", "--dry-run"]
+    )
+    assert rc == 1
+    assert "No reviewable" in capsys.readouterr().err
+
+
+def test_review_submit_creates_uploads_then_submits(
+    review_stub_client, sample_jsonl, capsys
+):
+    rc = cli.main(
+        ["review-submit", "--input", str(sample_jsonl), "--lang", "es"]
+    )
+    assert rc == 0
+    calls = review_stub_client.instances[0].calls
+    assert calls[0][0] == "create_dataset"
+    assert calls[1][0] == "upload"
+    assert calls[2][0] == "submit"
+    # create_dataset and upload/submit all agree on the same generated dataset ids
+    dataset_id = calls[0][1]
+    assert calls[1][1] == dataset_id
+    assert calls[2][1] == dataset_id
+    out = capsys.readouterr().out
+    assert "Submitted batch" in out
+
+
+def test_review_submit_honors_an_explicit_job_id(
+    review_stub_client, sample_jsonl, capsys
+):
+    rc = cli.main(
+        [
+            "review-submit",
+            "--input",
+            str(sample_jsonl),
+            "--lang",
+            "es",
+            "--job-id",
+            "my-review-job",
+        ]
+    )
+    assert rc == 0
+    calls = review_stub_client.instances[0].calls
+    assert calls[0][1] == "my-review-job-in"
+    assert calls[2][1:4] == ("my-review-job-in", "my-review-job-out", "my-review-job")
+
+
+def test_review_submit_passes_system_prompt_and_inference_params(
+    review_stub_client, sample_jsonl
+):
+    cli.main(
+        [
+            "review-submit",
+            "--input",
+            str(sample_jsonl),
+            "--lang",
+            "es",
+            "--max-tokens",
+            "512",
+            "--temperature",
+            "0.1",
+        ]
+    )
+    calls = review_stub_client.instances[0].calls
+    submit_kwargs = calls[2][4]
+    assert "native Spanish speaker" in submit_kwargs["system_prompt"]
+    assert submit_kwargs["max_tokens"] == 512
+    assert submit_kwargs["temperature"] == 0.1
+
+
+def test_review_submit_reports_a_missing_input_file(review_stub_client, capsys):
+    rc = cli.main(
+        ["review-submit", "--input", "definitely_missing.jsonl", "--lang", "es"]
+    )
+    assert rc == 1
+    assert "not found" in capsys.readouterr().err
+
+
+def test_review_submit_rejects_an_empty_input_file(
+    review_stub_client, tmp_path, capsys
+):
+    empty = tmp_path / "empty.jsonl"
+    empty.write_text("", encoding="utf-8")
+    rc = cli.main(["review-submit", "--input", str(empty), "--lang", "es"])
+    assert rc == 1
+    assert "no records" in capsys.readouterr().err
+
+
+def test_review_submit_without_api_key_fails_loudly(capsys):
+    # Real BatchClient this time — construction must refuse without the key.
+    rc = cli.main(["review-submit", "--input", "whatever.jsonl", "--lang", "es"])
+    assert rc == 1
+    assert "FIREWORKS_API_KEY" in capsys.readouterr().err

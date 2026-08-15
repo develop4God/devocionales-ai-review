@@ -28,6 +28,8 @@ sibling template module, not a branch inside this one or inside client.py.
 
 from __future__ import annotations
 
+import json
+
 # JOB_STATE_ prefix confirmed against a real poll response (see module
 # docstring) — an earlier version of this module used the bare uppercase words
 # from the docs' "Job states" table, which never matched the real wire value.
@@ -78,6 +80,7 @@ def submit_job_request(
     max_tokens: int | None = None,
     temperature: float | None = None,
     top_p: float | None = None,
+    extra_body: dict | None = None,
 ) -> tuple[str, dict]:
     """
     (url, json body) for POST .../batchInferenceJobs?batchInferenceJobId={job_id}.
@@ -86,6 +89,15 @@ def submit_job_request(
     dataset where every row shares one system message) rather than repeated in
     every record's messages — smaller upload, keeps prompt-caching intact per
     Fireworks' own guidance.
+
+    extra_body maps to inferenceParameters.extraBody, the documented escape
+    hatch for request fields the schema doesn't otherwise expose (e.g.
+    reasoning_effort, chat_template_kwargs) — confirmed against the live API
+    reference 2026-08-15 as a job-level *string* field (a JSON-encoded object),
+    applied uniformly to every row. NOT a per-record field: an earlier attempt
+    to set "extra_body" inside each JSONL row's own body (rather than here, at
+    submission) got a real 400 "Extra inputs are not permitted, field:
+    'extra_body'" on every row — the record schema has no such field at all.
     """
     url = (
         f"{accounts_url(base_url, account_id)}/batchInferenceJobs"
@@ -97,6 +109,7 @@ def submit_job_request(
             "maxTokens": max_tokens,
             "temperature": temperature,
             "topP": top_p,
+            "extraBody": json.dumps(extra_body) if extra_body is not None else None,
         }.items()
         if v is not None
     }
@@ -114,6 +127,11 @@ def submit_job_request(
 
 def job_status_url(base_url: str, account_id: str, job_id: str) -> str:
     """URL for GET .../batchInferenceJobs/{job_id} — poll target."""
+    return f"{accounts_url(base_url, account_id)}/batchInferenceJobs/{job_id}"
+
+
+def job_delete_url(base_url: str, account_id: str, job_id: str) -> str:
+    """URL for DELETE .../batchInferenceJobs/{job_id} — cancels the job."""
     return f"{accounts_url(base_url, account_id)}/batchInferenceJobs/{job_id}"
 
 

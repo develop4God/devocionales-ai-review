@@ -115,8 +115,19 @@ class BatchClient:
         max_tokens: int | None = None,
         temperature: float | None = None,
         top_p: float | None = None,
+        extra_body: dict | None = None,
     ) -> str:
-        """Creates the batch inference job. Returns job_id (caller-chosen)."""
+        """
+        Creates the batch inference job. Returns job_id (caller-chosen).
+
+        extra_body defaults to the provider config's own extra_body (e.g.
+        reasoning_effort) when the caller doesn't pass one explicitly — so a
+        provider-level setting in providers.yml applies without every call site
+        needing to read and forward it itself. Pass extra_body explicitly to
+        override (including {} to suppress the provider's default for one call).
+        """
+        if extra_body is None:
+            extra_body = self._cfg.extra_body
         url, payload = fw.submit_job_request(
             self._base,
             self._account_id,
@@ -128,6 +139,7 @@ class BatchClient:
             max_tokens=max_tokens,
             temperature=temperature,
             top_p=top_p,
+            extra_body=extra_body,
         )
         self._post_json(url, payload)
         return job_id
@@ -169,6 +181,16 @@ class BatchClient:
 
         raise TimeoutError(f"Batch polling timed out after {timeout}s")
 
+    def cancel(self, job_id: str) -> None:
+        """Cancels a batch inference job via DELETE .../batchInferenceJobs/{job_id}."""
+        url = fw.job_delete_url(self._base, self._account_id, job_id)
+        req = urllib.request.Request(
+            url,
+            headers={"Authorization": f"Bearer {self._key}"},
+            method="DELETE",
+        )
+        self._do(req)
+
     def download(self, output_dataset_id: str, dest_dir: Path) -> list[Path]:
         """
         Downloads every file in a completed output dataset into dest_dir.
@@ -181,7 +203,11 @@ class BatchClient:
         manifest_url = fw.download_manifest_request(
             self._base, self._account_id, output_dataset_id
         )
-        manifest = self._post_json(manifest_url, {})
+        # Plain GET, not POST — confirmed against a real 501 "Method Not
+        # Allowed" on POST, then a real 400 on GET-with-body (the docs' curl
+        # example shows `-d '{}'`, but that body is rejected by the live API;
+        # a bodyless GET is what actually works).
+        manifest = self._get_json(manifest_url)
         signed_urls = fw.parse_download_manifest(manifest)
         if not signed_urls:
             raise BatchAPIError(

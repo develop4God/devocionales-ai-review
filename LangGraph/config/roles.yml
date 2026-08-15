@@ -30,10 +30,13 @@ roles:
 
       Write your comments in English.
 
-      If you find an error, respond in this format:
-        current text:  <the exact text as it appears in the source>
-        proposed text: <the corrected text>
-        explanation:   <what is wrong, in English>
+      For each error found, report it as one entry in the "findings" list, with:
+        quoted_text:   the exact problematic text, quoted verbatim from the source — the specific word or phrase, not the surrounding sentence or paragraph
+        issue:         what is wrong, in English
+        proposed_text: the corrected replacement for quoted_text
+        category:      "typo" or "grammar"
+
+      Only report actual typos or grammar errors — not stylistic preferences or phrasing that is already correct. If the text has no errors, return an empty findings list.
     categories:
       - typo
       - grammar

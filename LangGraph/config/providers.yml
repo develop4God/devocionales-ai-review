@@ -82,6 +82,17 @@ providers:
       supported: true
       endpoint: "/v1/chat/completions"
       completion_window: "24h"
+      # gpt-oss-20b can't fully disable reasoning (architecturally always-on
+      # CoT) — a real batch test with no reasoning_effort set blew the 4098
+      # max_tokens budget on reasoning alone for 3/5 rows (finish_reason:
+      # length, no content field at all). reasoning_effort:"low", passed via
+      # inferenceParameters.extraBody at job-submission time (confirmed as a
+      # documented field there, not per-record — Fireworks' own API reference
+      # lists extraBody only inside inferenceParameters), fixed this: a real
+      # retest got 5/5 clean completions with completion_tokens dropping from
+      # ~2800-4098 to 360-1825 per row.
+      extra_body:
+        reasoning_effort: low
 
 settings:
   # cerebras_gpt_oss_120b: chosen after comparing it against zai-glm-4.7 and

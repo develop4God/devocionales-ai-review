@@ -56,5 +56,6 @@ def get_batch_provider(provider_id: str) -> BatchProviderConfig:
         endpoint=batch.get("endpoint", "/v1/chat/completions"),
         completion_window=batch.get("completion_window", "24h"),
         extra_record_fields=batch.get("extra_record_fields"),
+        extra_body=batch.get("extra_body"),
         account_id_env_var=provider.get("account_id_env_var"),
     )

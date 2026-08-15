@@ -28,6 +28,12 @@ class BatchProviderConfig:
     # Provider-specific extras merged into each request body by the caller
     # (e.g. a reasoning/thinking toggle). Kept opaque here on purpose.
     extra_record_fields: dict | None = field(default=None)
+    # Job-level equivalent of extra_record_fields, sent once at submission time
+    # via inferenceParameters.extraBody (Fireworks' documented escape hatch for
+    # request fields outside the base schema, e.g. reasoning_effort) — not
+    # per-record, so use this instead of extra_record_fields for anything that's
+    # the same for every row in the batch.
+    extra_body: dict | None = field(default=None)
     # Fireworks' batch API is account-scoped (every path is
     # accounts/{account_id}/datasets|batchInferenceJobs/...), unlike OpenAI's flat
     # /files, /batches. None for a provider whose batch API isn't account-scoped.

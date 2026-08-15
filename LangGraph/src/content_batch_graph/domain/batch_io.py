@@ -22,11 +22,17 @@ PATHS = BatchPaths(_PROJECT_ROOT, env_prefix="LANGGRAPH")
 # introducing a fourth data subdirectory.
 GENOMES_DIR = PATHS.data_dir / "genomes"
 
+# Where a collected review batch lands — a report of issues found in existing
+# content, not generated content itself, so it gets its own directory rather
+# than living alongside genomes/.
+REVIEWS_DIR = PATHS.data_dir / "reviews"
+
 
 def ensure_dirs() -> None:
-    """Create batch_input/, batch_output/ and genomes/ if missing (idempotent)."""
+    """Create batch_input/, batch_output/, genomes/ and reviews/ if missing (idempotent)."""
     PATHS.ensure_dirs()
     GENOMES_DIR.mkdir(parents=True, exist_ok=True)
+    REVIEWS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def utc_timestamp() -> str:
@@ -59,6 +65,25 @@ def batch_input_path(
     return (
         PATHS.batch_input_dir
         / f"input_{lang}_{version}_{year}_{provider_id}_{model_slug}_{ts}.jsonl"
+    )
+
+
+def review_batch_input_path(
+    lang: str, provider_id: str, model_slug: str, ts: str
+) -> Path:
+    """
+    data/batch_input/review_{lang}_{provider_id}_{model_slug}_{ts}.jsonl
+
+    No year/version in the filename, unlike batch_input_path — a review batch
+    reads review_gen.review_units_from_corpus(corpus_dir, lang), which can span
+    every version file for that language in one run (e.g. es/RVR1960 + es/NVI
+    together), so a single year or version wouldn't describe the file's actual
+    contents. Each unit's own version still lands in its custom_id via
+    review_gen.custom_id_for — this filename just isn't scoped to one.
+    """
+    PATHS.batch_input_dir.mkdir(parents=True, exist_ok=True)
+    return (
+        PATHS.batch_input_dir / f"review_{lang}_{provider_id}_{model_slug}_{ts}.jsonl"
     )
 
 
@@ -104,6 +129,20 @@ def collection_path(lang: str, version: str | None, year: int, ts: str) -> Path:
     GENOMES_DIR.mkdir(parents=True, exist_ok=True)
     version = version or _DEFAULT_VERSION
     return GENOMES_DIR / f"Devocional_year_{year}_{lang}_{version}_gen_o_{ts}.json"
+
+
+def review_collection_path(lang: str, ts: str) -> Path:
+    """
+    data/reviews/review_{lang}_{ts}.json
+
+    No version/year in the filename, unlike collection_path — a review batch
+    (review_gen.review_units_from_corpus) can span every version file for one
+    language in one run, so the collected result isn't scoped to a single
+    version or year either. Each finding's own (entry_id, field, version)
+    still lands inside the file's data, via review_collect.ReviewResult.
+    """
+    REVIEWS_DIR.mkdir(parents=True, exist_ok=True)
+    return REVIEWS_DIR / f"review_{lang}_{ts}.json"
 
 
 def resolve_batch_input(file_arg: str | Path) -> Path:
