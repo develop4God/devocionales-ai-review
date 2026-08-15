@@ -63,6 +63,7 @@ from content_batch_graph.domain.review_gen import (
     build_review_batch,
     build_review_system,
     review_units_from_corpus,
+    review_units_from_file,
 )
 from content_batch_graph.domain.roles import get_role
 
@@ -165,6 +166,16 @@ def cmd_review_build(args: argparse.Namespace) -> int:
     one language, e.g. es/RVR1960 + es/NVI both match lang "es" — each record's
     own custom_id carries its actual source version, see review_gen.custom_id_for).
 
+    --corpus-file reads exactly one file (review_units_from_file) instead of
+    every file --lang matches — the year is encoded in the filename itself
+    (Devocional_year_{year}[_{lang}_{version}].json), and there's no separate
+    --year flag to filter a corpus-wide read down to one year, so pointing
+    directly at the one file is the straightforward way to scope a build to a
+    single year/version. --version (used only with --corpus-dir) filters the
+    corpus-wide read down to a single version after the fact (ReviewUnit.version,
+    set from each file's own name — see review_gen.version_from_filename) — a
+    one-line list comprehension, not a separate domain function.
+
     Writes the file and stops — this is the build-only half; run review-submit
     on the resulting file to actually create the batch job. Split from
     review-submit (rather than one combined command) for the same operator
@@ -174,13 +185,21 @@ def cmd_review_build(args: argparse.Namespace) -> int:
     provider = get_batch_provider(args.provider)
     role = get_role(args.role)
 
-    units = review_units_from_corpus(args.corpus_dir, args.lang)
+    if args.corpus_file:
+        units = review_units_from_file(args.corpus_file, args.lang)
+    else:
+        units = review_units_from_corpus(args.corpus_dir, args.lang)
+        if args.version:
+            units = [u for u in units if u.version == args.version]
+
     if args.limit:
         units = units[: args.limit]
     if not units:
         raise ValueError(
             f"No reviewable reflexion/oracion fields found for lang={args.lang!r} "
-            f"in {args.corpus_dir!r}."
+            f"in {args.corpus_file or args.corpus_dir!r}"
+            + (f" version={args.version!r}" if args.version else "")
+            + "."
         )
 
     records = build_review_batch(
@@ -501,8 +520,17 @@ def build_parser() -> argparse.ArgumentParser:
         "review-build",
         help="Build a native_reader_batch review JSONL from a devocionales-json corpus.",
     )
-    p_rbuild.add_argument("--corpus-dir", required=True)
+    p_rbuild_source = p_rbuild.add_mutually_exclusive_group(required=True)
+    p_rbuild_source.add_argument(
+        "--corpus-dir", help="Read every file --lang matches (all years/versions)."
+    )
+    p_rbuild_source.add_argument(
+        "--corpus-file", help="Read exactly one file (one year/version)."
+    )
     p_rbuild.add_argument("--lang", required=True)
+    p_rbuild.add_argument(
+        "--version", help="With --corpus-dir only: keep just this Bible version."
+    )
     _add_provider_arg(p_rbuild)
     p_rbuild.add_argument("--role", default=DEFAULT_REVIEW_ROLE)
     p_rbuild.add_argument("--max-tokens", type=int, default=4098)

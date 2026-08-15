@@ -649,6 +649,72 @@ def test_review_build_reports_no_reviewable_fields(tmp_path, capsys):
     assert "No reviewable" in capsys.readouterr().err
 
 
+def test_review_build_corpus_file_reads_only_that_one_file(tmp_path, capsys):
+    # Two files (two versions) present, but --corpus-file names only one -- the
+    # other must be completely ignored, unlike --corpus-dir which reads both.
+    target = _write_review_corpus(tmp_path, lang="es", version="RVR1960")
+    _write_review_corpus(tmp_path, lang="es", version="NVI")
+
+    rc = cli.main(
+        [
+            "review-build",
+            "--corpus-file",
+            str(target),
+            "--lang",
+            "es",
+            "--dry-run",
+        ]
+    )
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "Wrote 3 records" in out
+    assert "versions covered: RVR1960" in out
+
+    path = out.splitlines()[0].split("-> ", 1)[1]
+    custom_ids = {
+        json.loads(line)["custom_id"]
+        for line in Path(path).read_text(encoding="utf-8").splitlines()
+    }
+    assert all("_RVR1960_" in cid for cid in custom_ids)
+
+
+def test_review_build_version_filters_a_corpus_dir_read(tmp_path, capsys):
+    _write_review_corpus(tmp_path, lang="es", version="RVR1960")
+    _write_review_corpus(tmp_path, lang="es", version="NVI")
+
+    rc = cli.main(
+        [
+            "review-build",
+            "--corpus-dir",
+            str(tmp_path),
+            "--lang",
+            "es",
+            "--version",
+            "RVR1960",
+            "--dry-run",
+        ]
+    )
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "Wrote 3 records" in out
+    assert "versions covered: RVR1960" in out
+
+
+def test_review_build_rejects_corpus_dir_and_corpus_file_together():
+    with pytest.raises(SystemExit):
+        cli.build_parser().parse_args(
+            [
+                "review-build",
+                "--corpus-dir",
+                "a",
+                "--corpus-file",
+                "b",
+                "--lang",
+                "es",
+            ]
+        )
+
+
 def test_review_submit_creates_uploads_then_submits(
     review_stub_client, sample_jsonl, capsys
 ):
