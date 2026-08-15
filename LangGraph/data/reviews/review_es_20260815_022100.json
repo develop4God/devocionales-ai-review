@@ -1,0 +1,6764 @@
+{
+  "lang": "es",
+  "count": 709,
+  "errors": [
+    {
+      "custom_id": "review_es_RVR1960_1pedro1_3-5RVR1960_reflexion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_hechos1728RVR1960_reflexion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_juan635RVR1960_reflexion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_lucas21011RVR1960_reflexion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_1juan318RVR1960_oracion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_mateo25_20251128_RVR1960_reflexion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_efesios1_3-4RVR1960_reflexion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_apocalipsis2_4_20251221RVR1960_oracion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_1juan418RVR1960_reflexion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_filipenses31314RVR1960_reflexion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_juan73839RVR1960_reflexion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_santiago410RVR1960_oracion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_juan15_5_20260224_RVR1960_reflexion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_2timoteo317RVR1960_oracion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_2corintios521RVR1960_oracion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_juan524RVR1960_reflexion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_santiago317RVR1960_reflexion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_romanos1513RVR1960_reflexion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_romanos123RVR1960_reflexion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_romanos15_4_RVR1960_reflexion",
+      "reason": "missing response content"
+    },
+    {
+      "custom_id": "review_es_RVR1960_filipenses1v6RVR1960_reflexion",
+      "reason": "missing response content"
+    }
+  ],
+  "data": [
+    {
+      "entry_id": "col323RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan4v1RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas172021RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses2_3-4RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos217RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos12_6-7RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1pedro2_9_10_20250810RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan141617RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2pedro310RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "santiago219RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan21517RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan151RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo72427RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "hacedores",
+          "issue": "misspelling of the Spanish word for 'doers'; correct spelling is \"hacedores\"",
+          "category": "typo",
+          "proposed_text": "hacedores",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "colosenses312RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Colosenses",
+          "issue": "The book name should be capitalized as it is a proper noun.",
+          "category": "typo",
+          "proposed_text": "Colosenses",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1tesalonicenses5v19RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos5v8-9RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan1415RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos328RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "col4v2RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios1031RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "col323RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan1516RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "te buscó",
+          "issue": "Incorrect verb form: the subject is first person singular, but the verb is third person singular.",
+          "category": "grammar",
+          "proposed_text": "te busqué",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "romanos51RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos5v8-9RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos217RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "te",
+          "issue": "Informal pronoun used instead of formal \"Ti\" in a prayer context",
+          "category": "typo",
+          "proposed_text": "Ti",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan11RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo712RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos1124RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "crea",
+          "issue": "Incorrect verb form; should be the third-person singular of 'creer' in the sense of 'believes'",
+          "category": "grammar",
+          "proposed_text": "cree",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "hebreos131516RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo71314RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "santiago219RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo4_4RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo71314RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan318RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan412RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos2024RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan173RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios5_1_2RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos2035RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas172021RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "prójimos",
+          "issue": "Typo: incorrect spelling of the word 'próximos'",
+          "category": "typo",
+          "proposed_text": "próximos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo11RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan141617RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan14v6RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios723RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan1516RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos92728RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios723RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan330RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "menguar",
+          "issue": "misspelled word; intended verb likely 'dejar' or 'reducir'",
+          "category": "typo",
+          "proposed_text": "dejar",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "marcos935RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios57RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos1043RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos51RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas1510RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios57RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "col4v2RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos13_38-39RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan1415RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1pedro4v8RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan173RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo1820RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan11RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Jesucristo",
+          "issue": "Typo: missing 'u' in the name of Jesus.",
+          "category": "typo",
+          "proposed_text": "Jesucristo",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "col316RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios13RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan33RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo624RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios11314RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1tim4v7-8RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "enfocarse",
+          "issue": "The reflexive verb should agree with the subject 'yo', so it should be 'enfocarme'",
+          "category": "grammar",
+          "proposed_text": "enfocarme",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "romanos10_9_10_20250819RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo182122RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos12_6-7RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "a la imagen",
+          "issue": "Incorrect preposition; should use \"en\" instead of \"a\" when referring to being transformed into an image.",
+          "category": "grammar",
+          "proposed_text": "en la imagen",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2pedro1_3-4_20250620_RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2pedro11921RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo4_4RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "sólo",
+          "issue": "Use of the accent on \"solo\" is unnecessary in modern Spanish and considered a typo.",
+          "category": "typo",
+          "proposed_text": "solo",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1juan21517RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "rom1412RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "rendirte",
+          "issue": "Typo: the reflexive pronoun should match the subject 'yo', not 'tú'.",
+          "category": "typo",
+          "proposed_text": "rendirme",
+          "verified": false
+        },
+        {
+          "quoted_text": "Tu juicio",
+          "issue": "Incorrect capitalization: 'Tu' should be lowercase to match the preceding usage of 'tu'.",
+          "category": "grammar",
+          "proposed_text": "tu juicio",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1corintios1031RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios610-18RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Capitán",
+          "issue": "Capitalized word in the middle of a sentence; should be lowercase in Spanish.",
+          "category": "typo",
+          "proposed_text": "capitán",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1juan513RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos2_1_4RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan412RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "rom323RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "colosenses312RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios5_1_2RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios416-18RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo1820RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "fortalecidos",
+          "issue": "The adjective must agree in number with the singular noun \"cuerpo\".",
+          "category": "grammar",
+          "proposed_text": "fortalecido",
+          "verified": false
+        },
+        {
+          "quoted_text": "guiados",
+          "issue": "The adjective must agree in number with the singular noun \"cuerpo\".",
+          "category": "grammar",
+          "proposed_text": "guiado",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "col3v5RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios13_4-7RVR1960_20250630",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios12_9_10RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1pedro4v8RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "el amor cubrirá multitud de pecados",
+          "issue": "Missing article before \"multitud\"; Spanish requires \"una multitud\".",
+          "category": "grammar",
+          "proposed_text": "el amor cubrirá una multitud de pecados",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2pedro1_3-4_20250620_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan14v6RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "\"Yo soy el camino, y la verdad, y la vida\"",
+          "issue": "The quotation contains unnecessary commas; the correct wording is \"Yo soy el camino, la verdad y la vida\".",
+          "category": "grammar",
+          "proposed_text": "\"Yo soy el camino, la verdad y la vida\"",
+          "verified": false
+        },
+        {
+          "quoted_text": "¿Estamos siguiendo a Jesús, o estamos intentando encontrar el camino por nuestra cuenta",
+          "issue": "The comma before \"o\" is incorrect in Spanish; it should be omitted.",
+          "category": "grammar",
+          "proposed_text": "¿Estamos siguiendo a Jesús o estamos intentando encontrar el camino por nuestra cuenta",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "rom323RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Es a través de la comprensión de nuestra incapacidad, que podemos apreciar el inmenso amor de Dios, quien proveyó el camino para nuestra reconciliación con Él, a través de Jesucristo.",
+          "issue": "The comma after \"incapacidad\" is unnecessary and creates a comma splice; it should be removed.",
+          "category": "grammar",
+          "proposed_text": "Es a través de la comprensión de nuestra incapacidad que podemos apreciar el inmenso amor de Dios, quien proveyó el camino para nuestra reconciliación con Él, a través de Jesucristo.",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "hebreos92728RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "el ancla",
+          "issue": "Incorrect gender article for the feminine noun \"ancla\"; should use \"la\" instead of \"el\".",
+          "category": "grammar",
+          "proposed_text": "la ancla",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1pedro1_3-5RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "gal52223RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "las paredes, que nos protegen",
+          "issue": "Un comma unnecessary before the relative clause; Spanish grammar does not use a comma before \"que\" in this context.",
+          "category": "grammar",
+          "proposed_text": "las paredes que nos protegen",
+          "verified": false
+        },
+        {
+          "quoted_text": "el techo, que nos cubren",
+          "issue": "Un comma unnecessary before the relative clause; Spanish grammar does not use a comma before \"que\" in this context.",
+          "category": "grammar",
+          "proposed_text": "el techo que nos cubren",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "rom811RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan318RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "se somete a su señorío, no es condenado",
+          "issue": "Comma incorrectly separates clauses; should use conjunction instead of comma",
+          "category": "grammar",
+          "proposed_text": "se somete a su señorío y no es condenado",
+          "verified": false
+        },
+        {
+          "quoted_text": "El que no cree, ya ha sido condenado",
+          "issue": "Unnecessary comma after \"cree\"",
+          "category": "grammar",
+          "proposed_text": "El que no cree ya ha sido condenado",
+          "verified": false
+        },
+        {
+          "quoted_text": "Hoy, reflexionemos sobre nuestra fe, evaluemos nuestra creencia y preguntémonos si estamos caminando en la luz de Cristo, o si aún estamos aferrados a las tinieblas",
+          "issue": "Comma before \"o\" is unnecessary and breaks flow",
+          "category": "grammar",
+          "proposed_text": "Hoy reflexionemos sobre nuestra fe, evaluemos nuestra creencia y preguntémonos si estamos caminando en la luz de Cristo o si aún estamos aferrados a las tinieblas",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "rom811RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "col3v5RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "judas12021RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan1513RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos2035RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo182122RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios520RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "para que siempre honren tu nombre",
+          "issue": "Subject-verb agreement error: the verb should agree with the singular subject \"yo\" (I), not plural \"ellos\".",
+          "category": "grammar",
+          "proposed_text": "para que siempre honre tu nombre",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo712RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis211RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos1013RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios7_10RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos10_9_10_20250819RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios416-18RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios118RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "galatas6_7_8RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan2117RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses2_9-11_20250616_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2timoteo418RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "librarnos",
+          "issue": "Incorrect verb form; should use the more common verb \"liberar\" instead of \"librar\".",
+          "category": "typo",
+          "proposed_text": "liberarnos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2pedro310RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses2_3-4RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "galatas6_7_8RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos1043RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "gal52223RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "someternos",
+          "issue": "Incorrect spelling; should be \"someternos\"",
+          "category": "typo",
+          "proposed_text": "someternos",
+          "verified": false
+        },
+        {
+          "quoted_text": "Danlos",
+          "issue": "Incorrect spelling; should be \"Danos\"",
+          "category": "typo",
+          "proposed_text": "Danos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo624RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan513RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "inmerecido",
+          "issue": "Typo: missing the letter 'i' after 'n' in the word 'inmerecido'.",
+          "category": "typo",
+          "proposed_text": "inmerecido",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas1019RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1tim5v8RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "col316RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Palabra",
+          "issue": "Unnecessary capitalization of a common noun within a sentence",
+          "category": "typo",
+          "proposed_text": "palabra",
+          "verified": false
+        },
+        {
+          "quoted_text": "more",
+          "issue": "Incorrect verb form; \"more\" is not a valid Spanish verb in this context",
+          "category": "grammar",
+          "proposed_text": "muerda",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2corintios1_3-4_20250823_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios1_3-4_20250823_RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos611RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios12_9_10RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios4_7_20251003RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo91213RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "me uses",
+          "issue": "Incorrect verb form; should use a verb that means 'to help' or 'to serve' in this context.",
+          "category": "grammar",
+          "proposed_text": "me sirvas",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "marcos1124RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "lo que pidamos en oración, creyendo, lo recibiremos",
+          "issue": "Unnecessary commas around the gerund \"creyendo\", causing a grammatical error.",
+          "category": "grammar",
+          "proposed_text": "lo que pidamos en oración creyendo lo recibiremos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan330RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos814RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan319RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "judas12021RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "y a mantener",
+          "issue": "Redundant preposition \"a\" before the verb \"mantener\"; should be omitted.",
+          "category": "grammar",
+          "proposed_text": "y mantener",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan33RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "de logros terrenales, linaje o buenas obras",
+          "issue": "Missing preposition \"de\" before \"linaje\" for parallel structure",
+          "category": "grammar",
+          "proposed_text": "de logros terrenales, de linaje o de buenas obras",
+          "verified": false
+        },
+        {
+          "quoted_text": "participar de su gloria",
+          "issue": "Incorrect preposition; should use \"en\" instead of \"de\"",
+          "category": "grammar",
+          "proposed_text": "participar en su gloria",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2corintios518-19RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis1911RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo103739RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "amarle",
+          "issue": "Incorrect object pronoun; should refer to Jesús (him) with \"lo\".",
+          "category": "typo",
+          "proposed_text": "amarlo",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas12_4-5_20250826_RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan635RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos814RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "col4v6RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "col4v6RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo1926RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1tim5v8RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos935RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo1926RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos2024RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios1433RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo162426RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "seguirle",
+          "issue": "Incorrect pronoun usage; \"seguirle\" is not standard for referring to Jesus in this context.",
+          "category": "typo",
+          "proposed_text": "seguirlo",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas1510RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "es una de búsqueda y salvación",
+          "issue": "Missing article before nouns; should be \"es una de la búsqueda y la salvación\" or \"es una de la búsqueda y salvación\"",
+          "category": "grammar",
+          "proposed_text": "es una de la búsqueda y la salvación",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas532RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan51415RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos1711RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "lámpara a mis pies",
+          "issue": "Incorrect preposition; should use \"de\" to indicate possession.",
+          "category": "grammar",
+          "proposed_text": "lámpara de mis pies",
+          "verified": false
+        },
+        {
+          "quoted_text": "lumbrera a mi camino",
+          "issue": "Incorrect preposition; should use \"de\" to indicate possession.",
+          "category": "grammar",
+          "proposed_text": "lumbrera de mi camino",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1tesalonicenses52122RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos2_1_4RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos1539RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios4_7_20251003RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1tesalonicenses5v19RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios1614RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos75556RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "entedimiento",
+          "issue": "misspelling of the word \"entendimiento\"",
+          "category": "typo",
+          "proposed_text": "entendimiento",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "rom82820250929RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2timoteo418RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses419RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos13_38-39RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "justificación se encuentran",
+          "issue": "Subject-verb agreement error: \"justificación\" is singular but the verb is plural.",
+          "category": "grammar",
+          "proposed_text": "justificación se encuentra",
+          "verified": false
+        },
+        {
+          "quoted_text": "la declaración de ser justos ante Dios.",
+          "issue": "Fragmentary sentence lacking a main verb; it reads as an incomplete clause.",
+          "category": "grammar",
+          "proposed_text": "la declaración de que somos justos ante Dios.",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "hebreos725RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos1436RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan1_5-7RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios316RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios422-24RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "gal220RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan411RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan16_7_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos12_1-2RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos834RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan51112RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas17_6_RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan31RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos123031RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "marcos 12:30-31",
+          "issue": "The book name should be capitalized.",
+          "category": "typo",
+          "proposed_text": "Marcos 12:30-31",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2corintios7_10RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios430RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios430RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "La mentira, la ira, la amargura, la maledicencia y cualquier comportamiento que viole los principios del amor y la santidad.",
+          "issue": "Fragmento sin verbo; la oración no está completa.",
+          "category": "grammar",
+          "proposed_text": "La mentira, la ira, la amargura, la maledicencia y cualquier comportamiento que viole los principios del amor y la santidad son...",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan316RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos12_1-2RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "misericordia que me han alcanzado",
+          "issue": "Incorrect verb agreement: \"han\" does not agree with the singular noun \"misericordia\" (and the compound \"amor y misericordia\" is treated as singular in this context).",
+          "category": "grammar",
+          "proposed_text": "misericordia que me ha alcanzado",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo2746RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios13RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos122RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas92324RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo162426RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos75556RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos1711RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan234RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "lámpara a mis pies",
+          "issue": "Incorrect preposition; should use \"para\" instead of \"a\" to indicate purpose.",
+          "category": "grammar",
+          "proposed_text": "lámpara para mis pies",
+          "verified": false
+        },
+        {
+          "quoted_text": "lumbrera a mi camino",
+          "issue": "Incorrect preposition; should use \"para\" instead of \"a\" to indicate purpose.",
+          "category": "grammar",
+          "proposed_text": "lumbrera para mi camino",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "marcos834RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2timoteo215RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2timoteo234RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Tu ejército",
+          "issue": "Incorrect capitalization of possessive adjective; should be lowercase within a sentence",
+          "category": "grammar",
+          "proposed_text": "tu ejército",
+          "verified": false
+        },
+        {
+          "quoted_text": "Tu Palabra",
+          "issue": "Incorrect capitalization of possessive adjective; should be lowercase within a sentence",
+          "category": "grammar",
+          "proposed_text": "tu Palabra",
+          "verified": false
+        },
+        {
+          "quoted_text": "Tu voluntad",
+          "issue": "Incorrect capitalization of possessive adjective; should be lowercase within a sentence",
+          "category": "grammar",
+          "proposed_text": "tu voluntad",
+          "verified": false
+        },
+        {
+          "quoted_text": "Tu amor",
+          "issue": "Incorrect capitalization of possessive adjective; should be lowercase within a sentence",
+          "category": "grammar",
+          "proposed_text": "tu amor",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "rom1412RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "La perspectiva del juicio final, no debe generar temor, sino una motivación para vivir una vida que refleje el amor de Dios y el testimonio de Su gracia en nosotros.",
+          "issue": "Comma splice: the comma after \"final\" incorrectly separates two independent clauses.",
+          "category": "grammar",
+          "proposed_text": "La perspectiva del juicio final no debe generar temor, sino una motivación para vivir una vida que refleje el amor de Dios y el testimonio de Su gracia en nosotros.",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan1427RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios1_7RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "abundantemente",
+          "issue": "misspelled word; correct spelling is \"abundantemente\"",
+          "category": "typo",
+          "proposed_text": "abundantemente",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan317RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan51415RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios1433RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses4_4RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos631RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2timoteo315RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan2117RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos221RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "en el nombre de Jesús, amén.",
+          "issue": "The sentence starts with a lowercase letter; it should be capitalized as it begins a new sentence.",
+          "category": "grammar",
+          "proposed_text": "En el nombre de Jesús, amén.",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas1113RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo633RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos1539RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "aun",
+          "issue": "Missing accent on the word 'aún'",
+          "category": "typo",
+          "proposed_text": "aún",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo231112RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios520RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan411RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas12_4-5_20250826_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1tim28RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos1728RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos122RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios1614RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "prójimos",
+          "issue": "Incorrect accent; should be \"próximos\"",
+          "category": "typo",
+          "proposed_text": "próximos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas21011RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2timoteo315RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos41416RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos131516RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos725RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas24_6-7_rvr1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1pedro2_2-3RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo103233RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas17_6_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios1_7RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo11RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos72023RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas636RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2juan1_6RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan317RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan51112RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "If la respuesta es sí",
+          "issue": "English word 'If' used instead of Spanish 'Si'",
+          "category": "typo",
+          "proposed_text": "Si la respuesta es sí",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "gal220RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "mas",
+          "issue": "Missing accent on \"más\"",
+          "category": "typo",
+          "proposed_text": "más",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas15v7RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "no es por aquellos",
+          "issue": "Incorrect preposition; should use \"para\" instead of \"por\" when referring to people",
+          "category": "grammar",
+          "proposed_text": "no es para aquellos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "efesios613RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos435RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1tim28RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo91213RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "sanidad espiritual",
+          "issue": "The noun \"sanidad\" (health) is used where the verb form \"sanación\" (healing) is more appropriate in this context.",
+          "category": "grammar",
+          "proposed_text": "sanación espiritual",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "tito345RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "lavamiento",
+          "issue": "Typo: the word should be \"lavado\" (washing) rather than \"lavamiento\" which is not standard in this context.",
+          "category": "typo",
+          "proposed_text": "lavado",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2timoteo234RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos631RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos612RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "no deben ser el límite",
+          "issue": "Subject-verb agreement error: plural verb \"deben\" with singular noun \"el límite\".",
+          "category": "grammar",
+          "proposed_text": "no debe ser el límite",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo2746RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "experimentara",
+          "issue": "Incorrect verb form; should be infinitive",
+          "category": "grammar",
+          "proposed_text": "experimentar",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan1512RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "judas12425RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios316RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo103233RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan16_7_RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan1010RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan1427RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos221RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "quiénes",
+          "issue": "Incorrect plural form; should be singular.",
+          "category": "typo",
+          "proposed_text": "quién",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2timoteo316RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "col127RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas24_6-7_rvr1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Las mujeres que fueron al sepulcro en busca de Jesús, se encontraron con la tumba vacía",
+          "issue": "Un comma innecesario después de \"Jesús\" que interrumpe la frase",
+          "category": "grammar",
+          "proposed_text": "Las mujeres que fueron al sepulcro en busca de Jesús se encontraron con la tumba vacía",
+          "verified": false
+        },
+        {
+          "quoted_text": "Jesús había predicho su destino, y ahora, el sepulcro vacío era la evidencia",
+          "issue": "Un comma innecesario después de \"ahora\" que interrumpe la frase",
+          "category": "grammar",
+          "proposed_text": "Jesús había predicho su destino y ahora el sepulcro vacío era la evidencia",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "galatas516RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos1013RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios614RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "a no unirme en yugo desigual",
+          "issue": "Missing article before \"yugo\"",
+          "category": "grammar",
+          "proposed_text": "a no unirme en un yugo desigual",
+          "verified": false
+        },
+        {
+          "quoted_text": "protégeme",
+          "issue": "Missing accent on \"protégeme\"",
+          "category": "typo",
+          "proposed_text": "protégeme",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "filipenses2_9-11_20250616_RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "de cruz",
+          "issue": "Missing article before \"cruz\"",
+          "category": "typo",
+          "proposed_text": "de la cruz",
+          "verified": false
+        },
+        {
+          "quoted_text": "pablo",
+          "issue": "Name should be capitalized",
+          "category": "typo",
+          "proposed_text": "Pablo",
+          "verified": false
+        },
+        {
+          "quoted_text": "toda rodilla",
+          "issue": "Singular form used for a plural concept",
+          "category": "grammar",
+          "proposed_text": "todas las rodillas",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1pedro2_2-3RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "col31214RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos11_1_RVR1960_20251117",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas1113RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "tito159RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1timoteo6RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan424RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos123031RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "tito159RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2pedro157RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "nos guía en discernir",
+          "issue": "Incorrect preposition; should use \"para\" instead of \"en\" when indicating purpose.",
+          "category": "grammar",
+          "proposed_text": "nos guía para discernir",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1timoteo6RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan112526RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios11314RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "eran",
+          "issue": "Incorrect verb form; should agree with singular subject 'la palabra'",
+          "category": "grammar",
+          "proposed_text": "era",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo123132RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2timoteo478RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios289RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas15v7RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "sientes",
+          "issue": "Subject-verb agreement error: the verb should agree with the subject \"tu\" (you).",
+          "category": "grammar",
+          "proposed_text": "siente",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "apocalipsis2217RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1tesalonicenses52122RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios289RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos115RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos11_1_RVR1960_20251117",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Tú",
+          "issue": "Pronoun \"tú\" should not be capitalized in the middle of a sentence.",
+          "category": "grammar",
+          "proposed_text": "tú",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo31617RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios614RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "la dirección de vida, inevitablemente, divergente",
+          "issue": "Un comma is incorrectly placed before the adverbial phrase; it should not be separated by commas.",
+          "category": "grammar",
+          "proposed_text": "la dirección de vida inevitablemente divergente",
+          "verified": false
+        },
+        {
+          "quoted_text": "¿Y qué comunión la luz con las tinieblas?",
+          "issue": "The verb \"tiene\" is missing after \"comunión\".",
+          "category": "grammar",
+          "proposed_text": "¿Y qué comunión tiene la luz con las tinieblas?",
+          "verified": false
+        },
+        {
+          "quoted_text": "¿Y qué comunión la luz con las tinieblas?",
+          "issue": "The opening inverted question mark is missing before \"¿Y\".",
+          "category": "grammar",
+          "proposed_text": "¿Y qué comunión tiene la luz con las tinieblas?",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas1910RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "demostraste",
+          "issue": "Wrong verb form: the verb should agree with the third-person subject \"Padre celestial\"",
+          "category": "grammar",
+          "proposed_text": "demostró",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2Timoteo1_7RVR1960_20251227",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2juan1_6RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "galatas516RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2timoteo215RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "lámpara a mis pies",
+          "issue": "Incorrect preposition; should use \"de\" to indicate possession.",
+          "category": "grammar",
+          "proposed_text": "lámpara de mis pies",
+          "verified": false
+        },
+        {
+          "quoted_text": "lumbrera a mi camino",
+          "issue": "Incorrect preposition; should use \"de\" to indicate possession.",
+          "category": "grammar",
+          "proposed_text": "lumbrera de mi camino",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo31617RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo25_20251128_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "en cada día",
+          "issue": "Incorrect phrase; the preposition 'en' is unnecessary and makes the expression unnatural.",
+          "category": "grammar",
+          "proposed_text": "cada día",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "hebreos41416RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "acercarnos confiadamente",
+          "issue": "The adverb \"confidamente\" is not a correct Spanish word; the intended meaning is \"with confidence\" or \"confidently\".",
+          "category": "grammar",
+          "proposed_text": "confiadamente",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "marcos1436RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "  desea evitar la copa de sufrimiento,",
+          "issue": "Double space after colon and before the sentence.",
+          "category": "typo",
+          "proposed_text": " desea evitar la copa de sufrimiento,",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2corintios8_9_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis316RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "col127RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1timoteo612RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas2449RVR1960-20251124",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "derramada",
+          "issue": "Incorrect gender agreement; the adjective should match the masculine noun \"Espíritu Santo\".",
+          "category": "grammar",
+          "proposed_text": "derramado",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "judas12425RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "te agrade",
+          "issue": "Incorrect verb form; \"te agrade\" is not a valid Spanish verb form.",
+          "category": "grammar",
+          "proposed_text": "te agradezca",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "apocalipsis1911RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Danlos",
+          "issue": "Typo: incorrect word; should be \"Danos\"",
+          "category": "typo",
+          "proposed_text": "Danos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "santiago11920RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "ser pronto",
+          "issue": "Incorrect verb form; should use \"estar\" instead of \"ser\" to express readiness.",
+          "category": "grammar",
+          "proposed_text": "estar pronto",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2Timoteo1_7RVR1960_20251227",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan419RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas636RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan5_4RVR1960_20251230",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos13_1_20251231RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan1010RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan319RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "fortalécenos",
+          "issue": "Incorrect accent and missing reflexive pronoun placement; the correct form is \"fortalecernos\".",
+          "category": "typo",
+          "proposed_text": "fortalecernos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "romanos611RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "consideraos",
+          "issue": "Incorrect verb form; not a valid Spanish conjugation.",
+          "category": "typo",
+          "proposed_text": "considerad",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas1411RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo633RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos72023RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas1910RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios210RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis316RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo13_31_32_RVR1960_20251225",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas2447RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios1_3-4RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2timoteo19RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios15_57RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan424RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "galatas5v1RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo72427RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "lámpara a mis pies",
+          "issue": "Incorrect preposition; should use \"de\" instead of \"a\" to indicate possession.",
+          "category": "grammar",
+          "proposed_text": "lámpara de mis pies",
+          "verified": false
+        },
+        {
+          "quoted_text": "lumbrera a mi camino",
+          "issue": "Incorrect preposition; should use \"de\" instead of \"a\" to indicate possession.",
+          "category": "grammar",
+          "proposed_text": "lumbrera de mi camino",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo51416RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "te glorifiquen a Ti",
+          "issue": "Redundant pronoun usage; \"te\" and \"a Ti\" both refer to the same object.",
+          "category": "grammar",
+          "proposed_text": "glorifiquen a Ti",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1timoteo612RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo51416RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1pedro389RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "heredar bendición",
+          "issue": "Missing article before the noun; should be \"heredar la bendición\" or \"heredar bendiciones\" for grammatical correctness.",
+          "category": "grammar",
+          "proposed_text": "heredar la bendición",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas2449RVR1960-20251124",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos13_1_20251231RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios4_6RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan1512RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios61920RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios311RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos435RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas2447RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos115RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "galatas6_9RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas1019RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos10_4_20260124RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas92324RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "a la verdadero",
+          "issue": "Incorrect gender agreement: \"verdadero\" is masculine but preceded by feminine article \"la\".",
+          "category": "grammar",
+          "proposed_text": "el verdadero",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "apocalipsis2_4_20251221RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Su",
+          "issue": "Incorrect capitalization of a possessive pronoun in the middle of a sentence; should be lowercase.",
+          "category": "typo",
+          "proposed_text": "su",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "apocalipsis320RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "tito21114RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "para salvación",
+          "issue": "Missing definite article before \"salvación\"; should be \"para la salvación\"",
+          "category": "grammar",
+          "proposed_text": "para la salvación",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas532RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "venida",
+          "issue": "Typo: the word should be \"venida\" (arrival).",
+          "category": "typo",
+          "proposed_text": "venida",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan14_2-3RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan1513RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "del nuestro propio",
+          "issue": "Incorrect preposition usage; should be \"de nuestro propio\"",
+          "category": "grammar",
+          "proposed_text": "de nuestro propio",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo13_20260102_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Límpiame",
+          "issue": "Incorrect verb form; should be reflexive pronoun for second person singular",
+          "category": "typo",
+          "proposed_text": "Límpiate",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1timoteo412RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "galatas614RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "gal513RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos10_4_20260124RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis2217RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "3juan1v4RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis38RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo103739RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "a comodidades",
+          "issue": "Missing article before noun",
+          "category": "grammar",
+          "proposed_text": "a las comodidades",
+          "verified": false
+        },
+        {
+          "quoted_text": "a reputación",
+          "issue": "Missing article before noun",
+          "category": "grammar",
+          "proposed_text": "a la reputación",
+          "verified": false
+        },
+        {
+          "quoted_text": "a la aprobación",
+          "issue": "Missing article before noun",
+          "category": "grammar",
+          "proposed_text": "a la aprobación",
+          "verified": false
+        },
+        {
+          "quoted_text": "El tomar",
+          "issue": "Incorrect phrase; should not include article \"El\" before verb",
+          "category": "grammar",
+          "proposed_text": "Tomar",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "hechos1731RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan1_5-7RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "revelarte a nosotros",
+          "issue": "Incorrect reflexive pronoun; should refer to the subject 'nosotros' as the object of the verb.",
+          "category": "grammar",
+          "proposed_text": "revelarnos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "filipenses32021RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan5_4RVR1960_20251230",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "col118RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1Timoteo6_17-19RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1pedro2_9_10_20250810RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "inspiradamente",
+          "issue": "The adverb \"inspiradamente\" is not standard Spanish; likely a typo for \"inspiradoramente\" or \"inspiradamente\" is uncommon.",
+          "category": "typo",
+          "proposed_text": "inspiradoramente",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1corintios15_57RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filemon116RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "como Jesús nos amó a nosotros",
+          "issue": "Redundant phrase; the object 'nosotros' is repeated unnecessarily.",
+          "category": "grammar",
+          "proposed_text": "como Jesús nos amó",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1juan38RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan112RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios429RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "gal513RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo13_20260102_RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos9_3-6_20260111_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios29RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "cosas que ojo no vio",
+          "issue": "Missing article before \"ojo\"; should be \"el ojo\".",
+          "category": "typo",
+          "proposed_text": "cosas que el ojo no vio",
+          "verified": false
+        },
+        {
+          "quoted_text": "ni oído oyó",
+          "issue": "Missing article before \"oído\"; should be \"el oído\".",
+          "category": "typo",
+          "proposed_text": "ni el oído oyó",
+          "verified": false
+        },
+        {
+          "quoted_text": "ni han subido en corazón de hombre",
+          "issue": "Missing article before \"corazón\"; should be \"el corazón\".",
+          "category": "typo",
+          "proposed_text": "ni han subido en el corazón de hombre",
+          "verified": false
+        },
+        {
+          "quoted_text": "enfocados",
+          "issue": "Agreement error: \"enfocados\" should agree with singular subject \"nos anima\"; use singular \"enfocado\".",
+          "category": "grammar",
+          "proposed_text": "enfocado",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "efesios518RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo161819RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Su iglesia",
+          "issue": "Incorrect capitalization of \"Su\"; should be lowercase in this context.",
+          "category": "typo",
+          "proposed_text": "su iglesia",
+          "verified": false
+        },
+        {
+          "quoted_text": "la Iglesia",
+          "issue": "Incorrect capitalization of \"Iglesia\"; generic noun should be lowercase.",
+          "category": "typo",
+          "proposed_text": "la iglesia",
+          "verified": false
+        },
+        {
+          "quoted_text": "el Reino",
+          "issue": "Incorrect capitalization of \"Reino\"; generic noun should be lowercase.",
+          "category": "typo",
+          "proposed_text": "el reino",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1corintios29RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos1731RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo202628RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo141921RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios518-19RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "nos reconcilió consigo mismo",
+          "issue": "Incorrect verb form and reflexive pronoun; should use the past participle \"reconciliado\" and a proper object pronoun.",
+          "category": "grammar",
+          "proposed_text": "nos reconcilió con él",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1juan234RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "auto evaluación",
+          "issue": "Typo: space between \"auto\" and \"evaluación\"; should be one word.",
+          "category": "typo",
+          "proposed_text": "autoevaluación",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2timoteo316RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan31RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "inm",
+          "issue": "Typo: the word should be \"inmerecido\" (unearned privilege).",
+          "category": "typo",
+          "proposed_text": "inmerecido",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "santiago410RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "él os exaltará",
+          "issue": "The pronoun should be capitalized at the beginning of the sentence.",
+          "category": "grammar",
+          "proposed_text": "Él os exaltará",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1juan5v3RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses32021RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "a la semejanza",
+          "issue": "Incorrect preposition; should use \"en la\" to indicate likeness",
+          "category": "grammar",
+          "proposed_text": "en la",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "hebreos13RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo231112RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan73839RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "santiago28RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios13_4-7RVR1960_20250630",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "y sufre, cree, espera",
+          "issue": "Missing conjunction before \"cree\"; should be \"y sufre, cree, espera\"",
+          "category": "grammar",
+          "proposed_text": "y sufre, cree, espera",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "hebreos13_5_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan418RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios4_6RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "col11517RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios13v5RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos328RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "el ser declarados",
+          "issue": "Subject-verb agreement mismatch: \"ser\" is singular, but \"declarados\" is plural.",
+          "category": "grammar",
+          "proposed_text": "el ser declarado",
+          "verified": false
+        },
+        {
+          "quoted_text": "sino desde el favor de Dios",
+          "issue": "Preposition misuse: the phrase should use \"por\" or \"con\" instead of \"desde\" to indicate the source of favor.",
+          "category": "grammar",
+          "proposed_text": "sino por el favor de Dios",
+          "verified": false
+        },
+        {
+          "quoted_text": "impulsados",
+          "issue": "Agreement error: the adjective must agree with the singular noun \"vida\".",
+          "category": "grammar",
+          "proposed_text": "impulsada",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "efesios518RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo134446RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filemon1_6_20260127",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios61920RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "3juan1v4RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses2v5RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1tim4v7-8RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "el vivir",
+          "issue": "Incorrect use of the article \"el\" before the infinitive verb \"vivir\"; should be just the verb.",
+          "category": "grammar",
+          "proposed_text": "vivir",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "hechos1_8_20260223RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan311RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses2v5RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan5v3RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan38RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1pedro510RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "en mi",
+          "issue": "Missing accent on the pronoun \"mí\"; should be \"en mí\" to indicate the object pronoun.",
+          "category": "typo",
+          "proposed_text": "en mí",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan316RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "mas",
+          "issue": "Incorrect conjunction; should be \"sino\" to contrast clauses.",
+          "category": "grammar",
+          "proposed_text": "sino",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "apocalipsis71617RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan112526RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "por revelarte como la resurrección y la vida",
+          "issue": "The reflexive verb \"revelarte\" is incorrectly used; the intended meaning is likely \"revelarte\" as a noun phrase, but the construction is grammatically wrong.",
+          "category": "grammar",
+          "proposed_text": "por revelarte como la resurrección y la vida",
+          "verified": false
+        },
+        {
+          "quoted_text": ", y que puedan encontrar en Ti la paz que sobrepasa todo entendimiento",
+          "issue": "Unnecessary comma before the conjunction \"y\" in a compound sentence.",
+          "category": "grammar",
+          "proposed_text": " y que puedan encontrar en Ti la paz que sobrepasa todo entendimiento",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan316RVR196020260213",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo2626-28RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Participar de la Cena",
+          "issue": "Incorrect preposition; should use \"en\" instead of \"de\" when referring to participation in an event.",
+          "category": "grammar",
+          "proposed_text": "Participar en la Cena",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "filemon1_6_20260127",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "en mi",
+          "issue": "Missing accent on the pronoun; should be \"mí\" to indicate the object pronoun.",
+          "category": "typo",
+          "proposed_text": "mí",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "efesios429RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "herido",
+          "issue": "The past participle should agree with the plural subject \"palabras\"; it should be \"heridas\".",
+          "category": "grammar",
+          "proposed_text": "heridas",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "marcos923RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo134446RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "y a estar",
+          "issue": "Unnecessary 'a' before the verb 'estar', causing a grammatical error.",
+          "category": "grammar",
+          "proposed_text": "y estar",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1pedro510RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "después que",
+          "issue": "Missing preposition 'de' after 'después'",
+          "category": "typo",
+          "proposed_text": "después de que",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "hechos412RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo69-13RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "tito38RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos412RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis320RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "le",
+          "issue": "The pronoun \"le\" incorrectly refers to the feminine noun \"puerta\"; it should be the direct object pronoun \"la\".",
+          "category": "grammar",
+          "proposed_text": "la",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2timoteo19RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "nuestra salvación y llamado",
+          "issue": "Missing article before the noun \"llamado\"; should be \"el llamado\"",
+          "category": "grammar",
+          "proposed_text": "nuestra salvación y el llamado",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1juan1v8RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos13_8RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "santiago1v5RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "rom5v8RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos6_4_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo141921RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan112RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "galatas614RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas63738RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis38RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas1814RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan318RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos12_1_20250620RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas1827RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "en el nombre",
+          "issue": "Incorrect capitalization and missing period before the phrase",
+          "category": "grammar",
+          "proposed_text": "En el nombre",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "apocalipsis71617RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "enjugando",
+          "issue": "Typo: incorrect spelling of the verb; should be \"enjuagando\" (washing).",
+          "category": "typo",
+          "proposed_text": "enjuagando",
+          "verified": false
+        },
+        {
+          "quoted_text": "alegría eternas",
+          "issue": "Grammar: mismatched number; \"alegría\" is singular, so the adjective should also be singular.",
+          "category": "grammar",
+          "proposed_text": "alegría eterna",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "romanos13_8RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas1411RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "y,",
+          "issue": "Unnecessary comma before the conjunction \"y\" in a list.",
+          "category": "grammar",
+          "proposed_text": "y",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "santiago1v5RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1pedro5_7RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan311RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Palabra",
+          "issue": "Unnecessary capitalization of a common noun",
+          "category": "typo",
+          "proposed_text": "palabra",
+          "verified": false
+        },
+        {
+          "quoted_text": "lumbrera",
+          "issue": "Incorrect word choice; \"lumbrera\" is a lantern, not a light source; should be \"luz\"",
+          "category": "typo",
+          "proposed_text": "luz",
+          "verified": false
+        },
+        {
+          "quoted_text": "para buscar activamente hacer el bien a los demás",
+          "issue": "Redundant preposition; better phrasing is \"para buscar activamente hacer el bien a los demás\" without the extra \"para\"",
+          "category": "grammar",
+          "proposed_text": "para buscar activamente hacer el bien a los demás",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "romanos120RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "que me hablan",
+          "issue": "Subject-verb agreement error: \"universo\" is singular, so the verb should be singular.",
+          "category": "grammar",
+          "proposed_text": "que me habla",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan812RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "te ayudes",
+          "issue": "Incorrect verb form; should be first-person request instead of second-person reflexive.",
+          "category": "grammar",
+          "proposed_text": "ayúdame",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo13_31_32_RVR1960_20251225",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Esta es un momento propicio",
+          "issue": "Wrong gender agreement: \"Esta\" should match the masculine noun \"momento\".",
+          "category": "grammar",
+          "proposed_text": "Este es un momento propicio",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "santiago112RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan151RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "transformándonos a la imagen",
+          "issue": "Missing preposition \"de\"; the phrase should include \"de la imagen\" to be grammatically correct.",
+          "category": "grammar",
+          "proposed_text": "transformándonos a la imagen de su Hijo",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas1827RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas63738RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "rebosando",
+          "issue": "Incorrect word form; the correct Spanish adjective should be 'rebosante' to match the biblical phrase.",
+          "category": "typo",
+          "proposed_text": "rebosante",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2tes21314RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Fortalécenos en la fe, y permítenos perseverar hasta el final,  en el nombre de Jesús, amén.",
+          "issue": "Unnecessary comma before \"y\" and before \"en el nombre\", plus an extra space before \"en\".",
+          "category": "grammar",
+          "proposed_text": "Fortalécenos en la fe y permítenos perseverar hasta el final en el nombre de Jesús, amén.",
+          "verified": false
+        },
+        {
+          "quoted_text": "en el nombre",
+          "issue": "Extra space before the phrase.",
+          "category": "typo",
+          "proposed_text": "en el nombre",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1corintios924RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos529RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "santiago217RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan812RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "lo hacen",
+          "issue": "The verb form is incorrect for the subjunctive mood required after \"prometiendo que\"; it should be in the subjunctive to express a conditional action.",
+          "category": "grammar",
+          "proposed_text": "lo hagan",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1juan1v8RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "y, lo que es aún más grave",
+          "issue": "Un comma innecesario antes de la frase subordinada",
+          "category": "grammar",
+          "proposed_text": "y lo que es aún más grave",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2timoteo478RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "santiago122RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "tito38RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios118RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "la palabra de la cruz es poder de Dios",
+          "issue": "Missing article before \"poder\"; should be \"el poder\"",
+          "category": "grammar",
+          "proposed_text": "la palabra de la cruz es el poder de Dios",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1pedro389RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "un mismo sentir",
+          "issue": "The noun \"sentir\" is incorrectly used; the correct noun is \"sentimiento\".",
+          "category": "grammar",
+          "proposed_text": "un mismo sentimiento",
+          "verified": false
+        },
+        {
+          "quoted_text": "heredar bendición",
+          "issue": "Missing definite article before \"bendición\".",
+          "category": "grammar",
+          "proposed_text": "heredar la bendición",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2pedro11921RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "se interpreta a sí mismo",
+          "issue": "Wrong gender agreement; the noun \"Biblia\" is feminine, so the reflexive pronoun should be \"sí misma\".",
+          "category": "grammar",
+          "proposed_text": "se interpreta a sí misma",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "hechos1631RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "tito21114RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "para salvación",
+          "issue": "Missing definite article before \"salvación\"",
+          "category": "grammar",
+          "proposed_text": "para la salvación",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "romanos120RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses31314RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "nuevos",
+          "issue": "The adjective \"nuevos\" does not agree in gender with the noun \"misericordia\", which is feminine.",
+          "category": "grammar",
+          "proposed_text": "nuevas",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo202628RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos1317RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2timoteo317RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "pablo",
+          "issue": "The name should be capitalized.",
+          "category": "typo",
+          "proposed_text": "Pablo",
+          "verified": false
+        },
+        {
+          "quoted_text": "la disciplina que provienen",
+          "issue": "Subject-verb agreement error: \"provienen\" should agree with singular \"disciplina\".",
+          "category": "grammar",
+          "proposed_text": "la disciplina que proviene",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan316RVR196020260213",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo69-13RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "protégeme",
+          "issue": "Missing accent on the verb \"protegeme\"; should be \"protégeme\".",
+          "category": "typo",
+          "proposed_text": "protégeme",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "apocalipsis21_4_20250621RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios610-18RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Ayúdame a fortalecerme en Ti",
+          "issue": "Capitalization of \"Ti\" is incorrect; should be lowercase \"ti\"",
+          "category": "grammar",
+          "proposed_text": "Ayúdame a fortalecerme en ti",
+          "verified": false
+        },
+        {
+          "quoted_text": "Que la verdad ceña mis lomos",
+          "issue": "The verb \"ceña\" is present tense; context requires future tense \"ceñirá\"",
+          "category": "grammar",
+          "proposed_text": "Que la verdad ceñirá mis lomos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "filipenses46-7RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Aquel",
+          "issue": "Incorrect capitalization; should be lowercase as it is not a proper noun in this context.",
+          "category": "typo",
+          "proposed_text": "aquel",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "romanos83739RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis221213RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos13_5_RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios422-24RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Lléname",
+          "issue": "Incorrect verb form; should be 'Lléneme' (fill me) rather than 'Lléname' (carry me).",
+          "category": "typo",
+          "proposed_text": "Lléneme",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "marcos1615RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos923RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis211RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "asociado",
+          "issue": "Subject-verb agreement error: the adjective must agree with the singular noun \"desaparición\".",
+          "category": "grammar",
+          "proposed_text": "asociada",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas41819RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "santiago217RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos12_1_20250620RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos11_33_36_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos83739RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan1224RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "  Este fruto",
+          "issue": "Extra leading whitespace (double space) before the sentence.",
+          "category": "typo",
+          "proposed_text": "Este fruto",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "efesios210RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "en ellas",
+          "issue": "Incorrect pronoun; should refer to the singular masculine noun \"propósito\"",
+          "category": "grammar",
+          "proposed_text": "en él",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2corintios8_9_RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "nacer en la pobreza",
+          "issue": "Infinitive used where a subjunctive form is needed to express the action of becoming a man.",
+          "category": "grammar",
+          "proposed_text": "naciera en la pobreza",
+          "verified": false
+        },
+        {
+          "quoted_text": "para que vosotros con su pobreza fueseis enriquecidos",
+          "issue": "Incorrect subjunctive form and missing plural agreement; should use second person plural subjunctive.",
+          "category": "grammar",
+          "proposed_text": "para que vosotros, con su pobreza, fuerais enriquecidos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "santiago112RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "le son fieles",
+          "issue": "Incorrect indirect object pronoun; should refer to 'les' for plural indirect object.",
+          "category": "grammar",
+          "proposed_text": "les son fieles",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas41819RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "col31214RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "compadecernos",
+          "issue": "misspelled word; should be \"compadecernos\"",
+          "category": "typo",
+          "proposed_text": "compadecernos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "rom82820250929RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos412RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Danlos",
+          "issue": "Typo: incorrect word; should be \"Danos\"",
+          "category": "typo",
+          "proposed_text": "Danos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "apocalipsis1_8RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses4_4RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "filipenses",
+          "issue": "The book name should be capitalized.",
+          "category": "typo",
+          "proposed_text": "Filipenses",
+          "verified": false
+        },
+        {
+          "quoted_text": "Regocijarnos 'siempre'",
+          "issue": "Unnecessary quotation marks around the word \"siempre\".",
+          "category": "typo",
+          "proposed_text": "Regocijarnos siempre",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan524RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan832RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1tesalonicenses4_3-5RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos1631RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis221213RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Sus",
+          "issue": "Incorrect capitalization of the pronoun \"sus\" (should be lowercase unless at the beginning of a sentence).",
+          "category": "typo",
+          "proposed_text": "sus",
+          "verified": false
+        },
+        {
+          "quoted_text": "Sus",
+          "issue": "Incorrect capitalization of the pronoun \"sus\" (should be lowercase unless at the beginning of a sentence).",
+          "category": "typo",
+          "proposed_text": "sus",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "rom5v8RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses21415RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses268RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis1_8RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos1314RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios924RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "rom91516RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo2121-22RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "refleje",
+          "issue": "Subject-verb agreement error: the verb should agree with the plural subject \"mis acciones\".",
+          "category": "grammar",
+          "proposed_text": "reflejen",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "romanos116RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses48RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1pedro5_5-6RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "resistes",
+          "issue": "Incorrect verb form; should be third-person singular",
+          "category": "grammar",
+          "proposed_text": "resiste",
+          "verified": false
+        },
+        {
+          "quoted_text": "humillarme",
+          "issue": "Incorrect reflexive form; should be \"humillarme\"",
+          "category": "grammar",
+          "proposed_text": "humillarme",
+          "verified": false
+        },
+        {
+          "quoted_text": "Tu",
+          "issue": "Possessive adjective should be lowercase unless at sentence start",
+          "category": "grammar",
+          "proposed_text": "tu",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "hebreos1214RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan4v1RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "lámpara a mis pies",
+          "issue": "Incorrect preposition; should use \"de\" to indicate possession.",
+          "category": "grammar",
+          "proposed_text": "lámpara de mis pies",
+          "verified": false
+        },
+        {
+          "quoted_text": "lumbrera a mi camino",
+          "issue": "Incorrect preposition; should use \"de\" to indicate possession.",
+          "category": "grammar",
+          "proposed_text": "lumbrera de mi camino",
+          "verified": false
+        },
+        {
+          "quoted_text": "y a compararla",
+          "issue": "Unnecessary preposition \"a\" before the verb; Spanish does not use it here.",
+          "category": "grammar",
+          "proposed_text": "y compararla",
+          "verified": false
+        },
+        {
+          "quoted_text": "a toda verdad",
+          "issue": "Missing definite article \"la\" before the noun.",
+          "category": "grammar",
+          "proposed_text": "a toda la verdad",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1tes511RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis2220RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Amén; sí, ven, Señor Jesús",
+          "issue": "Incorrect punctuation: a semicolon is used where a comma should be.",
+          "category": "grammar",
+          "proposed_text": "Amén, sí, ven, Señor Jesús",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas1248RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses48RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2pedro157RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "en añadir a mi fe virtud",
+          "issue": "Missing article before \"virtud\"",
+          "category": "typo",
+          "proposed_text": "en añadir a mi fe la virtud",
+          "verified": false
+        },
+        {
+          "quoted_text": "a mi virtud conocimiento",
+          "issue": "Missing article before \"conocimiento\"",
+          "category": "typo",
+          "proposed_text": "a mi virtud el conocimiento",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "tito345RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo2626-28RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "sangre derramados",
+          "issue": "Wrong gender agreement: \"sangre\" is singular, so the adjective should be singular.",
+          "category": "grammar",
+          "proposed_text": "sangre derramada",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1timoteo11516RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "santiago51516RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios613RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos102425RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos1317RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos1214RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses268RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos116RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos1615RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1pedro315RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos1314RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios21922RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Permítenos ser un templo santo, morada de tu Espíritu.",
+          "issue": "Missing the adjective \"Santo\" after \"Espíritu\" to correctly refer to \"Espíritu Santo\".",
+          "category": "grammar",
+          "proposed_text": "Permítenos ser un templo santo, morada de tu Espíritu Santo.",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "santiago317RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "transformado a la imagen",
+          "issue": "Incorrect preposition; should use \"en\" instead of \"a\" when referring to being transformed into something.",
+          "category": "grammar",
+          "proposed_text": "transformado en la imagen",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "filipenses378RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios4_5RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2timoteo4_2_20250719RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "más cortante",
+          "issue": "Incorrect adjective form; should be feminine singular to match \"espada\"",
+          "category": "typo",
+          "proposed_text": "más corta",
+          "verified": false
+        },
+        {
+          "quoted_text": "instando a tiempo y fuera de tiempo",
+          "issue": "Missing reflexive pronoun; the phrase should refer to the speaker as \"instándote\"",
+          "category": "grammar",
+          "proposed_text": "instándote a tiempo y fuera de tiempo",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo7_7_8RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "halla",
+          "issue": "Incorrect verb form; should be future tense to match the pattern.",
+          "category": "grammar",
+          "proposed_text": "hallará",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan2029RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos13RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2tes21314RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "para salvación",
+          "issue": "Missing definite article before \"salvación\"",
+          "category": "grammar",
+          "proposed_text": "para la salvación",
+          "verified": false
+        },
+        {
+          "quoted_text": "moldee",
+          "issue": "Incorrect verb form; should be noun \"molde\"",
+          "category": "typo",
+          "proposed_text": "molde",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo2121-22RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2timoteo4_2_20250719RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos1513RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan832RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Sus",
+          "issue": "Capitalization error: \"Sus\" should not be capitalized as it is not a proper noun.",
+          "category": "typo",
+          "proposed_text": "sus",
+          "verified": false
+        },
+        {
+          "quoted_text": "Su",
+          "issue": "Capitalization error: \"Su\" should not be capitalized as it is not a proper noun.",
+          "category": "typo",
+          "proposed_text": "su",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1juan419RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "porque seamos",
+          "issue": "Incorrect use of subjunctive; should express that we are not perfect or worthy.",
+          "category": "grammar",
+          "proposed_text": "porque no somos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2corintios317RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "santiago414RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos1_8_20260223RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "refleje",
+          "issue": "Subject-verb agreement error: the verb should agree with the plural subject \"vidas\".",
+          "category": "grammar",
+          "proposed_text": "reflejen",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "filipenses21415RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan15_8_20250725_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "para que seas glorificado en mi vida",
+          "issue": "Subject-verb agreement error: the verb should agree with the subject (I/my life), not with the indirect object.",
+          "category": "grammar",
+          "proposed_text": "para que sea glorificado en mi vida",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan42324RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo7_7_8RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "necesito constantemente de tu guía",
+          "issue": "Incorrect use of the preposition \"de\" after \"necesito\"; Spanish requires the noun directly after the verb.",
+          "category": "grammar",
+          "proposed_text": "necesito constantemente tu guía",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "romanos6_4_RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios4v2RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan133435RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos21415RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan1633RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "gal62RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo161819RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "para que sean usados",
+          "issue": "Subject-verb agreement error: the verb phrase does not agree with the singular subject \"mi vida, mi familia y mi ministerio\".",
+          "category": "grammar",
+          "proposed_text": "para que sea usado",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "romanos123RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "en mi",
+          "issue": "Missing accent on the pronoun \"mí\"; should be \"en mí\" to indicate the object pronoun.",
+          "category": "typo",
+          "proposed_text": "en mí",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1corintios311RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "la esencia de la fe, reside",
+          "issue": "Comma incorrectly placed after \"fe\"",
+          "category": "grammar",
+          "proposed_text": "la esencia de la fe reside",
+          "verified": false
+        },
+        {
+          "quoted_text": "ya sean",
+          "issue": "Subject \"Cualquier otro fundamento\" is singular, so verb should be singular",
+          "category": "grammar",
+          "proposed_text": "ya sea",
+          "verified": false
+        },
+        {
+          "quoted_text": "sobre la roca firme, o",
+          "issue": "Unnecessary comma before \"o\"",
+          "category": "grammar",
+          "proposed_text": "sobre la roca firme o",
+          "verified": false
+        },
+        {
+          "quoted_text": "una vida plena, con propósito y esperanza, una vida que",
+          "issue": "Comma after \"plena\" is unnecessary and creates a comma splice",
+          "category": "grammar",
+          "proposed_text": "una vida plena con propósito y esperanza, una vida que",
+          "verified": false
+        },
+        {
+          "quoted_text": "Christ",
+          "issue": "English word used instead of Spanish \"Cristo\"",
+          "category": "typo",
+          "proposed_text": "Cristo",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "rom623RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "santiago51516RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "rom324RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "que es en Cristo Jesús",
+          "issue": "Unnecessary phrase \"que es\" before \"en Cristo Jesús\"; the sentence should directly state \"en Cristo Jesús\".",
+          "category": "grammar",
+          "proposed_text": "en Cristo Jesús",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "apocalipsis27RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis27RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "col11517RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "nos has dado",
+          "issue": "Wrong verb agreement: \"has\" should be \"ha\" to agree with the subject \"Dios\" (third person singular).",
+          "category": "grammar",
+          "proposed_text": "nos ha dado",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "col2v8RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1timoteo412RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "pablo",
+          "issue": "The name should be capitalized.",
+          "category": "typo",
+          "proposed_text": "Pablo",
+          "verified": false
+        },
+        {
+          "quoted_text": "palabra",
+          "issue": "Missing definite article before the noun.",
+          "category": "typo",
+          "proposed_text": "la palabra",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1timoteo316RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "en",
+          "issue": "The sentence starts with a lowercase letter after a period, which is incorrect in Spanish.",
+          "category": "grammar",
+          "proposed_text": "En",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "efesios525-27RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1tesalonicenses1910RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "santiago414RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1pedro315RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan42324RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "te agrade",
+          "issue": "Incorrect verb form; should be a full verb phrase to express gratitude.",
+          "category": "grammar",
+          "proposed_text": "te agradecemos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1tes511RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "santiago28RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses378RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas137RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos15_4_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "lámpara a nuestros pies",
+          "issue": "Incorrect preposition; should use \"de\" instead of \"a\" for possession.",
+          "category": "grammar",
+          "proposed_text": "lámpara de nuestros pies",
+          "verified": false
+        },
+        {
+          "quoted_text": "lumbrera",
+          "issue": "Typo; the correct word is \"luz\" or \"luz\" (not \"lumbrera\").",
+          "category": "typo",
+          "proposed_text": "luz",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1pedro5v8-9RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "vigilancia necesarias",
+          "issue": "Number agreement error: \"vigilancia\" is singular, so the adjective must be singular.",
+          "category": "grammar",
+          "proposed_text": "vigilancia necesaria",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "rom91516RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "a sí mismo",
+          "issue": "Incorrect reflexive pronoun; should refer to God as a third person.",
+          "category": "grammar",
+          "proposed_text": "a Él",
+          "verified": false
+        },
+        {
+          "quoted_text": "Así que no depende del que quiere, ni del que corre, sino de Dios que tiene misericordia.",
+          "issue": "Missing preposition before \"Dios\"; should be \"de Dios\".",
+          "category": "grammar",
+          "proposed_text": "Así que no depende del que quiere, ni del que corre, sino de Dios que tiene misericordia.",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "stgo124RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos8v6RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos1212RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "sufridos",
+          "issue": "The word \"sufridos\" is a plural past participle that does not fit the context; it should be the singular noun \"sufrimiento\".",
+          "category": "typo",
+          "proposed_text": "sufrimiento",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas137RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo419RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas1532RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios9_7_20250819_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "abundantemente",
+          "issue": "misspelled word; correct spelling is \"abundantemente\"",
+          "category": "typo",
+          "proposed_text": "abundantemente",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1tesalonicenses1910RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "testificando de tu amor",
+          "issue": "Incorrect preposition; \"testificar\" is transitive and should not be followed by \"de\" in this context.",
+          "category": "grammar",
+          "proposed_text": "testificando tu amor",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2corintios9_7_20250819_RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos102425RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1tim6v10RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1Timoteo6_17-19RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "para lo por venir",
+          "issue": "Incorrect phrasing; should be \"para lo que está por venir\" or \"para lo que viene\".",
+          "category": "grammar",
+          "proposed_text": "para lo que está por venir",
+          "verified": false
+        },
+        {
+          "quoted_text": "para lo por venir, la vida eterna",
+          "issue": "Missing conjunction before \"la vida eterna\"; should be \"para lo que está por venir, y la vida eterna\" or rephrase.",
+          "category": "grammar",
+          "proposed_text": "para lo que está por venir, y la vida eterna",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2pedro3v9RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios431RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "alimentada",
+          "issue": "Wrong gender agreement: the adjective should match the masculine noun \"veneno\".",
+          "category": "typo",
+          "proposed_text": "alimentado",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "hebreos21415RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "santiago122RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "auto-engaño",
+          "issue": "Hyphen used incorrectly; the correct Spanish spelling is without a hyphen.",
+          "category": "typo",
+          "proposed_text": "autoengaño",
+          "verified": false
+        },
+        {
+          "quoted_text": "prédicas",
+          "issue": "Accent incorrectly placed; the word should not have an accent.",
+          "category": "typo",
+          "proposed_text": "predicas",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan141RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan2029RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "\"Bienaventurados los que no vieron, y creyeron\"",
+          "issue": "Unnecessary comma before the conjunction \"y\" in the quoted phrase.",
+          "category": "typo",
+          "proposed_text": "\"Bienaventurados los que no vieron y creyeron\"",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "gal62RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas10_2_20250807RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "gran mies",
+          "issue": "Typo: \"mies\" should be \"misión\"",
+          "category": "typo",
+          "proposed_text": "gran misión",
+          "verified": false
+        },
+        {
+          "quoted_text": "tu mies",
+          "issue": "Typo: \"mies\" should be \"misión\"",
+          "category": "typo",
+          "proposed_text": "tu misión",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "efesios431RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo82627RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "stgo124RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "La prueba de nuestra fe,",
+          "issue": "Unnecessary comma after \"fe\" creates a comma splice.",
+          "category": "grammar",
+          "proposed_text": "La prueba de nuestra fe",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1pedro5_7RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "«echando",
+          "issue": "Incorrect verb form; should be the imperative \"Echa\".",
+          "category": "grammar",
+          "proposed_text": "«Echa",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo544RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas1234RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "juan14_2-3RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "para que donde yo estoy",
+          "issue": "Incorrect use of the subjunctive; the phrase should use the subjunctive form after \"para que\".",
+          "category": "grammar",
+          "proposed_text": "para que donde yo esté",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1timoteo316RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios245RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Reconozco que sin tu gracia, estaría perdido.",
+          "issue": "Unnecessary comma after \"gracia\"; it creates a comma splice.",
+          "category": "grammar",
+          "proposed_text": "Reconozco que sin tu gracia estaría perdido.",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas1248RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1pedro5v8-9RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "santiago11920RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "ser prontos para oír",
+          "issue": "Adjective \"prontos\" is plural but should agree with singular verb \"ser\"; correct form is \"pronto\".",
+          "category": "grammar",
+          "proposed_text": "ser pronto para oír",
+          "verified": false
+        },
+        {
+          "quoted_text": "airarnos",
+          "issue": "Typo: \"airarnos\" is not a Spanish word; intended reflexive verb is \"irarnos\".",
+          "category": "typo",
+          "proposed_text": "irarnos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "hebreos612RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "que me han guiado",
+          "issue": "Subject-verb agreement: the verb should agree with the singular subject \"amor y misericordia\"",
+          "category": "grammar",
+          "proposed_text": "que me ha guiado",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "efesios21922RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Todo el edificio, que somos nosotros,",
+          "issue": "Incorrect comma placement; the clause is not a nonrestrictive clause and the comma is unnecessary.",
+          "category": "grammar",
+          "proposed_text": "Todo el edificio que somos nosotros",
+          "verified": false
+        },
+        {
+          "quoted_text": "para ser morada de Dios",
+          "issue": "Missing article before \"morada\"; should be \"la morada\".",
+          "category": "grammar",
+          "proposed_text": "para ser la morada de Dios",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "filipenses46-7RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "te preocupas",
+          "issue": "Incorrect verb form; should be subjunctive to express a request",
+          "category": "grammar",
+          "proposed_text": "que te preocupes",
+          "verified": false
+        },
+        {
+          "quoted_text": "en el nombre de Jesús, amén.",
+          "issue": "Sentence starts with lowercase letter",
+          "category": "grammar",
+          "proposed_text": "En el nombre de Jesús, amén.",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan141RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "crea",
+          "issue": "Incorrect verb form; should agree with second person singular subject \"creas\".",
+          "category": "grammar",
+          "proposed_text": "creas",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan133435RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo82627RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios1534RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "la muerte, sepultura y resurrección",
+          "issue": "Missing definite article before \"sepultura\" and \"resurrección\" in the list, which is a grammatical omission.",
+          "category": "grammar",
+          "proposed_text": "la muerte, la sepultura y la resurrección",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "apocalipsis1413RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "refleje",
+          "issue": "Subject-verb agreement error: the verb should agree with the plural subject \"nuestras obras\".",
+          "category": "grammar",
+          "proposed_text": "reflejen",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "filemon116RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "no solo para Pablo, sino también, y con mayor razón, para Filemón",
+          "issue": "Incorrect comma placement; the comma before \"y con mayor razón\" is unnecessary and disrupts the flow.",
+          "category": "grammar",
+          "proposed_text": "no solo para Pablo, sino también para Filemón, y con mayor razón",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "rom623RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo419RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo212RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos831RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "si Tú estás por nosotros",
+          "issue": "Incorrect preposition; should use \"con\" instead of \"por\" to express accompaniment.",
+          "category": "grammar",
+          "proposed_text": "si Tú estás con nosotros",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1juan32RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses413RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "todo lo puedo",
+          "issue": "Missing relative pronoun \"que\" after \"lo\" to form the phrase \"todo lo que puedo\".",
+          "category": "grammar",
+          "proposed_text": "todo lo que puedo",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1juan4910RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "es iniciativa divina",
+          "issue": "Missing article before noun phrase; should be a definite or indefinite article.",
+          "category": "grammar",
+          "proposed_text": "es una iniciativa divina",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan1224RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "a nosotros mismos",
+          "issue": "Incorrect preposition; should use 'de' instead of 'a' before 'nosotros mismos'.",
+          "category": "grammar",
+          "proposed_text": "de nosotros mismos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2Tesalonicenses3_10RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan32RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas1814RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "superiores a mí mismo",
+          "issue": "Redundant phrase; \"a mí mismo\" is unnecessary and unidiomatic in this context.",
+          "category": "grammar",
+          "proposed_text": "superiores a mí",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "romanos55RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis1_7RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "recibirle",
+          "issue": "Incorrect object pronoun; should refer to Jesús (masculine singular).",
+          "category": "typo",
+          "proposed_text": "recibirlo",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1pedro1_8-9_RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "lucas10_2_20250807RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "mies",
+          "issue": "Typo: the word should be \"miel\" (harvest) instead of \"mies\".",
+          "category": "typo",
+          "proposed_text": "miel",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "apocalipsis1_7RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1pedro1_8-9_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1corintios1534RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo212RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1juan520RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "galatas6_9RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "lámpara a nuestros pies",
+          "issue": "Incorrect preposition; should be \"de\"",
+          "category": "grammar",
+          "proposed_text": "lámpara de nuestros pies",
+          "verified": false
+        },
+        {
+          "quoted_text": "lumbrera a nuestro camino",
+          "issue": "Incorrect word and preposition; \"lumbrera\" is not idiomatic and should be \"luz\" with \"de\"",
+          "category": "grammar",
+          "proposed_text": "luz de nuestro camino",
+          "verified": false
+        },
+        {
+          "quoted_text": "a su debido tiempo",
+          "issue": "Incorrect preposition; should be \"en\"",
+          "category": "grammar",
+          "proposed_text": "en su debido tiempo",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "col2v8RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis1413RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Dios,",
+          "issue": "Un comma unnecessary after the noun 'Dios' in a non-clausal context.",
+          "category": "grammar",
+          "proposed_text": "Dios",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas1128RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1tesalonicenses52324RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios42627RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses419RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "filipenses",
+          "issue": "Proper noun should be capitalized",
+          "category": "typo",
+          "proposed_text": "Filipenses",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo123132RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Su obra",
+          "issue": "Capitalization of the possessive pronoun \"Su\" is incorrect; it should be lowercase unless at the beginning of a sentence.",
+          "category": "grammar",
+          "proposed_text": "su obra",
+          "verified": false
+        },
+        {
+          "quoted_text": "Su llamado",
+          "issue": "Capitalization of the possessive pronoun \"Su\" is incorrect; it should be lowercase unless at the beginning of a sentence.",
+          "category": "grammar",
+          "proposed_text": "su llamado",
+          "verified": false
+        },
+        {
+          "quoted_text": "Su poder",
+          "issue": "Capitalization of the possessive pronoun \"Su\" is incorrect; it should be lowercase unless at the beginning of a sentence.",
+          "category": "grammar",
+          "proposed_text": "su poder",
+          "verified": false
+        },
+        {
+          "quoted_text": "Su voz",
+          "issue": "Capitalization of the possessive pronoun \"Su\" is incorrect; it should be lowercase unless at the beginning of a sentence.",
+          "category": "grammar",
+          "proposed_text": "su voz",
+          "verified": false
+        },
+        {
+          "quoted_text": "Su voluntad",
+          "issue": "Capitalization of the possessive pronoun \"Su\" is incorrect; it should be lowercase unless at the beginning of a sentence.",
+          "category": "grammar",
+          "proposed_text": "su voluntad",
+          "verified": false
+        },
+        {
+          "quoted_text": "Su invitación",
+          "issue": "Capitalization of the possessive pronoun \"Su\" is incorrect; it should be lowercase unless at the beginning of a sentence.",
+          "category": "grammar",
+          "proposed_text": "su invitación",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "filipenses1v6RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "filipenses413RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos1212RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "gozarme",
+          "issue": "Incorrect verb form; \"gozarme\" is not a valid Spanish verb form.",
+          "category": "grammar",
+          "proposed_text": "gozar",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "col315RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "santiago48RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2pedro3v9RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Sus",
+          "issue": "The pronoun \"Sus\" should be lowercase in Spanish.",
+          "category": "typo",
+          "proposed_text": "sus",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "santiago48RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios521RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "fuésemos hechos justicia",
+          "issue": "Incorrect phrase; should be \"hechos justos\" or \"hechos justicia\" is ungrammatical",
+          "category": "grammar",
+          "proposed_text": "fuésemos hechos justos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "marcos1045RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "2corintios517RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos55RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos831RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "se levante",
+          "issue": "Subject-verb agreement error: \"se levante\" is singular, but the subject \"oposiciones\" is plural.",
+          "category": "grammar",
+          "proposed_text": "se levanten",
+          "verified": false
+        },
+        {
+          "quoted_text": "en contra nuestra",
+          "issue": "Agreement error: \"nuestra\" is singular feminine, but it should agree with the plural noun \"oposiciones\".",
+          "category": "grammar",
+          "proposed_text": "en contra nuestras",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan15_5_20260224_RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "en comunión",
+          "issue": "Missing accent on the word \"comunión\"",
+          "category": "typo",
+          "proposed_text": "en comunión",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2corintios517RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "marcos1045RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo5_3_12RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis21_4_20250621RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "enjugando",
+          "issue": "Typo: incorrect spelling of the verb 'enjuagando' (to wash).",
+          "category": "typo",
+          "proposed_text": "enjuagando",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1tesalonicenses4_3-5RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "romanos11_33_36_RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "amor infinitos",
+          "issue": "adjective does not agree with noun; should be singular",
+          "category": "grammar",
+          "proposed_text": "amor infinito",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2Tesalonicenses3_10RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "tesalonicenses",
+          "issue": "Proper noun should be capitalized",
+          "category": "typo",
+          "proposed_text": "Tesalonicenses",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2corintios13v5RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "examinaos",
+          "issue": "Typo: missing the letter 'e' in the imperative form of 'examinar'",
+          "category": "typo",
+          "proposed_text": "examineos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1juan520RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Estar 'en el verdadero' significa estar unidos a Dios",
+          "issue": "Subject-verb agreement mismatch: \"unidos\" is plural but the verb \"estar\" refers to a singular subject.",
+          "category": "grammar",
+          "proposed_text": "Estar 'en el verdadero' significa estar unido a Dios",
+          "verified": false
+        },
+        {
+          "quoted_text": "conocer al Dios verdadero",
+          "issue": "Word order is unnatural; the adjective should precede the noun.",
+          "category": "grammar",
+          "proposed_text": "conocer al verdadero Dios",
+          "verified": false
+        },
+        {
+          "quoted_text": "'el verdadero Dios, y la vida eterna'",
+          "issue": "Unnecessary comma inside the quotation marks.",
+          "category": "grammar",
+          "proposed_text": "'el verdadero Dios y la vida eterna'",
+          "verified": false
+        },
+        {
+          "quoted_text": "en el verdadero",
+          "issue": "Incomplete phrase; likely missing the word \"Dios\".",
+          "category": "grammar",
+          "proposed_text": "en el verdadero Dios",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo112830RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hebreos412RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Su imagen",
+          "issue": "Capitalization error – should be lowercase in this context",
+          "category": "typo",
+          "proposed_text": "su imagen",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "hechos529RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "obedecerte",
+          "issue": "Typo: incorrect infinitive form of the verb 'obedecer' with object pronoun; should be 'obedecerte'.",
+          "category": "typo",
+          "proposed_text": "obedecerte",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "mateo544RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "en el nombre de Jesús, amén.",
+          "issue": "The sentence starts with a lowercase letter after a period; it should be capitalized.",
+          "category": "grammar",
+          "proposed_text": "En el nombre de Jesús, amén.",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "hebreos8v6RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1tim6v10RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "apocalipsis48RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1tesalonicenses52324RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "1pedro5_5-6RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "para que él os exalte cuando fuere tiempo",
+          "issue": "Incorrect use of the subjunctive form \"fuere\" in a temporal clause; the correct form is \"sea\".",
+          "category": "grammar",
+          "proposed_text": "para que él os exalte cuando sea tiempo",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "apocalipsis2220RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "una promesa de regreso, y una invitación",
+          "issue": "Unnecessary comma before the conjunction \"y\" in Spanish",
+          "category": "grammar",
+          "proposed_text": "una promesa de regreso y una invitación",
+          "verified": false
+        },
+        {
+          "quoted_text": "Amén; sí, ven, Señor Jesús",
+          "issue": "Incorrect punctuation: semicolon used instead of comma within the quotation",
+          "category": "typo",
+          "proposed_text": "Amén, sí, ven, Señor Jesús",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "efesios42627RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "efesios245RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo112830RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "a venir a ti",
+          "issue": "Unnecessary and incorrect phrase; should not include \"venir\" when addressing God",
+          "category": "grammar",
+          "proposed_text": "a ti",
+          "verified": false
+        },
+        {
+          "quoted_text": "en comunión",
+          "issue": "Missing accent on \"comunión\"",
+          "category": "typo",
+          "proposed_text": "en comunión",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "efesios525-27RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "presentar a la iglesia a sí mismo",
+          "issue": "Incorrect reflexive pronoun gender; \"la iglesia\" is feminine, so \"sí mismo\" (masculine) is wrong.",
+          "category": "grammar",
+          "proposed_text": "presentar a la iglesia a sí misma",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "col315RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "no simplemente a sentirla",
+          "issue": "The phrase is awkward; the infinitive should not be preceded by 'a' after 'no simplemente'.",
+          "category": "grammar",
+          "proposed_text": "no simplemente sentirla",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1juan416RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "col118RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "El es quien dirige y sustenta la iglesia.",
+          "issue": "Missing accent on the pronoun \"Él\".",
+          "category": "typo",
+          "proposed_text": "Él es quien dirige y sustenta la iglesia.",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1juan4910RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "mateo5_3_12RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "conocido",
+          "issue": "Wrong gender/number agreement: the adjective should agree with the plural noun \"las Bienaventuranzas\".",
+          "category": "grammar",
+          "proposed_text": "conocidos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan1633RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "confíad",
+          "issue": "Incorrect verb form; should be singular imperative for 'you' (confía).",
+          "category": "grammar",
+          "proposed_text": "confía",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas1128RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "oidor",
+          "issue": "The word \"oidor\" is archaic and uncommon; the standard form is \"oyedor\".",
+          "category": "typo",
+          "proposed_text": "oyedor",
+          "verified": false
+        },
+        {
+          "quoted_text": "Relléname",
+          "issue": "Incorrect conjugation of \"rellenar\" with the pronoun \"me\"; the correct form is \"relléneme\".",
+          "category": "typo",
+          "proposed_text": "relléneme",
+          "verified": false
+        },
+        {
+          "quoted_text": "lámpara a mis pies",
+          "issue": "Preposition \"a\" is incorrect; the idiomatic phrase uses \"de\".",
+          "category": "grammar",
+          "proposed_text": "lámpara de mis pies",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "juan15_8_20250725_RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "la Vid verdadera",
+          "issue": "The word \"Vid\" is capitalized incorrectly; it should be lowercase as it is not a proper noun.",
+          "category": "typo",
+          "proposed_text": "la vid verdadera",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1juan416RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "creer el amor de Dios",
+          "issue": "Missing preposition \"en\" after \"creer\"",
+          "category": "grammar",
+          "proposed_text": "creer en el amor de Dios",
+          "verified": false
+        },
+        {
+          "quoted_text": "Dios more en nosotros",
+          "issue": "Incorrect verb form \"more\"; should be \"mora\" or \"permanezca\"",
+          "category": "grammar",
+          "proposed_text": "Dios mora en nosotros",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "apocalipsis48RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Guíanos en este día y siempre, a adorarte en espíritu y en verdad, reconociendo tu soberanía sobre nuestras vidas.",
+          "issue": "Un comma innecesario después de \"siempre\" que interrumpe la fluidez de la oración.",
+          "category": "grammar",
+          "proposed_text": "Guíanos en este día y siempre a adorarte en espíritu y en verdad, reconociendo tu soberanía sobre nuestras vidas.",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2corintios4_5RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "pablo",
+          "issue": "The name should be capitalized.",
+          "category": "typo",
+          "proposed_text": "Pablo",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "rom324RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "tu manos",
+          "issue": "Incorrect possessive pronoun; should be plural to match \"manos\"",
+          "category": "typo",
+          "proposed_text": "tus manos",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "galatas5v1RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": []
+    },
+    {
+      "entry_id": "hechos9_3-6_20260111_RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "coces",
+          "issue": "Typo: incorrect word",
+          "category": "typo",
+          "proposed_text": "costes",
+          "verified": false
+        },
+        {
+          "quoted_text": "al que está persiguiendo",
+          "issue": "Grammar: incorrect verb tense and construction",
+          "category": "grammar",
+          "proposed_text": "al que estaba persiguiendo",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "2corintios317RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "rotas",
+          "issue": "Incorrect verb form; should agree with plural subject and use correct conjugation",
+          "category": "grammar",
+          "proposed_text": "rotan",
+          "verified": false
+        },
+        {
+          "quoted_text": "guiados",
+          "issue": "Subject-verb agreement; \"guiados\" is plural masculine, but the subject \"libertad\" is singular feminine",
+          "category": "grammar",
+          "proposed_text": "guiada",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1corintios4v2RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "Ser hallados fieles",
+          "issue": "Agreement error: the participle \"hallados\" does not agree with the impersonal subject \"ser\".",
+          "category": "grammar",
+          "proposed_text": "Ser hallado fieles",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "1timoteo11516RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "para que Jesucristo mostrara en él su clemencia",
+          "issue": "Incorrect word order and preposition placement; the phrase is awkward and grammatically incorrect.",
+          "category": "grammar",
+          "proposed_text": "para que Jesucristo mostrara su clemencia en él",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas1532RVR1960",
+      "field": "reflexion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "La parábola del hijo pródigo, culmina",
+          "issue": "Unnecessary comma after \"pródigo\"; it incorrectly separates the subject from the verb.",
+          "category": "grammar",
+          "proposed_text": "La parábola del hijo pródigo culmina",
+          "verified": false
+        },
+        {
+          "quoted_text": "La frase \"era necesario hacer fiesta y regocijarnos\", revela",
+          "issue": "Comma after the closing quotation mark is incorrect; it should be removed.",
+          "category": "grammar",
+          "proposed_text": "La frase \"era necesario hacer fiesta y regocijarnos\" revela",
+          "verified": false
+        }
+      ]
+    },
+    {
+      "entry_id": "lucas1234RVR1960",
+      "field": "oracion",
+      "version": "RVR1960",
+      "findings": [
+        {
+          "quoted_text": "lámpara a mis pies",
+          "issue": "Incorrect preposition; should use \"de\" instead of \"a\".",
+          "category": "grammar",
+          "proposed_text": "lámpara de mis pies",
+          "verified": false
+        },
+        {
+          "quoted_text": "lumbrera a mi camino",
+          "issue": "Incorrect preposition; should use \"de\" instead of \"a\".",
+          "category": "grammar",
+          "proposed_text": "lumbrera de mi camino",
+          "verified": false
+        }
+      ]
+    }
+  ]
+}
