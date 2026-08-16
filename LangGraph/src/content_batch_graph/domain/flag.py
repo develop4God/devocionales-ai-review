@@ -9,48 +9,11 @@ prompted "please return JSON" and no text-unwrapping/regex parsing of the respon
 
 from __future__ import annotations
 
-from typing import Literal
-
 from langchain_core.prompts import ChatPromptTemplate
-from pydantic import BaseModel, Field, create_model
 
 from content_batch_graph.domain.providers import get_model
-from content_batch_graph.domain.roles import Role, get_role
+from content_batch_graph.domain.roles import build_finding_schema, get_role
 from content_batch_graph.state import Finding
-
-
-def _build_flag_response_schema(role: Role) -> type[BaseModel]:
-    """
-    Builds the structured-output schema for this role, with `category` constrained
-    to a Literal of exactly the role's declared categories — schema-level enforcement
-    instead of relying on a free-text description, which small models don't reliably
-    follow.
-    """
-    category_type = Literal[tuple(role["categories"])]  # type: ignore[valid-type]
-    finding_schema = create_model(
-        "_FindingSchema",
-        quoted_text=(
-            str,
-            Field(
-                description="The exact problematic text, quoted verbatim from the source."
-            ),
-        ),
-        issue=(
-            str,
-            Field(description="What's wrong with the quoted text, in English."),
-        ),
-        category=(category_type, Field(description="The category of this finding.")),
-    )
-    return create_model(
-        "_FlagResponse",
-        findings=(
-            list[finding_schema],
-            Field(
-                default_factory=list,
-                description="Every issue found. Empty if the text has no issues.",
-            ),
-        ),
-    )
 
 
 def run_flag_pass(
@@ -73,7 +36,7 @@ def run_flag_pass(
 
     role = get_role(role_id)
     persona = role["persona"].format(language=language)
-    flag_response_schema = _build_flag_response_schema(role)
+    flag_response_schema = build_finding_schema(role)
     model = get_model(provider_id).with_structured_output(flag_response_schema)
 
     prompt = ChatPromptTemplate.from_messages(
@@ -86,6 +49,7 @@ def run_flag_pass(
             quoted_text=f.quoted_text,
             issue=f.issue,
             category=f.category,
+            proposed_text=f.proposed_text or None,
         )
         for f in response.findings
     ]

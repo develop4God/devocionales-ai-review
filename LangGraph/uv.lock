@@ -53,6 +53,18 @@ wheels = [
 ]
 
 [[package]]
+name = "batch-common"
+version = "0.1.0"
+source = { editable = "../batch_common" }
+
+[package.metadata]
+requires-dist = [
+    { name = "pytest", marker = "extra == 'dev'" },
+    { name = "ruff", marker = "extra == 'dev'" },
+]
+provides-extras = ["dev"]
+
+[[package]]
 name = "certifi"
 version = "2026.7.22"
 source = { registry = "https://pypi.org/simple" }
@@ -136,6 +148,7 @@ name = "content-batch-graph"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "batch-common" },
     { name = "devocionales-json" },
     { name = "langchain-anthropic" },
     { name = "langchain-cerebras" },
@@ -156,6 +169,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "batch-common", editable = "../batch_common" },
     { name = "devocionales-json", editable = "../../devocionales-json" },
     { name = "langchain-anthropic", specifier = ">=1.5,<2.0" },
     { name = "langchain-cerebras", specifier = ">=0.8,<0.9" },

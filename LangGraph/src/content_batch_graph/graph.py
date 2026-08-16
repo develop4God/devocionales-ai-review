@@ -1,7 +1,7 @@
 """
 The graph definition. One StateGraph, wired here and nowhere else.
 
-flag -> verify -> critic -> human_confirm -> (approved) -> fix -> drift_check
+flag -> verify -> prune -> critic -> human_confirm -> (approved) -> fix -> drift_check
                                            -> (rejected) -> END
     drift_check -> (no drift) -> validate -> (passed) -> END
                                            -> (failed, under cap) -> fix
@@ -25,6 +25,7 @@ from content_batch_graph.nodes.drift_check_pass import drift_check_pass
 from content_batch_graph.nodes.fix_pass import fix_pass
 from content_batch_graph.nodes.flag_pass import flag_pass
 from content_batch_graph.nodes.human_confirm import human_confirm
+from content_batch_graph.nodes.prune_pass import prune_pass
 from content_batch_graph.nodes.validate_pass import validate_pass
 from content_batch_graph.nodes.verify_pass import verify_pass
 from content_batch_graph.state import BatchState
@@ -54,6 +55,7 @@ def build_graph():
 
     builder.add_node("flag_pass", flag_pass)
     builder.add_node("verify_pass", verify_pass)
+    builder.add_node("prune_pass", prune_pass)
     builder.add_node("critic_pass", critic_pass)
     builder.add_node("human_confirm", human_confirm)
     builder.add_node("fix_pass", fix_pass)
@@ -62,7 +64,8 @@ def build_graph():
 
     builder.add_edge(START, "flag_pass")
     builder.add_edge("flag_pass", "verify_pass")
-    builder.add_edge("verify_pass", "critic_pass")
+    builder.add_edge("verify_pass", "prune_pass")
+    builder.add_edge("prune_pass", "critic_pass")
     builder.add_edge("critic_pass", "human_confirm")
     builder.add_conditional_edges("human_confirm", _after_human_confirm)
     builder.add_edge("fix_pass", "drift_check_pass")

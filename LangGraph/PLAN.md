@@ -280,12 +280,165 @@ two-round independence protocol, not yet built).
 - [ ] `Send()`-based fan-out — one pipeline run per target language/file, matching
       "spawn one translator per language" from the source protocol
 - [ ] Only meaningful once slices 2–4 work correctly for a single target
-- [ ] Architect mentioned (2026-08-12) having existing logic that could help with
-      year-scale batch processing, possibly related to a "fireworks" provider or
-      technique — not yet clarified, ask directly before assuming what this refers to
-- [ ] Year-scale batch (365 days × 2 fields × N languages) was explicitly deferred
-      until the per-entry report/approval shape was proven — that shape is now built
-      (Slice 3.5 above); this is the natural next step once the above is clarified
+- [x] Clarified (2026-08-14): the "existing fireworks logic" referred to
+      `config/providers.yml`'s `fireworks_batch_devotional_gen` entry (batch-only,
+      `client_type: batch`) and the `content-batch` CLI (`domain/devotional_gen.py`,
+      `domain/batch_collect.py`, `domain/batch_providers.py`) — all built for
+      **generation** (date → `{reflexion, oracion}`), not review. See Slice 5.1 below
+      for the review-side equivalent this slice actually needs.
+
+### Slice 5.1 — Batch-mode native reader review (round 1), fully automated
+
+**Status: not started — design only, agreed 2026-08-14.**
+
+**Goal (architect's own words):** LangGraph runs this end-to-end with no manual
+CLI intervention — no human uploading or downloading a file. The CLI (`content-batch`)
+stays a testing/inspection tool only; it is not the production path.
+
+**What already exists, unmodified by this slice:**
+- `config/roles.yml`'s `native_reader_batch` role — typo/grammar only (no
+  `awkward_phrasing`), plain-text response format
+  (`current text: / proposed text: / explanation:`), already written for a batch
+  context ("Native Reader (batch-seeded)") but never wired to a batch builder.
+- `config/providers.yml`'s `fireworks_batch_devotional_gen` provider entry and
+  `batch_common.BatchClient` (upload/submit/poll/download) — transport layer,
+  reusable as-is.
+- `domain/scan.py::find_devotional_files` / `scan_file_for_pattern` — proves the
+  real devocionales-json corpus shape this slice reads from:
+  `data.{language}.{date}[i]`, fields `reflexion`/`oracion`, `entry.get("id")`,
+  `field_path = "data.{language}.{date}.{i}.{field}"` — matches `BatchState`'s
+  existing `entry_id`/`field_path` fields.
+- The live `flag_pass` node / `domain/flag.py::run_flag_pass` — **not replaced**.
+  Batch mode is an additional path, not a rewrite, the same way
+  `client_type: api` vs. `client_type: batch` already coexist in `providers.yml`
+  without either replacing the other.
+
+**Research finding (2026-08-14, web-verified — see citations below) that shapes
+the design:**
+- `interrupt()`/`Command(resume=...)` is the wrong primitive here. It's built for
+  human-in-the-loop UX (approve/edit/reject a value); LangGraph re-executes the
+  whole node from the top on resume, which would risk re-submitting the batch job.
+  No documented LangGraph pattern or example uses it to wait on an external
+  webhook/poll result.
+- A blocking `while status != done: sleep(); poll()` loop inside one node is not
+  officially forbidden, but is not endorsed either, and defeats the point of
+  checkpointing (which persists at node *boundaries*, not mid-sleep) — flagged as
+  a real problem in at least one real-world LangGraph issue
+  (bytedance/deer-flow#1339).
+- The closest first-party precedent is LangChain's own async-deep-agents pattern
+  (github.com/langchain-ai/async-deep-agents): submit long-running work, return
+  immediately, and use a **separate, later invocation** (new run on the same
+  thread, triggered externally) to check status — not interrupt/resume.
+- No LangChain/LangGraph-native wrapper exists for provider Batch APIs —
+  `.batch()` on chat models just calls `.invoke()` N times
+  (langchain-ai/langchain#28508, open/unresolved) — confirms the hand-rolled
+  `batch_common`/`BatchClient` approach already in this repo is the right level,
+  not a missing library to adopt instead.
+- `Send()` (map-reduce fan-out) is a poor fit for the *submit* step — the batch
+  job is one external call covering N entries, not N node executions — but
+  remains the right tool for Slice 5's actual per-language/per-file fan-out once
+  results are collected.
+
+**Recommended shape (split-run, not a single blocking run):**
+1. `submit_batch_review` node — walks the corpus for the target language/version/
+   year (reusing `find_devotional_files`-style discovery), builds one batch record
+   per `(entry_id, field)` using `native_reader_batch`'s persona (new domain
+   module, e.g. `domain/review_gen.py`, parallel to `devotional_gen.py` — not a
+   modification of it), submits via `BatchClient`, writes `batch_id`/`file_id` to
+   state, and the run ends normally (no hang).
+2. An external trigger (cron, or a thin wrapper — not a human) re-invokes the same
+   thread later, hitting `check_batch_review`: polls **once**; not done → ends
+   again for the next trigger; done → downloads results, parses the
+   `current text: / proposed text: / explanation:` blocks into `list[Finding]`
+   keyed by entry/field (new domain module, e.g. `domain/review_collect.py`,
+   parallel to `batch_collect.py` — not a modification of it).
+3. Existing `verify_pass → prune_pass → critic_pass → human_confirm → ...` runs
+   completely unchanged, fed from batch-collected `raw_findings` instead of a live
+   `run_flag_pass()` call.
+
+**Still open, genuinely architectural — do not resolve silently when building:**
+- Where the mode choice (live vs. batch) lives: a `BatchState` field,
+  a `build_graph()`/`compile_graph()` argument, or a separate entrypoint script
+  that picks the starting node. Stop-Point 1/2 — architect decides at build time.
+- Whether the graph stays one `StateGraph` with a submit/check split, or becomes
+  two smaller graphs (submit-graph, review-graph) sharing the same checkpointer
+  thread — both satisfy "no manual CLI step," differ in how much of today's single
+  `graph.py` changes shape.
+- The external trigger mechanism itself (cron entry, systemd timer, a LangGraph
+  Platform webhook once deployed there) is out of scope for `content_batch_graph`
+  code and belongs to deployment/ops, not this package.
+
+**Explicitly not doing:** replacing `flag_pass`/`domain/flag.py`, replacing
+`native_reader` with `native_reader_batch`, or making the CLI the production
+entrypoint. Batch mode is additive, mirroring how `native_reader` /
+`native_reader_batch` and `client_type: api` / `client_type: batch` already
+coexist in this codebase's own config files.
+
+**Update (2026-08-14, real implementation + a real live submit) — corrects
+several assumptions above:**
+
+- `domain/review_gen.py` built (units-from-corpus, `build_review_batch`,
+  `custom_id_for`) — done, tested, matches the RVR1960 legacy-file naming
+  quirk (`Devocional_year_{year}.json`, no `_{lang}_{version}` suffix,
+  `find_devotional_files`'s glob does NOT match it — read directly by path
+  for that file).
+- **`batch_common.BatchClient` was NOT reusable as-is** (contradicts the
+  "transport layer, reusable as-is" line above). It was built assuming
+  Fireworks' batch API mirrors OpenAI's (`/files`, `/batches`) — a real
+  submit attempt returned `404: Path not found: /v1/files`. Full rewrite:
+  Fireworks' real batch API is account-scoped resources
+  (`accounts/{account_id}/datasets`, `.../batchInferenceJobs`), confirmed
+  against `docs.fireworks.ai/guides/batch-inference`. New
+  `batch_common/fireworks_template.py` owns every Fireworks-specific
+  URL/payload shape; `client.py` is now a thin generic HTTP transport that
+  calls into it — mirrors this package's own domain-logic/node split.
+- Three more real (not doc-predicted) errors, found only by actually
+  submitting:
+  1. `base_url` was `.../inference/v1` (the live chat-completions host) —
+     the batch/dataset API is plain `.../v1`. Two different base URLs for
+     two different Fireworks surfaces.
+  2. `create_dataset` needs `exampleCount` in the request body — Fireworks'
+     own API reference marks it read-only and doesn't list it as a request
+     field; the live server's `400` disagreed with its own docs.
+  3. **Job state values are `JOB_STATE_RUNNING`/`JOB_STATE_COMPLETED`/
+     `JOB_STATE_FAILED`/`JOB_STATE_EXPIRED`, not the bare words
+     (`RUNNING`/`COMPLETED`/...) shown in the docs' own "Job states"
+     reference table.** This one would have caused `poll()` to spin until
+     timeout on every real outcome, success or failure — caught only
+     because a real job was being polled live when the mismatch surfaced.
+- Per Fireworks' own documented "Job-level system prompt" shape (and its own
+  "best practices" list — cache optimization, shared system prompt): the
+  system message is stripped from every dataset line and passed once as the
+  batch job's `systemPrompt` instead. `chat_request_record()` (in
+  `batch_common/jsonl.py`, shared by `devotional_gen.py` too) no longer
+  builds `{custom_id, method, url, body: {model, messages}}` (the old,
+  wrong OpenAI-batch envelope) — just `{custom_id, body: {messages}}`,
+  model included only at job-submission time.
+- `scripts/collect_review_batch.py` — first cut of the "collect" step:
+  polls a job id, downloads the output dataset's files once terminal.
+  Deliberately just the pull, no parsing into `Finding` objects yet (that's
+  `domain/review_collect.py`, still not built).
+- **Real live test in progress**: a 366-record half-year batch
+  (`es`/RVR1960, `2025-08-01`→`2026-01-30`, `gpt-oss-20b` — swapped in for
+  cheap pipeline-mechanics validation before spending quota on
+  `deepseek-v4-pro-0813`) was submitted successfully — dataset created,
+  uploaded, job created, all confirmed via the job's own status response
+  (`state: READY`, `exampleCount: "366"`, correct `systemPrompt` echoed
+  back). As of this writing the job has been `JOB_STATE_RUNNING` for 35+
+  minutes with `totalInputRequests: 0` / `totalProcessedRequests: 0` —
+  past the docs' own documented "contact support if a deployment takes
+  >30min to create" threshold, `status.code: OK`, `waitingOnCapacity:
+  false`. Architect decision: keep waiting, not yet treated as stuck.
+  `job_id=native-reader-es-rvr1960-halfyear-job`,
+  `output_dataset_id=native-reader-es-rvr1960-halfyear-out`. Check this job
+  first in any future session before starting a new one.
+- **Still not built**: `domain/review_collect.py` (parse the plain-text
+  `current text: / proposed text: / explanation:` format into
+  `list[Finding]`), and everything in "Still open, genuinely architectural"
+  above (mode-selection location, one graph vs. two, submit/check nodes in
+  `graph.py` itself) — none of that has been touched. Today's work is
+  entirely pre-graph: proving the batch transport and record shape work
+  against the real API.
 
 ## Slice 6 — Durable pattern memory + final report
 

@@ -7,7 +7,21 @@ venv/
 .ruff_cache/
 data/audit/
 data/genomes/
+data/reviews/*
 data/logs/
 data/checkpoints/
+# Generated batch artifacts, like every other data/ subdirectory above. The one
+# committed exception is the reviewed sample below — the architect signs off on a
+# real generated JSONL before any live batch submission happens.
+# (globbed, not `data/batch_input/` — git cannot re-include a file inside an
+# excluded directory, so the negation below would never take effect.)
+data/batch_input/*
+data/batch_output/*
+!data/batch_input/batch_input_es_RVR1960_2026_gen_deepseek-v3p2_20260814_051019.jsonl
+# native_reader_batch review of es/RVR1960 2025 (730 records) — input + collected
+# result kept committed for cross-device review (architect reviewing from tablet),
+# same reasoning as the generation-batch exception above.
+!data/batch_input/review_es_fireworks_batch_devotional_gen_gpt-oss-20b_20260815_014935.jsonl
+!data/reviews/review_es_20260815_022100.json
 *.log
 .DS_Store

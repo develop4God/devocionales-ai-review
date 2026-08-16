@@ -14,6 +14,7 @@ dependencies = [
     "langchain-cerebras>=0.8,<0.9",
     "langchain-ollama>=1.1,<2.0",
     "devocionales-json",
+    "batch-common",
 ]
 
 [project.optional-dependencies]
@@ -37,4 +38,9 @@ where = ["src"]
 # machine, not a workspace member. review_fields.py (on its reorg-shared-validation
 # branch, not yet merged to main) was purpose-built for this project's field-path
 # format; this stays live as that branch evolves instead of a one-time copy.
-devocionales-json = { path = "../../devocionales-json", editable = true }
+devocionales-json = { path = "../devocionales-json", editable = true }
+
+# Sibling package in this repo, editable — the OpenAI-compatible batch transport
+# (upload/submit/poll/download) shared with GEP. Stdlib-only, so depending on it
+# adds no third-party surface to this project.
+batch-common = { path = "../batch_common", editable = true }

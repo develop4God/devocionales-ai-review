@@ -33,6 +33,7 @@ def human_confirm(state: BatchState) -> dict:
         payload = {
             "verified_findings": state["verified_findings"],
             "rejected_findings": state["rejected_findings"],
+            "discarded_findings": state.get("discarded_findings", []),
             "critic_findings": state.get("critic_findings", []),
             "question": (
                 "Which critic-reviewed findings should be applied? Resume with "

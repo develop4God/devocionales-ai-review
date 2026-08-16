@@ -45,6 +45,43 @@ content_batch_graph/
 Managed with [`uv`](https://astral.sh/uv) — matches the official LangGraph project
 template's tooling. `uv sync` installs from the committed `uv.lock`.
 
+## Batch CLI (`content-batch`)
+
+Offline devotional generation for a whole year via a provider's batch API. This is
+an operator tool that lives beside the graph, not inside it — a 365-day batch is a
+multi-day, human-paced workflow, not a graph run.
+
+**One command, end to end** (build → submit → poll → download → collect):
+
+```bash
+content-batch pipeline --lang tl --version ASND --year 2026 \
+    --provider fireworks_batch_devotional_gen \
+    [--poll-interval 30] [--timeout 86400] [--out <path>] [--dry-run] [--limit N]
+```
+
+It prints a `[n/5]` status line per phase and a final summary (records collected,
+error count, output path). Polling blocks, reporting batch status at each interval.
+Any step failing (upload/submit error, batch `failed`/`expired`/`cancelled`, timeout,
+download error, unusable results) stops the run immediately with a
+`step n/5 (<name>) failed: …` message on stderr and exit code 1 — it never silently
+continues to the next step.
+
+`--dry-run` runs step 1 only, then prints what the remaining four steps would do.
+It makes no network call and needs no API key.
+
+**Or run each step by hand** (useful for resuming a partially-completed batch):
+
+```bash
+content-batch build-year --lang es --version RVR1960 --year 2026 --dry-run
+content-batch submit     --input <jsonl>
+content-batch poll       --batch-id <id>
+content-batch download   --output-file-id <id> --dest <path>
+content-batch collect    --results <jsonl> --lang es --version RVR1960 --year 2026
+```
+
+Providers come from `config/providers.yml`; the batch API key is read from the
+provider's `env_var` (`FIREWORKS_API_KEY` for the default provider).
+
 ## Architecture
 
 Layering rules, quality gates, and architect stop-points for this project are defined

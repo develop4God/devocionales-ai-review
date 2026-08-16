@@ -3,8 +3,9 @@
 # that resolves a model through domain/providers.py. Priority breaks ties when more
 # than one provider is enabled; lower number = tried first.
 #
-# client_type: "api" (cloud, needs env_var API key) or "local" (runs on-machine via
-#              Ollama, no key needed).
+# client_type: "api" (cloud, needs env_var API key), "local" (runs on-machine via
+#              Ollama, no key needed), or "batch" (offline OpenAI-compatible batch
+#              API — resolved by domain/batch_providers.py, never by get_model()).
 # package: which LangChain integration class to use for this provider.
 #   "anthropic" -> langchain_anthropic.ChatAnthropic
 #   "openai"    -> langchain_openai.ChatOpenAI (also covers any OpenAI-compatible
@@ -57,6 +58,41 @@ providers:
     package: openai
     model: "gpt-4o-mini"
     env_var: OPENAI_API_KEY
+
+  # Batch-only entry: resolved by domain/batch_providers.py into a
+  # batch_common.BatchProviderConfig for offline JSONL batch generation. It has no
+  # priority and is deliberately excluded from get_model() — nothing here builds a
+  # live ChatOpenAI, the requests go through the async batch API instead.
+  - id: fireworks_batch_devotional_gen
+    name: "Fireworks/gpt-oss-20b (batch)"
+    enabled: true
+    client_type: batch
+    package: openai
+    # NOT the same host path as the live chat-completions API (.../inference/v1)
+    # — Fireworks' batch/dataset management API (datasets, batchInferenceJobs)
+    # lives under plain /v1, confirmed against every curl example in
+    # docs.fireworks.ai/guides/batch-inference after a real 404 on
+    # .../inference/v1/accounts/{id}/datasets proved the /inference/v1 base wrong
+    # for this entry.
+    base_url: "https://api.fireworks.ai/v1"
+    model: "accounts/fireworks/models/gpt-oss-20b"
+    env_var: FIREWORKS_API_KEY
+    account_id_env_var: FIREWORKS_ACCOUNT_ID
+    batch:
+      supported: true
+      endpoint: "/v1/chat/completions"
+      completion_window: "24h"
+      # gpt-oss-20b can't fully disable reasoning (architecturally always-on
+      # CoT) — a real batch test with no reasoning_effort set blew the 4098
+      # max_tokens budget on reasoning alone for 3/5 rows (finish_reason:
+      # length, no content field at all). reasoning_effort:"low", passed via
+      # inferenceParameters.extraBody at job-submission time (confirmed as a
+      # documented field there, not per-record — Fireworks' own API reference
+      # lists extraBody only inside inferenceParameters), fixed this: a real
+      # retest got 5/5 clean completions with completion_tokens dropping from
+      # ~2800-4098 to 360-1825 per row.
+      extra_body:
+        reasoning_effort: low
 
 settings:
   # cerebras_gpt_oss_120b: chosen after comparing it against zai-glm-4.7 and

@@ -90,5 +90,16 @@ def get_model(provider_id: str | None = None) -> BaseChatModel:
     providers = {p["id"]: p for p in config["providers"] if p.get("enabled", True)}
     if provider_id not in providers:
         raise ValueError(f"Provider '{provider_id}' not found or not enabled.")
+    provider = providers[provider_id]
+    # Batch-only entries describe an offline JSONL job, not a live chat model —
+    # there is no synchronous client to construct for them. Caught here rather
+    # than inside _build_model(), where it would surface as a confusing
+    # ChatOpenAI misconfiguration against a batch-only endpoint.
+    if provider.get("client_type") == "batch":
+        raise ValueError(
+            f"Provider '{provider_id}' is batch-only (client_type: batch) and has no "
+            f"live chat model. Resolve it with "
+            f"domain.batch_providers.get_batch_provider() instead."
+        )
     max_retries = config["settings"].get("max_retries", 2)
-    return _build_model(providers[provider_id], max_retries)
+    return _build_model(provider, max_retries)
