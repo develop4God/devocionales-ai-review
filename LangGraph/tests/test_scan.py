@@ -59,6 +59,30 @@ def test_find_devotional_files_matches_naming_convention(tmp_path: Path):
     assert all("_fil_" in f for f in files)
 
 
+def test_find_devotional_files_includes_legacy_untagged_rvr1960_file_for_es(
+    tmp_path: Path,
+):
+    # es/RVR1960 predates the _{lang}_{version}_ naming convention and carries
+    # no tag at all — confirmed against devocionales-json/index.json, which maps
+    # this exact filename to es/RVR1960.
+    (tmp_path / "Devocional_year_2025.json").write_text("{}")
+    (tmp_path / "Devocional_year_2025_es_NVI.json").write_text("{}")
+
+    files = find_devotional_files(str(tmp_path), "es")
+
+    assert len(files) == 2
+    names = {Path(f).name for f in files}
+    assert names == {"Devocional_year_2025.json", "Devocional_year_2025_es_NVI.json"}
+
+
+def test_find_devotional_files_legacy_exception_is_es_only(tmp_path: Path):
+    # The untagged filename only means RVR1960 for "es" — a same-shaped
+    # untagged file under a different language string must not be swept in.
+    (tmp_path / "Devocional_year_2025.json").write_text("{}")
+
+    assert find_devotional_files(str(tmp_path), "fr") == []
+
+
 def test_scan_file_for_pattern_finds_match(tmp_path: Path):
     file_path = tmp_path / "Devocional_year_2025_fil_ASND.json"
     _write_devotional(

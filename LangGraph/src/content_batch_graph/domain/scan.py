@@ -30,9 +30,20 @@ def find_devotional_files(corpus_dir: str, language: str) -> list[str]:
     """
     Returns paths to devotional JSON files for the given language in corpus_dir,
     matching this project's naming convention: Devocional_year_*_<language>_*.json.
+
+    es/RVR1960 is the one legacy exception: its files predate the
+    _<language>_<version>_ naming convention and carry no language/version tag
+    at all (Devocional_year_2025.json, not Devocional_year_2025_es_RVR1960.json)
+    — confirmed against devocionales-json/index.json, which maps that untagged
+    filename to es/RVR1960. Without this, find_devotional_files("es") only ever
+    matched Devocional_year_*_es_NVI.json and silently skipped RVR1960 entirely.
     """
     pattern = str(Path(corpus_dir) / f"Devocional_year_*_{language}_*.json")
-    return sorted(glob.glob(pattern))
+    paths = set(glob.glob(pattern))
+    if language == "es":
+        legacy_pattern = str(Path(corpus_dir) / "Devocional_year_[0-9][0-9][0-9][0-9].json")
+        paths.update(glob.glob(legacy_pattern))
+    return sorted(paths)
 
 
 _SCANNED_FIELDS = ("reflexion", "oracion")

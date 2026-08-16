@@ -19,10 +19,11 @@ def test_flag_pass_returns_list_of_finding_shaped_dicts():
     findings = run_flag_pass("The sun rises in the east.", "English")
     assert isinstance(findings, list)
     for f in findings:
-        assert set(f.keys()) == {"quoted_text", "issue", "category"}
+        assert set(f.keys()) == {"quoted_text", "issue", "category", "proposed_text"}
         assert isinstance(f["quoted_text"], str)
         assert isinstance(f["issue"], str)
         assert isinstance(f["category"], str)
+        assert f["proposed_text"] is None or isinstance(f["proposed_text"], str)
 
 
 def test_flag_pass_findings_pass_through_verify_pass_safely():

@@ -17,6 +17,9 @@ class Finding(TypedDict):
     quoted_text: str  # the exact phrase the flag pass claims is problematic
     issue: str  # human-readable description of what's wrong
     category: str  # e.g. "typo", "grammar", "awkward_phrasing"
+    proposed_text: str | None  # the flag pass's own suggested replacement, if it gave
+    # one (some roles ask for this directly; others leave it None and rely entirely
+    # on critic_pass to propose replacement_text instead)
 
 
 class VerifiedFinding(Finding):
@@ -54,6 +57,14 @@ class BatchState(TypedDict):
     rejected_findings: list[
         Finding
     ]  # findings NOT found verbatim — dropped, not trusted
+
+    # ── Prune pass output ─────────────────────────────────────────────────────
+    # Cheap, deterministic, no-model-call filter that runs after verify_pass and
+    # before critic_pass: cuts findings that are structurally useless (no proposed
+    # fix, or a proposed fix identical to the original) before paying for a critic
+    # call on them. discarded_findings is a calibration report, not a silent drop —
+    # each entry carries why it was cut, the same way rejected_findings does.
+    discarded_findings: list[dict]  # [{quoted_text, issue, reason}, ...]
 
     # ── Critic pass output ──────────────────────────────────────────────────
     critic_findings: list[

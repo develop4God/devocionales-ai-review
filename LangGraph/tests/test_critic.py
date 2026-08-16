@@ -194,6 +194,14 @@ def test_run_critic_pass_falls_through_to_model_when_word_not_in_dictionary(
     monkeypatch.setattr(
         critic_module, "get_model", lambda provider_id=None: _FakeModel()
     )
+    # Filipino has no LanguageTool module in this project (see language_check.py),
+    # so find_match_for is never called for it — stubbed defensively anyway so this
+    # test can't silently start depending on network state if that ever changes.
+    monkeypatch.setattr(
+        critic_module,
+        "find_match_for",
+        lambda quoted_text, source_text, language: {"quoted_text": quoted_text},
+    )
 
     result = run_critic_pass(
         "some text with katotohanen in it",
@@ -229,8 +237,174 @@ def test_run_critic_pass_skips_dictionary_check_for_non_filipino_language(
     monkeypatch.setattr(
         critic_module, "get_model", lambda provider_id=None: _FakeModel()
     )
+    monkeypatch.setattr(
+        critic_module,
+        "find_match_for",
+        lambda quoted_text, source_text, language: {"quoted_text": quoted_text},
+    )
 
     run_critic_pass("some text", _finding("teh", "typo"), "English")
+
+    assert called["count"] == 0
+
+
+def test_run_critic_pass_dismisses_when_languagetool_finds_no_match(monkeypatch):
+    import content_batch_graph.domain.critic as critic_module
+
+    model_called = {"count": 0}
+
+    class _FakeModel:
+        def with_structured_output(self, schema):
+            model_called["count"] += 1
+            return self
+
+    monkeypatch.setattr(
+        critic_module, "get_model", lambda provider_id=None: _FakeModel()
+    )
+    monkeypatch.setattr(
+        critic_module,
+        "find_match_for",
+        lambda quoted_text, source_text, language: None,
+    )
+
+    result = run_critic_pass(
+        "some text with recieve in it",
+        _finding("recieve", "possible typo"),
+        "Spanish",
+    )
+
+    assert result["is_valid"] is False
+    assert result["replacement_text"] is None
+    assert "LanguageTool" in result["critic_reasoning"]
+    # A dismissal is free — no model call needed.
+    assert model_called["count"] == 0
+
+
+def test_run_critic_pass_falls_through_when_languagetool_also_flags_it(monkeypatch):
+    import content_batch_graph.domain.critic as critic_module
+
+    class _FakeModel:
+        def with_structured_output(self, schema):
+            return self
+
+        def __call__(self, _inputs):
+            return SimpleNamespace(
+                is_valid=True, replacement_text="recibir", reasoning="Confirmed."
+            )
+
+    monkeypatch.setattr(
+        critic_module, "get_model", lambda provider_id=None: _FakeModel()
+    )
+    monkeypatch.setattr(
+        critic_module,
+        "find_match_for",
+        lambda quoted_text, source_text, language: {"quoted_text": quoted_text},
+    )
+
+    result = run_critic_pass(
+        "some text with recieve in it",
+        _finding("recieve", "possible typo"),
+        "Spanish",
+    )
+
+    assert result["is_valid"] is True
+    assert result["replacement_text"] == "recibir"
+
+
+def test_run_critic_pass_falls_through_when_languagetool_server_unreachable(
+    monkeypatch,
+):
+    import httpx
+
+    import content_batch_graph.domain.critic as critic_module
+
+    class _FakeModel:
+        def with_structured_output(self, schema):
+            return self
+
+        def __call__(self, _inputs):
+            return SimpleNamespace(
+                is_valid=True, replacement_text="recibir", reasoning="Confirmed."
+            )
+
+    def _raise(quoted_text, source_text, language):
+        raise httpx.ConnectError("simulated LanguageTool server failure")
+
+    monkeypatch.setattr(
+        critic_module, "get_model", lambda provider_id=None: _FakeModel()
+    )
+    monkeypatch.setattr(critic_module, "find_match_for", _raise)
+
+    # A server failure must be inconclusive, not a dismissal — otherwise every
+    # finding would be silently discarded whenever the LanguageTool container
+    # isn't running, which is exactly the regression this test guards against.
+    result = run_critic_pass(
+        "some text with recieve in it",
+        _finding("recieve", "possible typo"),
+        "Spanish",
+    )
+
+    assert result["is_valid"] is True
+    assert result["replacement_text"] == "recibir"
+
+
+def test_run_critic_pass_skips_languagetool_check_for_awkward_phrasing(monkeypatch):
+    import content_batch_graph.domain.critic as critic_module
+
+    called = {"count": 0}
+
+    def _fail_if_called(quoted_text, source_text, language):
+        called["count"] += 1
+
+    class _FakeModel:
+        def with_structured_output(self, schema):
+            return self
+
+        def __call__(self, _inputs):
+            return SimpleNamespace(
+                is_valid=True, replacement_text="a smoother phrase", reasoning="why"
+            )
+
+    monkeypatch.setattr(
+        critic_module, "get_model", lambda provider_id=None: _FakeModel()
+    )
+    monkeypatch.setattr(critic_module, "find_match_for", _fail_if_called)
+
+    run_critic_pass(
+        "some text",
+        _finding("a clunky phrase", "awkward", category="awkward_phrasing"),
+        "Spanish",
+    )
+
+    assert called["count"] == 0
+
+
+def test_run_critic_pass_skips_languagetool_check_for_unsupported_language(
+    monkeypatch,
+):
+    import content_batch_graph.domain.critic as critic_module
+
+    called = {"count": 0}
+
+    def _fail_if_called(quoted_text, source_text, language):
+        called["count"] += 1
+
+    class _FakeModel:
+        def with_structured_output(self, schema):
+            return self
+
+        def __call__(self, _inputs):
+            return SimpleNamespace(
+                is_valid=True, replacement_text="fix", reasoning="why"
+            )
+
+    monkeypatch.setattr(
+        critic_module, "get_model", lambda provider_id=None: _FakeModel()
+    )
+    monkeypatch.setattr(critic_module, "find_match_for", _fail_if_called)
+
+    # Hindi has no LanguageTool module — see language_check.py's _SUPPORTED_LANGS.
+    run_critic_pass("some text", _finding("teh", "typo"), "Hindi")
 
     assert called["count"] == 0
 
