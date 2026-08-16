@@ -23,18 +23,31 @@ Validation-only for this run: validate_pass proves the fix would splice into
 the real corpus file cleanly, but nothing here writes to devocionales-json.
 The ledger records what *would* be applied for a separate, explicit write step.
 
-human_confirm is not bypassed -- it still runs as a real interrupt(). This
-driver supplies the resume decision itself: apply every critic_findings index
-where is_valid is True. That decision is logged in the ledger next to the
-critic's own reasoning, so a human can audit exactly what the critic approved
-and why, after the fact.
+human_confirm is not bypassed -- it still runs as a real interrupt(). By default
+(no --interactive) this driver supplies the resume decision itself: apply every
+critic_findings index where is_valid is True. That decision is logged in the
+ledger next to the critic's own reasoning, so a human can audit exactly what the
+critic approved and why, after the fact. This is the unattended path, useful for
+smoke-testing the pipeline itself.
+
+With --interactive, the auto-decision is replaced by a real terminal prompt per
+item: each critic_findings entry is printed (quoted_text, category, the critic's
+is_valid verdict and reasoning, proposed replacement_text), and the human types
+one of "all", "none", "1,3", or "dismiss 3,5,6" (apply everything except those
+indices) to decide what to apply. This matters because the critic's own verdict
+isn't always trustworthy on its stated reasoning alone -- see e.g.
+marcos1124RVR1960:oracion in an earlier run, where the critic approved a fix
+("crea" -> "cree") with grammatically incorrect reasoning even though a native
+speaker confirmed the original text was already correct. The human's actual
+decision is what gets applied and logged, not the critic's.
 
 If drift_check_pass then flags drift on the applied fix, the graph pauses at
-human_confirm a second time (drift's own retry-or-stop gate). This driver
-always resumes that second pause with {"apply": []} -- drift is treated as a
-signal the item needs a real human look, not something to auto-retry. Those
-items land in the ledger with status "drift_needs_review" and
-validation_passed left null (validate_pass never ran for them this round).
+human_confirm a second time (drift's own retry-or-stop gate). In both auto and
+--interactive mode this driver always resumes that second pause with
+{"apply": []} -- drift is treated as a signal the item needs a real human look
+outside this run, not something to auto-retry inline. Those items land in the
+ledger with status "drift_needs_review" and validation_passed left null
+(validate_pass never ran for them this round).
 
 Usage:
     uv run python scripts/run_review_batch_pipeline.py \
@@ -42,7 +55,8 @@ Usage:
         --corpus-file ../devocionales-json/Devocional_year_2025.json \
         --language Spanish \
         --checkpoint data/checkpoints/rvr1960_2025_review.sqlite \
-        --ledger data/checkpoints/rvr1960_2025_review_ledger.jsonl
+        --ledger data/checkpoints/rvr1960_2025_review_ledger.jsonl \
+        [--interactive]
 """
 
 from __future__ import annotations
@@ -55,6 +69,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 import content_batch_graph.nodes.flag_pass as flag_pass_module
+from content_batch_graph.domain.prune import prune_findings
+from content_batch_graph.domain.verify import verify_findings
 from content_batch_graph.graph import compile_graph
 from content_batch_graph.state import Finding
 from langgraph.types import Command
@@ -109,6 +125,120 @@ def resolve_field_path(document: dict, language_key: str, entry_id: str, field: 
     return None
 
 
+def auto_decide(critic_findings: list[dict]) -> list[int]:
+    """Apply every index the critic itself marked is_valid. Unattended-run default."""
+    return [i for i, cf in enumerate(critic_findings) if cf["is_valid"]]
+
+
+def prompt_decide(entry_id: str, field: str, critic_findings: list[dict]) -> list[int]:
+    """
+    Print each critic finding and read a real typed decision from the terminal.
+
+    Accepts: "all" (every critic-valid index), "none"/empty (dismiss everything),
+    "1,3" (apply exactly those indices), or "dismiss 3,5,6" (apply everything
+    except those indices). Invalid input reprompts rather than guessing.
+    """
+    print(f"\n=== {entry_id}:{field} — {len(critic_findings)} critic finding(s) ===")
+    if not critic_findings:
+        print("(nothing to review)")
+        return []
+
+    for i, cf in enumerate(critic_findings):
+        verdict = "VALID" if cf["is_valid"] else "REJECTED"
+        print(f"  [{i}] ({cf['category']}, critic says {verdict}) "
+              f"{cf['quoted_text']!r} -> {cf.get('replacement_text')!r}")
+        print(f"      critic reasoning: {cf['critic_reasoning']}")
+
+    default_apply = auto_decide(critic_findings)
+    print(f"  critic-recommended apply set: {default_apply or 'none'}")
+
+    while True:
+        raw = input(
+            "  apply which? ('all' / 'none' / '1,3' / 'dismiss 3,5,6') > "
+        ).strip()
+        if raw == "" or raw.lower() == "none":
+            return []
+        if raw.lower() == "all":
+            return list(range(len(critic_findings)))
+        if raw.lower().startswith("dismiss"):
+            rest = raw[len("dismiss"):].strip()
+            try:
+                dismiss = {int(x) for x in rest.split(",") if x.strip()}
+            except ValueError:
+                print("  could not parse indices after 'dismiss' — try again.")
+                continue
+            if not dismiss.issubset(set(range(len(critic_findings)))):
+                print(f"  index out of range 0..{len(critic_findings) - 1} — try again.")
+                continue
+            return [i for i in range(len(critic_findings)) if i not in dismiss]
+        try:
+            apply = [int(x) for x in raw.split(",") if x.strip()]
+        except ValueError:
+            print("  could not parse — try again.")
+            continue
+        if not set(apply).issubset(set(range(len(critic_findings)))):
+            print(f"  index out of range 0..{len(critic_findings) - 1} — try again.")
+            continue
+        return apply
+
+
+def pre_filter(
+    pending: list[tuple[str, str]],
+    by_key: dict[tuple[str, str], list[Finding]],
+    document: dict,
+    language_key: str,
+) -> tuple[list[tuple[str, str]], list[dict]]:
+    """
+    Runs verify_pass/prune_pass's own logic (no model call, no graph) against every
+    pending item upfront, so the real "how many will actually reach critic" number
+    is known immediately instead of discovered one slow graph invocation at a time.
+
+    Returns (still_pending, pre_pruned_rows). still_pending is pending items that
+    have at least one finding left after verify+prune -- these still go through the
+    full graph. pre_pruned_rows are ready-to-write ledger rows for items where
+    nothing survived verify+prune -- these never need a critic call, so the full
+    graph is skipped for them entirely.
+    """
+    still_pending: list[tuple[str, str]] = []
+    pre_pruned_rows: list[dict] = []
+
+    for entry_id, field in pending:
+        field_path = resolve_field_path(document, language_key, entry_id, field)
+        if field_path is None:
+            still_pending.append((entry_id, field))  # let run_one raise its own error
+            continue
+        parts = field_path.split(".")
+        date, i = parts[2], int(parts[3])
+        text = document["data"][language_key][date][i][field]
+
+        verified, _rejected = verify_findings(by_key[(entry_id, field)], text)
+        kept, _discarded = prune_findings(verified)
+
+        if kept:
+            still_pending.append((entry_id, field))
+        else:
+            pre_pruned_rows.append(
+                {
+                    "entry_id": entry_id,
+                    "field": field,
+                    "thread_id": f"{entry_id}:{field}",
+                    "raw_findings_count": len(by_key[(entry_id, field)]),
+                    "verified_count": 0,
+                    "discarded_count": len(verified),
+                    "critic_findings": [],
+                    "applied_indices": [],
+                    "fix_summary": None,
+                    "drift_detected": None,
+                    "drift_notes": None,
+                    "validation_passed": None,
+                    "validation_error": None,
+                    "status": "validated_not_applied",
+                }
+            )
+
+    return still_pending, pre_pruned_rows
+
+
 def run_one(
     graph,
     entry_id: str,
@@ -118,6 +248,7 @@ def run_one(
     file_text: str,
     field_path: str,
     language: str,
+    interactive: bool,
 ) -> dict:
     thread_id = f"{entry_id}:{field}"
     config = {"configurable": {"thread_id": thread_id}}
@@ -139,7 +270,11 @@ def run_one(
         raise RuntimeError(f"{thread_id}: graph did not pause at human_confirm as expected")
 
     critic_findings = result["__interrupt__"][0].value["critic_findings"]
-    apply_indices = [i for i, cf in enumerate(critic_findings) if cf["is_valid"]]
+    apply_indices = (
+        prompt_decide(entry_id, field, critic_findings)
+        if interactive
+        else auto_decide(critic_findings)
+    )
 
     final = graph.invoke(Command(resume={"apply": apply_indices}), config=config)
 
@@ -185,6 +320,12 @@ def main() -> int:
     parser.add_argument("--language-key", default="es", help='corpus data.{key} — default "es"')
     parser.add_argument("--checkpoint", required=True)
     parser.add_argument("--ledger", required=True)
+    parser.add_argument(
+        "--interactive",
+        action="store_true",
+        help="Prompt at the terminal for each item's apply/dismiss decision "
+        "instead of auto-applying every critic-valid finding.",
+    )
     args = parser.parse_args()
 
     Path(args.checkpoint).parent.mkdir(parents=True, exist_ok=True)
@@ -203,6 +344,21 @@ def main() -> int:
 
     with open(args.corpus_file, encoding="utf-8") as f:
         document = json.load(f)
+
+    pending, pre_pruned_rows = pre_filter(pending, by_key, document, args.language_key)
+    print(f"pre-filtered (verify+prune, no model call): "
+          f"{len(pre_pruned_rows)} fully pruned, {len(pending)} will reach critic")
+
+    if pre_pruned_rows:
+        with open(args.ledger, "a", encoding="utf-8") as ledger_f:
+            for row in pre_pruned_rows:
+                ledger_f.write(json.dumps(row, ensure_ascii=False) + "\n")
+            ledger_f.flush()
+        print(f"wrote {len(pre_pruned_rows)} pre-pruned rows directly to ledger.")
+
+    if not pending:
+        print("nothing left to run through the graph.")
+        return 0
 
     graph, conn_cm = compile_graph(args.checkpoint)
 
@@ -229,6 +385,7 @@ def main() -> int:
                     file_text,
                     field_path,
                     args.language,
+                    args.interactive,
                 )
                 ledger_f.write(json.dumps(row, ensure_ascii=False) + "\n")
                 ledger_f.flush()
