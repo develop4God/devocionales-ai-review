@@ -14,6 +14,12 @@ On any unhandled error the run stops immediately (no retry, no skip-and-continue
 and the failing (entry_id, field) is left out of the ledger, so a re-run picks
 up from exactly that item.
 
+Before the main loop, domain/review_prefilter.pre_filter() runs verify_pass/
+prune_pass's own logic directly (no model call, no graph, no checkpoint I/O)
+against every pending item, so items with nothing left after verify+prune get
+their ledger row written immediately instead of paying for a full graph
+invocation that would just rediscover the same result inside the loop.
+
 flag_pass normally calls a live model (domain/flag.run_flag_pass); this run
 already has the Fireworks-generated raw findings from review-collect, so
 run_flag_pass is monkeypatched per invocation to return those findings instead
@@ -68,12 +74,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+from langgraph.types import Command
+
 import content_batch_graph.nodes.flag_pass as flag_pass_module
-from content_batch_graph.domain.prune import prune_findings
-from content_batch_graph.domain.verify import verify_findings
+from content_batch_graph.domain.review_prefilter import pre_filter, resolve_field_path
 from content_batch_graph.graph import compile_graph
 from content_batch_graph.state import Finding
-from langgraph.types import Command
 
 
 def load_review_findings(review_json_path: str) -> dict[tuple[str, str], list[Finding]]:
@@ -112,17 +118,6 @@ def load_ledger_done_keys(ledger_path: str) -> set[tuple[str, str]]:
             row = json.loads(line)
             done.add((row["entry_id"], row["field"]))
     return done
-
-
-def resolve_field_path(document: dict, language_key: str, entry_id: str, field: str) -> str | None:
-    """Mirrors domain/scan.py's data.{lang}.{date}.{i}.{field} convention."""
-    lang_data = document.get("data", {}).get(language_key, {})
-    for date, entries in lang_data.items():
-        for i, entry in enumerate(entries):
-            if entry.get("id") == entry_id:
-                if entry.get(field, "") != "":
-                    return f"data.{language_key}.{date}.{i}.{field}"
-    return None
 
 
 def auto_decide(critic_findings: list[dict]) -> list[int]:
@@ -180,63 +175,6 @@ def prompt_decide(entry_id: str, field: str, critic_findings: list[dict]) -> lis
             print(f"  index out of range 0..{len(critic_findings) - 1} — try again.")
             continue
         return apply
-
-
-def pre_filter(
-    pending: list[tuple[str, str]],
-    by_key: dict[tuple[str, str], list[Finding]],
-    document: dict,
-    language_key: str,
-) -> tuple[list[tuple[str, str]], list[dict]]:
-    """
-    Runs verify_pass/prune_pass's own logic (no model call, no graph) against every
-    pending item upfront, so the real "how many will actually reach critic" number
-    is known immediately instead of discovered one slow graph invocation at a time.
-
-    Returns (still_pending, pre_pruned_rows). still_pending is pending items that
-    have at least one finding left after verify+prune -- these still go through the
-    full graph. pre_pruned_rows are ready-to-write ledger rows for items where
-    nothing survived verify+prune -- these never need a critic call, so the full
-    graph is skipped for them entirely.
-    """
-    still_pending: list[tuple[str, str]] = []
-    pre_pruned_rows: list[dict] = []
-
-    for entry_id, field in pending:
-        field_path = resolve_field_path(document, language_key, entry_id, field)
-        if field_path is None:
-            still_pending.append((entry_id, field))  # let run_one raise its own error
-            continue
-        parts = field_path.split(".")
-        date, i = parts[2], int(parts[3])
-        text = document["data"][language_key][date][i][field]
-
-        verified, _rejected = verify_findings(by_key[(entry_id, field)], text)
-        kept, _discarded = prune_findings(verified)
-
-        if kept:
-            still_pending.append((entry_id, field))
-        else:
-            pre_pruned_rows.append(
-                {
-                    "entry_id": entry_id,
-                    "field": field,
-                    "thread_id": f"{entry_id}:{field}",
-                    "raw_findings_count": len(by_key[(entry_id, field)]),
-                    "verified_count": 0,
-                    "discarded_count": len(verified),
-                    "critic_findings": [],
-                    "applied_indices": [],
-                    "fix_summary": None,
-                    "drift_detected": None,
-                    "drift_notes": None,
-                    "validation_passed": None,
-                    "validation_error": None,
-                    "status": "validated_not_applied",
-                }
-            )
-
-    return still_pending, pre_pruned_rows
 
 
 def run_one(
