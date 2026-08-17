@@ -57,20 +57,22 @@ def pre_filter(
         date, i = parts[2], int(parts[3])
         text = document["data"][language_key][date][i][field]
 
-        verified, _rejected = verify_findings(by_key[(entry_id, field)], text)
-        kept, _discarded = prune_findings(verified)
+        verified, rejected = verify_findings(by_key[(entry_id, field)], text)
+        kept, discarded = prune_findings(verified)
 
         if kept:
             still_pending.append((entry_id, field))
         else:
+            status = "rejected_by_verify" if not verified else "pruned_after_verify"
             pre_pruned_rows.append(
                 {
                     "entry_id": entry_id,
                     "field": field,
                     "thread_id": f"{entry_id}:{field}",
                     "raw_findings_count": len(by_key[(entry_id, field)]),
-                    "verified_count": 0,
-                    "discarded_count": len(verified),
+                    "rejected_count": len(rejected),
+                    "verified_count": len(verified),
+                    "discarded_count": len(discarded),
                     "critic_findings": [],
                     "applied_indices": [],
                     "fix_summary": None,
@@ -78,7 +80,7 @@ def pre_filter(
                     "drift_notes": None,
                     "validation_passed": None,
                     "validation_error": None,
-                    "status": "validated_not_applied",
+                    "status": status,
                 }
             )
 
