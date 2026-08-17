@@ -41,9 +41,19 @@ providers:
     model: "qwen-3-235b-a22b-instruct-2507"
     env_var: CEREBRAS_API_KEY
 
+  - id: groq_gpt_oss_120b
+    name: "Groq/gpt-oss-120b"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "openai/gpt-oss-120b"
+    env_var: GROQ_API_KEY
+
   - id: anthropic_default
     name: "Anthropic/claude-sonnet"
-    priority: 4
+    priority: 5
     enabled: true
     client_type: api
     package: anthropic
@@ -52,7 +62,7 @@ providers:
 
   - id: openai_default
     name: "OpenAI/gpt-4o-mini"
-    priority: 5
+    priority: 6
     enabled: true
     client_type: api
     package: openai
@@ -101,6 +111,15 @@ settings:
   # and zai-glm-4.7 is scheduled for deprecation 2026-08-17), gave the most
   # consistent low latency, and was the most willing to actually surface real
   # findings on real content rather than under-flag.
-  default_provider: cerebras_gpt_oss_120b
+  #
+  # default_provider temporarily switched to groq_gpt_oss_120b on 2026-08-17:
+  # Cerebras' free API tier was cut off that same day (account requires a
+  # payment method now), causing 429 queue_exceeded on every call. Tried
+  # groq_gpt_oss_20b first (free-tier, no credit-history gate) but it hit both
+  # an 8000 TPM/min cap and repeated json_validate_failed structured-output
+  # errors on the critic pass's nested schema. Switched to the 120b variant
+  # for better instruction-following reliability. Revert to
+  # cerebras_gpt_oss_120b once Cerebras access is restored.
+  default_provider: groq_gpt_oss_120b
   max_retries: 2
   retry_delay_s: 5
