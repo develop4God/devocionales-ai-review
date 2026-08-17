@@ -41,9 +41,41 @@ providers:
     model: "qwen-3-235b-a22b-instruct-2507"
     env_var: CEREBRAS_API_KEY
 
+  - id: groq_gpt_oss_120b
+    name: "Groq/gpt-oss-120b"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "openai/gpt-oss-120b"
+    env_var: GROQ_API_KEY
+
+  - id: groq_gpt_oss_20b
+    name: "Groq/gpt-oss-20b"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "openai/gpt-oss-20b"
+    env_var: GROQ_API_KEY
+
+  - id: fireworks_deepseek_v4_flash
+    name: "Fireworks/deepseek-v4-flash-0731"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    # Live chat-completions endpoint (.../inference/v1) — different host path
+    # than fireworks_batch_devotional_gen's .../v1 batch/dataset API below.
+    base_url: "https://api.fireworks.ai/inference/v1"
+    model: "accounts/fireworks/models/deepseek-v4-flash-0731"
+    env_var: FIREWORKS_API_KEY
+
   - id: anthropic_default
     name: "Anthropic/claude-sonnet"
-    priority: 4
+    priority: 5
     enabled: true
     client_type: api
     package: anthropic
@@ -52,7 +84,7 @@ providers:
 
   - id: openai_default
     name: "OpenAI/gpt-4o-mini"
-    priority: 5
+    priority: 6
     enabled: true
     client_type: api
     package: openai
@@ -64,7 +96,7 @@ providers:
   # priority and is deliberately excluded from get_model() — nothing here builds a
   # live ChatOpenAI, the requests go through the async batch API instead.
   - id: fireworks_batch_devotional_gen
-    name: "Fireworks/gpt-oss-20b (batch)"
+    name: "Fireworks/deepseek-v4-flash-0731 (batch)"
     enabled: true
     client_type: batch
     package: openai
@@ -75,7 +107,7 @@ providers:
     # .../inference/v1/accounts/{id}/datasets proved the /inference/v1 base wrong
     # for this entry.
     base_url: "https://api.fireworks.ai/v1"
-    model: "accounts/fireworks/models/gpt-oss-20b"
+    model: "accounts/fireworks/models/deepseek-v4-flash-0731"
     env_var: FIREWORKS_API_KEY
     account_id_env_var: FIREWORKS_ACCOUNT_ID
     batch:
@@ -101,6 +133,18 @@ settings:
   # and zai-glm-4.7 is scheduled for deprecation 2026-08-17), gave the most
   # consistent low latency, and was the most willing to actually surface real
   # findings on real content rather than under-flag.
-  default_provider: cerebras_gpt_oss_120b
+  #
+  # default_provider temporarily switched off cerebras_gpt_oss_120b on
+  # 2026-08-17: Cerebras' free API tier was cut off that same day (account
+  # requires a payment method now), causing 429 queue_exceeded on every call.
+  # Tried groq_gpt_oss_20b first (free-tier, no credit-history gate) but it
+  # hit both an 8000 TPM/min cap and repeated json_validate_failed
+  # structured-output errors on the critic pass's nested schema. Switched to
+  # groq_gpt_oss_120b for better instruction-following reliability, which
+  # worked well until it hit Groq's 200K TPD/day cap with 13 items left in
+  # the PT ARC batch. Switched back to groq_gpt_oss_20b (separate daily
+  # quota, mostly unused) to close out the remainder. Revert to
+  # cerebras_gpt_oss_120b once Cerebras access is restored.
+  default_provider: groq_gpt_oss_20b
   max_retries: 2
   retry_delay_s: 5
