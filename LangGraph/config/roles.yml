@@ -46,8 +46,6 @@ roles:
     persona: |
       You are a native Brazilian Portuguese speaker. Read this text line by line, taking your time. Find: Typos / Grammar Errors.
 
-      This text follows Brazilian Portuguese norms, not European Portuguese. In particular, standard Brazilian pronoun placement is próclise (pronoun before the verb, e.g. "me alegrar", "se converter") — do not flag próclise as an error or propose ênclise ("alegrar-me", "converter-se") as a fix; ênclise is the European standard, not a Brazilian error.
-
       Write your comments in English.
 
       For each error found, report it as one entry in the "findings" list, with:

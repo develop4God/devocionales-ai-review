@@ -51,6 +51,28 @@ providers:
     model: "openai/gpt-oss-120b"
     env_var: GROQ_API_KEY
 
+  - id: groq_gpt_oss_20b
+    name: "Groq/gpt-oss-20b"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "openai/gpt-oss-20b"
+    env_var: GROQ_API_KEY
+
+  - id: fireworks_deepseek_v4_flash
+    name: "Fireworks/deepseek-v4-flash-0731"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    # Live chat-completions endpoint (.../inference/v1) — different host path
+    # than fireworks_batch_devotional_gen's .../v1 batch/dataset API below.
+    base_url: "https://api.fireworks.ai/inference/v1"
+    model: "accounts/fireworks/models/deepseek-v4-flash-0731"
+    env_var: FIREWORKS_API_KEY
+
   - id: anthropic_default
     name: "Anthropic/claude-sonnet"
     priority: 5
@@ -112,14 +134,17 @@ settings:
   # consistent low latency, and was the most willing to actually surface real
   # findings on real content rather than under-flag.
   #
-  # default_provider temporarily switched to groq_gpt_oss_120b on 2026-08-17:
-  # Cerebras' free API tier was cut off that same day (account requires a
-  # payment method now), causing 429 queue_exceeded on every call. Tried
-  # groq_gpt_oss_20b first (free-tier, no credit-history gate) but it hit both
-  # an 8000 TPM/min cap and repeated json_validate_failed structured-output
-  # errors on the critic pass's nested schema. Switched to the 120b variant
-  # for better instruction-following reliability. Revert to
+  # default_provider temporarily switched off cerebras_gpt_oss_120b on
+  # 2026-08-17: Cerebras' free API tier was cut off that same day (account
+  # requires a payment method now), causing 429 queue_exceeded on every call.
+  # Tried groq_gpt_oss_20b first (free-tier, no credit-history gate) but it
+  # hit both an 8000 TPM/min cap and repeated json_validate_failed
+  # structured-output errors on the critic pass's nested schema. Switched to
+  # groq_gpt_oss_120b for better instruction-following reliability, which
+  # worked well until it hit Groq's 200K TPD/day cap with 13 items left in
+  # the PT ARC batch. Switched back to groq_gpt_oss_20b (separate daily
+  # quota, mostly unused) to close out the remainder. Revert to
   # cerebras_gpt_oss_120b once Cerebras access is restored.
-  default_provider: groq_gpt_oss_120b
+  default_provider: groq_gpt_oss_20b
   max_retries: 2
   retry_delay_s: 5
