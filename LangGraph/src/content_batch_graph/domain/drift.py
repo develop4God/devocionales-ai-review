@@ -10,6 +10,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, Field
 
 from content_batch_graph.domain.providers import get_model
+from content_batch_graph.domain.structured_call import invoke_structured
 from content_batch_graph.state import CriticFinding
 
 _DRIFT_PERSONA = """\
@@ -67,12 +68,13 @@ def run_drift_check(
             ),
         ]
     )
-    response = (prompt | model).invoke(
+    response = invoke_structured(
+        prompt | model,
         {
             "persona": persona,
             "fixed_text": fixed_text,
             "replacements_list": replacements_list,
-        }
+        },
     )
 
     return response.drift_detected, response.notes

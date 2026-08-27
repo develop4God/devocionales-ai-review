@@ -9,25 +9,12 @@ prompted "please return JSON" and no text-unwrapping/regex parsing of the respon
 
 from __future__ import annotations
 
-import openai
 from langchain_core.prompts import ChatPromptTemplate
 
 from content_batch_graph.domain.providers import get_model
 from content_batch_graph.domain.roles import build_finding_schema, get_role
+from content_batch_graph.domain.structured_call import invoke_structured
 from content_batch_graph.state import Finding
-
-# Groq's structured-output enforcement has been observed intermittently failing on
-# an otherwise well-formed request — either emitting JSON that violates its own
-# declared schema (json_validate_failed) or emitting text that isn't valid JSON at
-# all (output_parse_failed, the model's raw reasoning text leaking into the content
-# field instead of a schema-shaped response). Neither is a network/rate-limit
-# error, so get_model()'s max_retries (which only covers the underlying SDK's
-# retryable errors) never catches either. Retrying the identical call is a real-
-# world-confirmed fix for both: reproduced against real content on 2026-08-27 —
-# 1 retry cleared most failures but left ~1/10 calls still failing (both codes
-# observed); 2 retries is the current setting.
-_RETRYABLE_ERROR_CODES = {"json_validate_failed", "output_parse_failed"}
-_MAX_STRUCTURED_OUTPUT_RETRIES = 2
 
 
 def run_flag_pass(
@@ -58,25 +45,7 @@ def run_flag_pass(
     )
     chain = prompt | model
     inputs = {"persona": persona, "source_text": source_text}
-
-    attempt = 0
-    while True:
-        try:
-            response = chain.invoke(inputs)
-            break
-        except openai.BadRequestError as e:
-            # e.body is the error object's own contents directly (e.g.
-            # {"message": ..., "code": "json_validate_failed", ...}) — confirmed
-            # against real Groq 400 responses on 2026-08-27. It is NOT nested under
-            # an "error" key the way the raw HTTP JSON body is; assuming that nesting
-            # here previously meant this check never matched and no retry ever fired.
-            error_code = e.body.get("code") if isinstance(e.body, dict) else None
-            if (
-                error_code not in _RETRYABLE_ERROR_CODES
-                or attempt >= _MAX_STRUCTURED_OUTPUT_RETRIES
-            ):
-                raise
-            attempt += 1
+    response = invoke_structured(chain, inputs)
 
     return [
         Finding(

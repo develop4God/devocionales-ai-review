@@ -19,6 +19,7 @@ from pydantic import BaseModel, Field
 from content_batch_graph.domain.dictionary import lookup_word
 from content_batch_graph.domain.language_check import find_match_for, is_supported
 from content_batch_graph.domain.providers import get_model
+from content_batch_graph.domain.structured_call import invoke_structured
 from content_batch_graph.state import CriticFinding, VerifiedFinding
 
 # Unicode hyphen lookalikes observed being substituted by the model for a plain
@@ -233,13 +234,14 @@ def run_critic_pass(
             ),
         ]
     )
-    response = (prompt | model).invoke(
+    response = invoke_structured(
+        prompt | model,
         {
             "persona": persona,
             "source_text": source_text,
             "quoted_text": finding["quoted_text"],
             "issue": finding["issue"],
-        }
+        },
     )
 
     replacement_text = response.replacement_text or None
