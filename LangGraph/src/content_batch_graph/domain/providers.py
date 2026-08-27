@@ -66,6 +66,7 @@ def _build_model(provider: dict[str, Any], max_retries: int) -> BaseChatModel:
             api_key=api_key,
             base_url=provider.get("base_url"),
             max_retries=max_retries,
+            extra_body=provider.get("extra_body"),
         )
     if package == "cerebras":
         from langchain_cerebras import ChatCerebras

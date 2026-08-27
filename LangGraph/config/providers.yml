@@ -50,6 +50,16 @@ providers:
     base_url: "https://api.groq.com/openai/v1"
     model: "openai/gpt-oss-120b"
     env_var: GROQ_API_KEY
+    # gpt-oss models are always-on chain-of-thought; default reasoning_effort
+    # ("medium") sometimes burns the whole completion-token budget on reasoning
+    # before emitting the structured JSON answer, failing with
+    # json_validate_failed / "max completion tokens reached before generating a
+    # valid document" (confirmed via a real call through content_batch_graph's
+    # graph on 2026-08-27). low, per Groq's own docs, is supported by both
+    # gpt-oss-20b and gpt-oss-120b and matches the fix already applied to the
+    # Fireworks batch provider below for the same failure mode.
+    extra_body:
+      reasoning_effort: low
 
   - id: groq_gpt_oss_20b
     name: "Groq/gpt-oss-20b"
@@ -60,6 +70,8 @@ providers:
     base_url: "https://api.groq.com/openai/v1"
     model: "openai/gpt-oss-20b"
     env_var: GROQ_API_KEY
+    extra_body:
+      reasoning_effort: low
 
   - id: fireworks_deepseek_v4_flash
     name: "Fireworks/deepseek-v4-flash-0731"

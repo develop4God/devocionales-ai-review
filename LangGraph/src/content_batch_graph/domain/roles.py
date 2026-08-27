@@ -78,10 +78,16 @@ def build_finding_schema(role: Role) -> type[BaseModel]:
         ),
         proposed_text=(
             str,
+            # No default -> required in the emitted JSON schema. Groq's structured-
+            # output enforcement has been observed omitting an optional field
+            # entirely rather than emitting the schema's own default, which trips
+            # json_validate_failed even though our schema never required it. Forcing
+            # the model to always emit the field (empty string if none) sidesteps
+            # that failure mode instead of relying on the provider's default-value
+            # handling.
             Field(
-                default="",
-                description="The corrected replacement for quoted_text. Empty if "
-                "no replacement is proposed.",
+                description="The corrected replacement for quoted_text. Empty "
+                'string ("") if no replacement is proposed.',
             ),
         ),
         category=(category_type, Field(description="The category of this finding.")),

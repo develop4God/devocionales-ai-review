@@ -41,3 +41,22 @@ def test_get_model_passes_max_retries_from_config(monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", "fake-key-for-construction-only")
     model = get_model("anthropic_default")
     assert model.max_retries == 2
+
+
+def test_get_model_passes_extra_body_from_config_for_openai_package(monkeypatch):
+    # groq_gpt_oss_20b/120b declare extra_body: {reasoning_effort: low} in
+    # providers.yml — gpt-oss's default reasoning_effort ("medium") can burn the
+    # whole completion-token budget on chain-of-thought before emitting the
+    # structured JSON answer, failing the call with json_validate_failed. Confirms
+    # that config value actually reaches the constructed ChatOpenAI client.
+    monkeypatch.setenv("GROQ_API_KEY", "fake-key-for-construction-only")
+    model = get_model("groq_gpt_oss_20b")
+    assert model.extra_body == {"reasoning_effort": "low"}
+
+
+def test_get_model_extra_body_defaults_to_none_when_not_configured(monkeypatch):
+    # openai_default has no extra_body in providers.yml — confirms providers that
+    # don't need it aren't forced to declare one, and get None rather than an error.
+    monkeypatch.setenv("OPENAI_API_KEY", "fake-key-for-construction-only")
+    model = get_model("openai_default")
+    assert model.extra_body is None
