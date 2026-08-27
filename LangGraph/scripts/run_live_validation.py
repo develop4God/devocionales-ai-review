@@ -12,8 +12,13 @@ JSONL ledger flushed after every item as the real "what's done" record, and a
 resumable re-run driven by load_ledger_done_keys.
 
 human_confirm is not bypassed -- it still runs as a real interrupt(); this driver
-auto-resolves it the same way run_review_batch_pipeline.py's --interactive=False
-path does: apply every critic_findings index the critic itself marked is_valid.
+auto-resolves it, but NOT the same way run_review_batch_pipeline.py's
+--interactive=False path does. See auto_decide()'s own docstring: only "typo"
+findings the critic marked is_valid are auto-applied -- grammar and
+awkward_phrasing findings are always recorded in the ledger for a human review
+pass, never auto-applied, after a real audit found critic_pass's own proposed
+replacement can itself be wrong or drop unrelated content, undetected by every
+other stage in the pipeline.
 
 On a 429 rate-limit error, sleeps for the duration Groq's own error message
 reports ("Please try again in Xs") plus a safety margin, then retries the same
@@ -26,24 +31,37 @@ the next day.
 
 Parallel workers: run this script once per worker, each with its own --config
 (a providers.yml with a different default_provider -- e.g. one pointed at Groq,
-another at ollama_local), its own --checkpoint, its own --ledger, and a distinct
---shard i/N so workers never claim the same item. No graph/state changes needed
-for this -- provider selection happens at the process level via
-CONTENT_BATCH_GRAPH_PROVIDERS_CONFIG, read once per process by
-domain/providers.py. Each worker's ledger is its own source of truth for what
-that worker has done; combine them (they're plain JSONL, disjoint by
-construction since sharding is deterministic) once all workers finish.
+another at ollama_local), its own --checkpoint (SqliteSaver is not safe for
+concurrent writers), a distinct --shard i/N, and -- this is the part that must
+not be skipped -- the SAME --ledger path across every worker of one run.
 
-Usage:
+--shard partitions the full item list itself (all_items), not each worker's own
+pending list, and every worker computes pending against that one shared ledger
+before sharding. That is what keeps two workers from ever validating the same
+(entry_id, field): the ledger is the single shared "what's done" record, read
+fresh at each worker's startup, so a worker that starts after another has
+already finished part of its own shard correctly skips those items too.
+Concurrent appends to one ledger file are safe here (each row is written with
+one buffered write() call of a pre-formatted line, and the file is only ever
+read once, at startup, not polled) -- but NEVER point two workers at different
+--ledger paths for the same run; each would then only see its own progress and
+recompute the shard against a stale/incomplete view of the full item list.
+
+Usage (two-worker example -- note the shared --ledger, separate --checkpoint):
     uv run python scripts/run_live_validation.py \
         --corpus-file /path/to/Devocional_year_2027_es.json \
-        --language Spanish \
-        --language-key es \
-        --fields reflexion,oracion \
-        --checkpoint data/checkpoints/2027_es_live_validation.sqlite \
-        --ledger data/checkpoints/2027_es_live_validation_ledger.jsonl \
-        [--config config/providers_ollama.yml] \
-        [--shard 1/2]
+        --language Spanish --language-key es --fields reflexion,oracion \
+        --checkpoint data/checkpoints/run_worker1.sqlite \
+        --ledger data/checkpoints/run_ledger.jsonl \
+        --shard 1/2 &
+
+    uv run python scripts/run_live_validation.py \
+        --corpus-file /path/to/Devocional_year_2027_es.json \
+        --language Spanish --language-key es --fields reflexion,oracion \
+        --checkpoint data/checkpoints/run_worker2.sqlite \
+        --ledger data/checkpoints/run_ledger.jsonl \
+        --config config/providers_ollama.yml \
+        --shard 2/2 &
 """
 
 from __future__ import annotations
@@ -98,8 +116,34 @@ def load_ledger_done_keys(ledger_path: str) -> set[tuple[str, str]]:
     return done
 
 
+_AUTO_APPLY_CATEGORIES = {"typo"}
+
+
 def auto_decide(critic_findings: list[dict]) -> list[int]:
-    return [i for i, cf in enumerate(critic_findings) if cf["is_valid"]]
+    """
+    Only "typo" findings the critic marked is_valid are eligible for unattended
+    apply. grammar and awkward_phrasing are never auto-applied here, regardless of
+    critic verdict -- a real audit of 191 items validated on 2026-08-27 found
+    critic_pass's own proposed replacement_text can itself be wrong (a real word
+    "corrected" to a non-word, or a meaning-changing substitution presented as a
+    typo fix) or can silently drop content unrelated to the claimed issue,
+    undetected by verify_pass, critic_pass, or drift_check_pass. typo had the
+    lowest observed drift rate of the three categories in that same audit (9% vs
+    28% for awkward_phrasing), and is the category this project's own
+    domain/language_check.py (LanguageTool) and domain/dictionary.py (KWF) already
+    exist specifically to ground in a real dictionary/rule source rather than a
+    model's unaided judgment -- but even typo findings are not risk-free (2 wrong-
+    word substitutions were found in that audit), so this is "lowest-risk category
+    eligible for unattended handling," not "guaranteed correct." grammar and
+    awkward_phrasing findings still appear in critic_findings for the ledger record
+    and a later human review pass -- they are simply excluded from applied_indices
+    and therefore never reach fix_pass here.
+    """
+    return [
+        i
+        for i, cf in enumerate(critic_findings)
+        if cf["is_valid"] and cf["category"] in _AUTO_APPLY_CATEGORIES
+    ]
 
 
 def run_one(
@@ -204,24 +248,25 @@ def parse_retry_after_seconds(e: Exception) -> float:
     return _DEFAULT_RETRY_AFTER_S
 
 
-def apply_shard(pending: list, shard: str | None) -> list:
+def apply_shard(items: list, shard: str | None) -> list:
     """
-    Filters pending down to items whose position is congruent to i-1 mod N, for
-    shard "i/N" (1-indexed). Returns pending unchanged if shard is None/empty.
+    Filters items down to those whose position is congruent to i-1 mod N, for
+    shard "i/N" (1-indexed). Returns items unchanged if shard is None/empty.
 
-    Deterministic by construction: for a fixed N and the same pending ordering,
-    shards 1/N..N/N partition pending exactly (every item in exactly one shard).
-    Callers must recompute pending (corpus items minus that worker's own ledger)
-    fresh on every invocation and always pass the same --shard for a given
-    worker -- pending's order can shift between runs only if the underlying
-    corpus/ledger changes in a way that reorders it, not from sharding itself.
+    Must be applied to the full, stable item list (main()'s all_items, in fixed
+    corpus order) -- NOT to a "pending" list already filtered by what's done in
+    a ledger. Sharding a filtered list makes a shard's membership shift as items
+    get done (by this worker or any other sharing the same --ledger), which is
+    exactly how two workers can end up both claiming the same item. Sharded
+    first, filtered by the ledger second, is the only order that keeps shard
+    membership fixed for the run's whole lifetime.
     """
     if not shard:
-        return pending
+        return items
     shard_i, shard_n = (int(x) for x in shard.split("/"))
     if not (1 <= shard_i <= shard_n):
         raise ValueError(f"--shard i/N requires 1 <= i <= N, got {shard!r}")
-    return [item for idx, item in enumerate(pending) if idx % shard_n == shard_i - 1]
+    return [item for idx, item in enumerate(items) if idx % shard_n == shard_i - 1]
 
 
 def main() -> int:
@@ -244,9 +289,11 @@ def main() -> int:
         "--shard",
         default=None,
         help='"i/N" (1-indexed, e.g. "1/3") -- process only the items whose '
-        "position in the pending list is congruent to i-1 mod N, so multiple "
-        "parallel invocations against the same corpus/ledger-prefix never claim "
-        "the same item. Omit to process everything pending.",
+        "position in the full corpus item list (not the pending list) is "
+        "congruent to i-1 mod N. Partitioned against the full list, not pending, "
+        "so a shard's membership never shifts as items get done -- required for "
+        "correctness when multiple workers share one --ledger (see module "
+        "docstring). Omit to process everything pending.",
     )
     args = parser.parse_args()
 
@@ -263,12 +310,14 @@ def main() -> int:
         document = json.load(f)
 
     all_items = list(iter_entry_fields(document, args.language_key, fields))
+    shard_items = apply_shard(all_items, args.shard)
     done = load_ledger_done_keys(args.ledger)
-    pending = [item for item in all_items if (item[0], item[1]) not in done]
-    pending = apply_shard(pending, args.shard)
+    pending = [item for item in shard_items if (item[0], item[1]) not in done]
 
     print(f"total (entry_id, field) items in corpus: {len(all_items)}")
-    print(f"already in ledger: {len(done)}")
+    if args.shard:
+        print(f"this worker's shard ({args.shard}): {len(shard_items)} items")
+    print(f"already in ledger (any worker): {len(done)}")
     print(f"pending this run: {len(pending)}")
 
     if not pending:
