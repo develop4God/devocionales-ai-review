@@ -88,6 +88,21 @@ def _build_model(provider: dict[str, Any], max_retries: int) -> BaseChatModel:
     raise ValueError(f"Unknown provider package: {package!r}")
 
 
+def resolve_default_provider_id() -> str:
+    """
+    Returns settings.default_provider from whichever providers.yml is currently in
+    effect (config/providers.yml, or a CONTENT_BATCH_GRAPH_PROVIDERS_CONFIG
+    override -- see _config_path()), without constructing a model.
+
+    For a caller that never passes an explicit provider_id to get_model() (every
+    graph node in this codebase calls it with no argument), this is the provider
+    that will actually be used -- e.g. a parallel-worker driver script recording
+    which model reviewed each item, where "which provider is this worker's
+    process-wide default" is a one-time startup question, not a per-call one.
+    """
+    return _load_config()["settings"]["default_provider"]
+
+
 def get_model(provider_id: str | None = None) -> BaseChatModel:
     """
     Returns a real LangChain chat model for the given provider id, or the configured

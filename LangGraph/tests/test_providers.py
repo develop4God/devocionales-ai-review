@@ -1,7 +1,7 @@
 import pytest
 
 import content_batch_graph.domain.providers as providers_module
-from content_batch_graph.domain.providers import get_model
+from content_batch_graph.domain.providers import get_model, resolve_default_provider_id
 
 
 @pytest.fixture(autouse=True)
@@ -114,3 +114,38 @@ def test_get_model_uses_default_config_path_when_env_not_set(monkeypatch):
     # module's real default path, not a broken/empty one.
     model = get_model("anthropic_default")
     assert type(model).__name__ == "ChatAnthropic"
+
+
+def test_resolve_default_provider_id_matches_real_config():
+    # config/providers.yml's own settings.default_provider, whatever it currently
+    # is -- confirms this reads the same value get_model() would silently resolve
+    # to when called with no provider_id, without constructing a model.
+    assert resolve_default_provider_id() == "groq_gpt_oss_20b_fallback"
+
+
+def test_resolve_default_provider_id_respects_config_path_override(
+    monkeypatch, tmp_path
+):
+    # scripts/run_live_validation.py records this value in every ledger row so a
+    # parallel run's per-item provider is never ambiguous -- must reflect whichever
+    # providers.yml --config selected, not always the shared default.
+    override_config = tmp_path / "custom_providers.yml"
+    override_config.write_text(
+        """
+providers:
+  - id: only_provider_here
+    name: "Test/only-provider"
+    priority: 1
+    enabled: true
+    client_type: local
+    package: ollama
+    model: "test-model"
+
+settings:
+  default_provider: only_provider_here
+  max_retries: 1
+""",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CONTENT_BATCH_GRAPH_PROVIDERS_CONFIG", str(override_config))
+    assert resolve_default_provider_id() == "only_provider_here"

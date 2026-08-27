@@ -154,6 +154,7 @@ def run_one(
     file_text: str,
     field_path: str,
     language: str,
+    provider_id: str,
 ) -> dict:
     thread_id = f"{entry_id}:{field}"
     config = {"configurable": {"thread_id": thread_id}}
@@ -188,6 +189,7 @@ def run_one(
         "entry_id": entry_id,
         "field": field,
         "thread_id": thread_id,
+        "provider_id": provider_id,
         "raw_findings_count": len(result.get("raw_findings", [])),
         "verified_count": len(final.get("verified_findings", [])),
         "discarded_count": len(final.get("discarded_findings", [])),
@@ -300,7 +302,16 @@ def main() -> int:
     if args.config:
         os.environ["CONTENT_BATCH_GRAPH_PROVIDERS_CONFIG"] = args.config
 
+    from content_batch_graph.domain.providers import resolve_default_provider_id
     from content_batch_graph.graph import compile_graph
+
+    # Resolved once, at startup: every graph node calls get_model() with no
+    # provider_id, so this worker's process-wide default_provider (from whichever
+    # providers.yml --config selected) is what actually reviews every item this
+    # process handles. Recorded per-row in the ledger so which model produced
+    # which finding is never ambiguous across a multi-worker parallel run.
+    provider_id = resolve_default_provider_id()
+    print(f"this worker's provider: {provider_id}")
 
     Path(args.checkpoint).parent.mkdir(parents=True, exist_ok=True)
 
@@ -340,6 +351,7 @@ def main() -> int:
                             text,
                             field_path,
                             args.language,
+                            provider_id,
                         )
                         break
                     except (openai.RateLimitError, openai.BadRequestError) as e:
