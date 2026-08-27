@@ -43,12 +43,13 @@ def test_flag_pass_returns_list_of_finding_shaped_dicts():
 
 def test_flag_pass_findings_pass_through_verify_pass_safely():
     # Ties back to the project's core discipline (domain/verify.py): a real model's
-    # raw claim is never trusted directly. With this local model (qwen2.5:0.5b), the
-    # quoted_text for a caught typo sometimes comes back "corrected" rather than
-    # verbatim — verify_findings must catch and reject that, not let it through as
-    # verified. This is the exact case the verify-before-trust layer exists for, so
-    # the test asserts the safety property (nothing rejected leaks into "verified"),
-    # not that the small model always quotes perfectly.
+    # raw claim is never trusted directly. With ollama_local's model (a real local
+    # call, not mocked -- see config/providers.yml), the quoted_text for a caught
+    # typo can come back "corrected" rather than verbatim — verify_findings must
+    # catch and reject that, not let it through as verified. This is the exact
+    # case the verify-before-trust layer exists for, so the test asserts the
+    # safety property (nothing rejected leaks into "verified"), not that the
+    # local model always quotes perfectly.
     source = "This is the correct answer, but teh explanation is not clear enough."
     findings = run_flag_pass(source, "English")
     verified, rejected = verify_findings(findings, source)

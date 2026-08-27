@@ -23,13 +23,21 @@ providers:
     model: "gpt-oss-120b"
     env_var: CEREBRAS_API_KEY
 
+  # Switched from qwen2.5:0.5b to gemma4:26b on 2026-08-27 -- genuinely local (no
+  # remote_host in `ollama list`, confirmed via /api/tags), zero quota/rate limit,
+  # real structured-output test against this project's actual flag_pass schema
+  # succeeded (2/2 injected typos caught correctly). Distinct from a same-named
+  # "gemma4:31b-cloud" model also present locally -- that one routes through
+  # Ollama's cloud inference (remote_host: https://ollama.com) and requires
+  # separate cloud auth (confirmed via a real 401 Unauthorized); gemma4:26b is the
+  # local-only variant.
   - id: ollama_local
-    name: "Ollama/qwen2.5:0.5b (local)"
+    name: "Ollama/gemma4:26b (local)"
     priority: 2
     enabled: true
     client_type: local
     package: ollama
-    model: "qwen2.5:0.5b"
+    model: "gemma4:26b"
     base_url: "http://localhost:11434"
 
   - id: cerebras_default
