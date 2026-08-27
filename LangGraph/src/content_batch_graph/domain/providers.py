@@ -18,17 +18,28 @@ from dotenv import load_dotenv
 from langchain_core.language_models.chat_models import BaseChatModel
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]
-_CONFIG_PATH = _REPO_ROOT / "config" / "providers.yml"
+_DEFAULT_CONFIG_PATH = _REPO_ROOT / "config" / "providers.yml"
 
 load_dotenv(dotenv_path=_REPO_ROOT / ".env")
 
 _config: dict[str, Any] | None = None
 
 
+def _config_path() -> Path:
+    # CONTENT_BATCH_GRAPH_PROVIDERS_CONFIG lets a parallel worker process point at
+    # its own providers.yml (e.g. one with a different default_provider) without
+    # threading a provider_id through graph state — each worker is one process, one
+    # config, one provider for its whole run. Read per-call (not cached at import
+    # time) so it can be set via os.environ before the first get_model() call in
+    # the same process, matching how scripts set env vars before importing.
+    override = os.environ.get("CONTENT_BATCH_GRAPH_PROVIDERS_CONFIG")
+    return Path(override) if override else _DEFAULT_CONFIG_PATH
+
+
 def _load_config() -> dict[str, Any]:
     global _config
     if _config is None:
-        with open(_CONFIG_PATH, encoding="utf-8") as f:
+        with open(_config_path(), encoding="utf-8") as f:
             _config = yaml.safe_load(f)
     return _config
 

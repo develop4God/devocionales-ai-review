@@ -73,6 +73,23 @@ providers:
     extra_body:
       reasoning_effort: low
 
+  # Separate Groq account/key, same model -- its own independent 200K TPD quota.
+  # groq_gpt_oss_20b and groq_gpt_oss_120b (same GROQ_API_KEY account) both hit
+  # their daily cap on 2026-08-27 partway through scripts/run_live_validation.py's
+  # run over the 2027 ES devotional file. This entry lets that run continue on a
+  # fresh quota without waiting for either to reset.
+  - id: groq_gpt_oss_20b_fallback
+    name: "Groq/gpt-oss-20b (fallback account)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "openai/gpt-oss-20b"
+    env_var: GROQ_API_KEY_FALLBACK
+    extra_body:
+      reasoning_effort: low
+
   - id: fireworks_deepseek_v4_flash
     name: "Fireworks/deepseek-v4-flash-0731"
     priority: 4
@@ -157,6 +174,13 @@ settings:
   # the PT ARC batch. Switched back to groq_gpt_oss_20b (separate daily
   # quota, mostly unused) to close out the remainder. Revert to
   # cerebras_gpt_oss_120b once Cerebras access is restored.
-  default_provider: groq_gpt_oss_20b
+  #
+  # 2026-08-27: groq_gpt_oss_20b hit its own 200K TPD cap partway through the
+  # scripts/run_live_validation.py run over the 2027 ES devotional file (8/732
+  # items done). Switched to groq_gpt_oss_120b (separate daily quota) to
+  # continue, which also hit its own 200K TPD cap at 146/732. Switched to
+  # groq_gpt_oss_20b_fallback (separate account/key, GROQ_API_KEY_FALLBACK,
+  # its own independent quota) to continue the same run further.
+  default_provider: groq_gpt_oss_20b_fallback
   max_retries: 2
   retry_delay_s: 5

@@ -1,6 +1,17 @@
 import pytest
 
+import content_batch_graph.domain.providers as providers_module
 from content_batch_graph.domain.providers import get_model
+
+
+@pytest.fixture(autouse=True)
+def _reset_providers_config_cache():
+    # _config is a module-level cache -- a test that sets
+    # CONTENT_BATCH_GRAPH_PROVIDERS_CONFIG must see a fresh load, and every other
+    # test must not see a config left over from one that did.
+    providers_module._config = None
+    yield
+    providers_module._config = None
 
 
 def test_get_model_raises_clear_error_when_api_key_missing(monkeypatch):
@@ -60,3 +71,46 @@ def test_get_model_extra_body_defaults_to_none_when_not_configured(monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "fake-key-for-construction-only")
     model = get_model("openai_default")
     assert model.extra_body is None
+
+
+def test_get_model_respects_config_path_env_override(monkeypatch, tmp_path):
+    # scripts/run_live_validation.py's --config flag sets
+    # CONTENT_BATCH_GRAPH_PROVIDERS_CONFIG so a parallel worker process can use its
+    # own providers.yml (a different default_provider) without touching the shared
+    # config file. Confirms get_model() actually reads the override, not just the
+    # module's own default path.
+    override_config = tmp_path / "custom_providers.yml"
+    override_config.write_text(
+        """
+providers:
+  - id: only_provider_here
+    name: "Test/only-provider"
+    priority: 1
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://example.invalid/v1"
+    model: "test-model"
+    env_var: OPENAI_API_KEY
+
+settings:
+  default_provider: only_provider_here
+  max_retries: 1
+""",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CONTENT_BATCH_GRAPH_PROVIDERS_CONFIG", str(override_config))
+    monkeypatch.setenv("OPENAI_API_KEY", "fake-key-for-construction-only")
+
+    model = get_model()  # no provider_id -> resolves default_provider from override
+    assert model.model_name == "test-model"
+
+
+def test_get_model_uses_default_config_path_when_env_not_set(monkeypatch):
+    monkeypatch.delenv("CONTENT_BATCH_GRAPH_PROVIDERS_CONFIG", raising=False)
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "fake-key-for-construction-only")
+    # anthropic_default only exists in the real config/providers.yml -- resolving
+    # it successfully confirms the override env var being unset falls back to the
+    # module's real default path, not a broken/empty one.
+    model = get_model("anthropic_default")
+    assert type(model).__name__ == "ChatAnthropic"
