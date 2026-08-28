@@ -497,6 +497,103 @@ several assumptions above:**
   ephemeral filesystem defeats the point of checkpointing across process
   restarts. `compile_graph()`'s docstring states this explicitly.
 
+## Provider routing / worker-count migration (2026-08-28) — planned, not started
+
+**Trigger:** upcoming scale-up to live validation across **10 languages × 2 years each**
+(run_live_validation.py / this graph), well beyond the single 2027 ES corpus run this was
+built against. Two problems surfaced running that ES corpus with 4 hand-launched worker
+processes (2 Groq accounts + 2 local Ollama, each its own `--config`/`--shard`):
+
+1. **No real load-balancing across concurrent workers.** `with_fallbacks()` is sequential
+   failover for *one* call (try A, then B, then C) — it does not assign different
+   providers to different concurrent workers or track per-key rate-limit state. At
+   4-worker scale this was tolerable (providers were assigned by hand, one per
+   `--config` file); at 10-language scale, hand-generating a `providers_*.yml` per
+   worker per run is not viable.
+2. **A worker can die with zero error trace.** Confirmed live on 2026-08-27/28: two Groq
+   workers stopped mid-run with no STOPPED/error line in their logs — looked identical
+   to a real crash. (Their *second* death, on retry, turned out to be a clean, correctly
+   logged "STOPPED on daily quota" — so the mechanism works when it fires; the first,
+   silent death is still unexplained and must not be possible in the redesigned driver.)
+
+**Decision (architect-confirmed 2026-08-28):** adopt **LiteLLM** (Python SDK mode, no
+separate proxy process) as the provider-routing layer, replacing hand-rolled
+`providers_groq1.yml`-style per-worker config files. Rationale and full pros/cons
+researched against current community practice (not assumed) — see chat history
+2026-08-28; short version: `with_fallbacks()`/`configurable_alternatives` are not built
+for multi-key load-balancing across concurrent workers, LiteLLM's `model_list` +
+`router_settings.fallbacks` is the ecosystem's actual answer, and 10×2 languages is
+enough sustained volume to justify the new dependency.
+
+**Scope boundary — do NOT let this migration silently absorb:**
+- `domain/structured_call.py`'s Groq-specific retry logic (`json_validate_failed`,
+  `output_parse_failed`, `OutputParserException` on Ollama) — this is real, hard-won
+  behavior from actual failures on this project's own schema. LiteLLM doesn't know
+  about it. Decide explicitly whether it still wraps every call post-migration, don't
+  assume LiteLLM replaces it.
+- `client_type: batch` (Fireworks batch API in `providers.yml`) — a completely separate
+  code path (`domain/batch_providers.py`), out of scope for this migration.
+
+### Plan for next session
+
+1. **Bring a concrete migration plan before writing code** (Stop-Point 4: new external
+   dependency; also touches `domain/providers.py`'s public shape, so effectively
+   Stop-Point 1/2-adjacent). Plan must show:
+   - New `config/litellm_config.yml` (or equivalent) shape: `model_list` entries for
+     every current provider (Groq ×2 keys, Cerebras, Ollama local, Anthropic, OpenAI),
+     with explicit primary/secondary/tertiary ordering.
+   - Exactly what changes in `domain/providers.py`'s `get_model()` /
+     `resolve_default_provider_id()` — signature must stay compatible with every
+     existing caller (`flag.py`, `critic.py`, `drift.py`) per the SOLID layering rule;
+     nodes/domain callers should need zero changes.
+   - Whether `structured_call.py`'s retry logic still wraps the LiteLLM-backed model
+     (near-certainly yes) and whether its Groq-specific error-code checks need
+     generalizing for LiteLLM's own exception shape.
+   - How `--workers N` maps to LiteLLM's routing (does N still mean N concurrent Python
+     threads calling one shared LiteLLM-routed model, or does LiteLLM's own concurrency
+     handling change that shape?).
+2. **Fix loud-failure as an explicit, testable requirement**, not a side effect of the
+   migration: a worker that dies for any reason (crash, killed process, unhandled
+   exception) must leave an unambiguous record — a non-empty error message in its own
+   log at minimum; consider a heartbeat/last-seen file per worker so a stalled-but-alive
+   process is distinguishable from a dead one, and a still-pending ledger item is
+   distinguishable from "silently never attempted."
+3. Only after the plan is reviewed and approved: implement, with tests per Gate 5, and
+   the existing test suite run before/after per Gate 4 (`tests/test_providers.py` in
+   particular currently asserts exact model-class construction — expect real changes
+   there, not just additions).
+
+### Acceptance criteria
+
+- [ ] A written migration plan (config shape, `providers.py` diff shape, retry-logic
+      disposition) is reviewed and approved by the architect *before* any implementation
+      code is written.
+- [ ] `get_model()` / `resolve_default_provider_id()` keep their existing signatures and
+      behavior for every current caller — `flag.py`, `critic.py`, `drift.py` require zero
+      changes.
+- [ ] Running with `--workers N` (N = 1, 2, 3, or more) requires **no per-run generated
+      config files** — one command, one shared LiteLLM/provider config, works
+      unmodified for any worker count.
+- [ ] A killed/crashed worker produces a non-empty, human-readable error record (log
+      line and/or ledger-adjacent status file) — verified with a real induced failure
+      (e.g. `kill -9` a worker mid-run), not just a code review of the error path.
+- [ ] A daily-quota-exhaustion stop (the real, correctly-working case observed
+      2026-08-28) continues to produce its current clear "STOPPED on daily quota"
+      message — must not regress under the new routing layer.
+- [ ] Re-running the same command after a partial run (some workers died, some
+      succeeded) resumes correctly from the shared ledger with no duplicate processing
+      and no lost pending items — same guarantee `apply_shard`'s docstring describes
+      today, must still hold.
+- [ ] `structured_call.py`'s Groq/Ollama structured-output retry behavior is proven
+      still active post-migration (via test, not inspection) — not silently dropped
+      because LiteLLM "probably handles retries too."
+- [ ] Full existing test suite passes after migration, with every diff from the current
+      baseline (`tests/test_providers.py` especially) explained, not just "made to
+      pass."
+- [ ] Real end-to-end smoke test: at least one real live item processed successfully
+      through the new routing layer against a real provider (not a mocked/fake key)
+      before declaring the migration done.
+
 ## Open architecture decisions (not yet made)
 
 - Content-type adapters: how a specific file format (GEP-style devotional JSON,
