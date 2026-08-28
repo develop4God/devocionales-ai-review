@@ -125,6 +125,18 @@ providers:
     extra_body:
       reasoning_effort: low
 
+  # Fifth independent Groq account/key, same model -- own 200K TPD quota.
+  - id: groq_gpt_oss_20b_fallback4
+    name: "Groq/gpt-oss-20b (fallback account 4)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "openai/gpt-oss-20b"
+    env_var: GROQ_API_KEY_FALLBACK_4
+    extra_body:
+      reasoning_effort: low
 
   - id: fireworks_deepseek_v4_flash
     name: "Fireworks/deepseek-v4-flash-0731"
@@ -137,6 +149,51 @@ providers:
     base_url: "https://api.fireworks.ai/inference/v1"
     model: "accounts/fireworks/models/deepseek-v4-flash-0731"
     env_var: FIREWORKS_API_KEY
+
+  # OpenRouter free tier, nvidia model -- ad-hoc test entry, comparing its critic
+  # verdicts against groq_gpt_oss_20b_fallback's stored results in
+  # data/checkpoints/2027_es_live_validation_worker2_ledger.jsonl. Disabled by
+  # default: not part of the real pipeline's provider rotation.
+  # nemotron-3.5-lightning:free was tried first but is currently unresponsive on
+  # OpenRouter (confirmed via raw curl -- request never returns, no error either)
+  # -- provider-side issue, not this config. nemotron-3-super-120b-a12b:free
+  # responds normally, used here instead.
+  # First real call returned finish_reason: "error" with empty content after
+  # burning 172 tokens on hidden reasoning -- same failure shape as Groq's
+  # gpt-oss models eating the whole completion budget on chain-of-thought before
+  # emitting JSON. OpenRouter's reasoning-control param is shaped differently
+  # from Groq's (reasoning: {enabled: bool}, not reasoning_effort) -- set to
+  # false here to skip reasoning entirely and leave the budget for the actual
+  # structured JSON answer.
+  - id: openrouter_nvidia_nemotron
+    name: "OpenRouter/nvidia-nemotron-3-super-120b (free)"
+    priority: 99
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://openrouter.ai/api/v1"
+    model: "nvidia/nemotron-3-super-120b-a12b:free"
+    env_var: OPENROUTER_API_KEY
+    extra_body:
+      reasoning:
+        enabled: false
+
+  # NVIDIA NIM, direct (not via OpenRouter) -- ad-hoc test entry.
+  # deepseek-v4-flash-0731 chosen from NIM's live model catalog (confirmed via
+  # client.models.list()) -- same model family already used for
+  # fireworks_deepseek_v4_flash above. NIM's direct API rejects OpenRouter's
+  # {"reasoning": {"enabled": false}} extra_body outright (400 Bad Request:
+  # "Unsupported parameter(s): reasoning") -- different backend, no equivalent
+  # param sent here.
+  - id: nvidia_deepseek_v4_flash
+    name: "NVIDIA NIM/deepseek-v4-flash-0731"
+    priority: 99
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://integrate.api.nvidia.com/v1"
+    model: "deepseek-ai/deepseek-v4-flash-0731"
+    env_var: NVIDIA_API_KEY
 
   - id: anthropic_default
     name: "Anthropic/claude-sonnet"
