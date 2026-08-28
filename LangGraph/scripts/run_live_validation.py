@@ -29,11 +29,16 @@ file. A quota-exhaustion error (not a per-minute rate limit -- e.g. a daily cap)
 still stops the run cleanly, since sleeping through that could mean waiting until
 the next day.
 
-Parallel workers: run this script once per worker, each with its own --config
-(a providers.yml with a different default_provider -- e.g. one pointed at Groq,
-another at ollama_local), its own --checkpoint (SqliteSaver is not safe for
-concurrent writers), a distinct --shard i/N, and -- this is the part that must
-not be skipped -- the SAME --ledger path across every worker of one run.
+Parallel workers: run this script once per worker, each with its own --provider
+(a provider id from config/providers.yml -- e.g. 'groq_gpt_oss_120b' or
+'ollama_local'), its own --checkpoint (SqliteSaver is not safe for concurrent
+writers), a distinct --shard i/N, and -- this is the part that must not be skipped
+-- the SAME --ledger path across every worker of one run. To add a worker to an
+already-running review later, just run the command again with a new --provider and
+an updated --shard -- no config file needs to be authored. (--config still exists
+for overriding process-wide settings like max_retries/retry_delay_s via an
+alternate providers.yml, but --provider is the normal way to pick which model a
+worker uses.)
 
 --shard partitions the full item list itself (all_items), not each worker's own
 pending list, and every worker computes pending against that one shared ledger
@@ -53,6 +58,7 @@ Usage (two-worker example -- note the shared --ledger, separate --checkpoint):
         --language Spanish --language-key es --fields reflexion,oracion \
         --checkpoint data/checkpoints/run_worker1.sqlite \
         --ledger data/checkpoints/run_ledger.jsonl \
+        --provider groq_gpt_oss_120b \
         --shard 1/2 &
 
     uv run python scripts/run_live_validation.py \
@@ -60,7 +66,7 @@ Usage (two-worker example -- note the shared --ledger, separate --checkpoint):
         --language Spanish --language-key es --fields reflexion,oracion \
         --checkpoint data/checkpoints/run_worker2.sqlite \
         --ledger data/checkpoints/run_ledger.jsonl \
-        --config config/providers_ollama.yml \
+        --provider ollama_local \
         --shard 2/2 &
 """
 
@@ -154,7 +160,7 @@ def run_one(
     file_text: str,
     field_path: str,
     language: str,
-    provider_id: str,
+    provider_id: str | None,
 ) -> dict:
     thread_id = f"{entry_id}:{field}"
     config = {"configurable": {"thread_id": thread_id}}
@@ -166,6 +172,7 @@ def run_one(
             "field_path": field_path,
             "language": language,
             "entry_id": entry_id,
+            "provider_id": provider_id,
         },
         config=config,
     )
@@ -297,20 +304,35 @@ def main() -> int:
         "correctness when multiple workers share one --ledger (see module "
         "docstring). Omit to process everything pending.",
     )
+    parser.add_argument(
+        "--provider",
+        default=None,
+        help="A provider id from config/providers.yml (or whichever file --config "
+        "points at) to use for every model call this worker makes -- e.g. "
+        "'cerebras_default' or 'groq_gpt_oss_120b'. Lets a new worker join a run on "
+        "a specific provider without hand-authoring a separate providers.yml with a "
+        "different default_provider. Omit to use the configured default_provider.",
+    )
     args = parser.parse_args()
 
     if args.config:
         os.environ["CONTENT_BATCH_GRAPH_PROVIDERS_CONFIG"] = args.config
 
-    from content_batch_graph.domain.providers import resolve_default_provider_id
+    from content_batch_graph.domain.providers import (
+        get_model,
+        resolve_default_provider_id,
+    )
     from content_batch_graph.graph import compile_graph
 
-    # Resolved once, at startup: every graph node calls get_model() with no
-    # provider_id, so this worker's process-wide default_provider (from whichever
-    # providers.yml --config selected) is what actually reviews every item this
-    # process handles. Recorded per-row in the ledger so which model produced
-    # which finding is never ambiguous across a multi-worker parallel run.
-    provider_id = resolve_default_provider_id()
+    provider_id = args.provider
+    if provider_id:
+        # Fails fast, before any corpus/graph work, if --provider names an id that
+        # doesn't exist or isn't enabled in the config in effect -- same validation
+        # get_model() already does, just surfaced at startup instead of on the
+        # first item.
+        get_model(provider_id)
+    else:
+        provider_id = resolve_default_provider_id()
     print(f"this worker's provider: {provider_id}")
 
     Path(args.checkpoint).parent.mkdir(parents=True, exist_ok=True)

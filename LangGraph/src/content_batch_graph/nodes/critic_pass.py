@@ -8,6 +8,9 @@ from content_batch_graph.state import BatchState
 
 def critic_pass(state: BatchState) -> dict:
     critic_findings = run_critic_pass_batch(
-        state["file_text"], state["verified_findings"], state["language"]
+        state["file_text"],
+        state["verified_findings"],
+        state["language"],
+        provider_id=state.get("provider_id"),
     )
     return {"critic_findings": critic_findings}

@@ -98,6 +98,34 @@ providers:
     extra_body:
       reasoning_effort: low
 
+  # Third and fourth independent Groq accounts/keys, same model -- own 200K TPD
+  # quotas each, used as two more parallel workers for the 2027 ES live
+  # validation run alongside ollama_local (2026-08-28), once fallback/main/120b
+  # quotas were still cooling down.
+  - id: groq_gpt_oss_20b_fallback2
+    name: "Groq/gpt-oss-20b (fallback account 2)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "openai/gpt-oss-20b"
+    env_var: GROQ_API_KEY_FALLBACK_2
+    extra_body:
+      reasoning_effort: low
+
+  - id: groq_gpt_oss_20b_fallback3
+    name: "Groq/gpt-oss-20b (fallback account 3)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "openai/gpt-oss-20b"
+    env_var: GROQ_API_KEY_FALLBACK_3
+    extra_body:
+      reasoning_effort: low
+
   - id: fireworks_deepseek_v4_flash
     name: "Fireworks/deepseek-v4-flash-0731"
     priority: 4
