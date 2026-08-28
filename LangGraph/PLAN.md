@@ -582,24 +582,172 @@ etc. — see Scope boundary below).
 - `client_type: batch` (Fireworks batch API in `providers.yml`) — a completely separate
   code path (`domain/batch_providers.py`), out of scope for this migration.
 
+**Independent verification (2026-08-28, second research pass against live sources —
+not the same session that produced the trail above) — one finding CONTRADICTS an
+implicit assumption in the plan, must be resolved before implementation:**
+
+- **`ChatLiteLLMRouter` (the official `langchain-litellm` package's LangChain wrapper
+  around `litellm.Router`) does NOT support `.with_structured_output(method="json_schema")`.**
+  Confirmed via the actual upstream issue, not a blog claim:
+  [litellm#9043](https://github.com/BerriAI/litellm/issues/9043) — filed Mar 2025,
+  **closed "not planned."** Passing `method="json_schema"` raises
+  `ValueError: unsupported arguments {'method': 'json_schema'}`; the wrapper falls back
+  to `method="json_mode"`/function-calling, which the issue reporter and others
+  describe as unreliable in production. This directly threatens `flag.py`/`critic.py`/
+  `drift.py`, which all depend on `.with_structured_output()` working through whatever
+  model object `get_model()` returns. **Three real options, none yet chosen:**
+  1. Use plain `ChatLiteLLM` (single-model, not router-aware) per call — loses
+     Router's multi-key rotation/rate-limit awareness, defeating part of the point.
+  2. Accept `ChatLiteLLMRouter` + `method="json_mode"` and harden
+     `structured_call.py`'s existing retry layer against its documented flakiness.
+  3. Hand-wrap `litellm.Router.acompletion()` behind a thin `BaseChatModel`-compatible
+     class this project owns, calling `.with_structured_output()`'s underlying
+     schema-enforcement logic directly rather than through LiteLLM's wrapper — more
+     code, but keeps both real routing and reliable structured output.
+  **This must be resolved as part of the "concrete migration plan" deliverable below,
+  not discovered mid-implementation.**
+- Confirmed independently, no contradiction: LiteLLM is actively maintained (v1.98.0,
+  weekly releases, Stripe/Netflix-scale adoption) — but flag a March 2026 supply-chain
+  incident (PyPI 1.82.7–1.82.8, compromised maintainer credentials, ~5.5hr exposure
+  before PyPI quarantine, resolved via 1.83.0 + cosign signing) worth knowing about
+  before pinning a version for a 2-year-maintained dependency
+  ([source](https://docs.litellm.ai/blog/security-update-march-2026)).
+- Confirmed independently: `litellm.failure_callback` / `router_settings` support
+  built-in callbacks (Sentry, custom `CustomLogger`, OTEL) fired on every failed call —
+  directly useful for the loud-worker-death requirement, potentially replacing custom
+  heartbeat-file logic. Caveat: an open regression report
+  ([litellm#8013](https://github.com/BerriAI/litellm/issues/8013)) says
+  string-configured failure callbacks are sometimes silently ignored — **verify
+  empirically that the callback actually fires on an induced failure before relying on
+  it**, don't trust the docs alone.
+- Mild caveat, not a contradiction: LangGraph's own docs describe `SqliteSaver` as
+  intended for "lightweight, synchronous use cases (demos and small projects)," not
+  scaling well to multiple threads, and recommend `PostgresSaver` for multi-threaded
+  production use. `check_same_thread=False` + internal locking keeps it *correct* under
+  the planned `ThreadPoolExecutor` collapse, but serializes writes — a throughput
+  ceiling worth reconsidering given this is now a sustained 2-year operation, not the
+  original single-corpus scale this checkpointer choice was made against.
+- No other team found publicly documenting this exact combination (LangGraph +
+  LiteLLM Router + explicit silent-worker-death detection) to borrow from directly —
+  only generic/demo-grade LiteLLM-under-LangGraph starter repos and generic Python
+  heartbeat/watchdog patterns (ping-from-worker-loop, PID-watch from a separate
+  thread). Confirms the loud-failure mechanism still needs to be designed by this
+  project, though LiteLLM's `failure_callback` (above) may reduce how much of it needs
+  to be hand-built.
+
+**Third research pass (2026-08-28, explicitly hunting for alternatives per architect
+request) — REVERSES the routing-layer recommendation. Do not build the LiteLLM router
+wrapper; see below.**
+
+Went looking for how other teams solve "LangChain pipeline needs both structured
+output AND multi-key routing" — this is a common combination in production
+RAG/agent systems, so real prior art should exist. It does, and it's decisive:
+
+- **OpenRouter — ruled out, wrong routing axis.** Its own rate-limit docs confirm
+  limits are enforced **per account, globally, not per API key** — creating multiple
+  keys does not distribute load the way this project needs (round-robining *our own*
+  Groq/Cerebras keys). OpenRouter routes between *models*, not between a caller's own
+  redundant keys for the same model. It also has its own structured-output bugs
+  independent of that mismatch: [langchain#32967](https://github.com/langchain-ai/langchain/issues/32967)
+  and [#34328](https://github.com/langchain-ai/langchain/issues/34328) report
+  `with_structured_output` failing with malformed/incomplete JSON through OpenRouter.
+- **No newer native LangChain primitive exists.** 2026 LangChain docs show
+  `ProviderStrategy`/`ToolStrategy` for structured-output *method* selection, nothing
+  for multi-key routing/pooling. `with_fallbacks()`/`RunnableConfigurableAlternatives`
+  remain the only native options, both already ruled out above.
+- **Portkey — stays a "maybe," not confirmed safe.** Portkey's docs claim
+  `with_structured_output` support, but it's the same architectural shape as LiteLLM's
+  proxy (a gateway/translation layer sitting between LangChain and the provider), and
+  no GitHub issue thread confirms or denies it avoids LiteLLM's exact
+  `method="json_schema"` failure. Not adopted on an unverified claim.
+- **The decisive finding: multiple independent teams have hit this *exact* conflict,
+  and the pattern of how they resolved it is consistent across all of them.**
+  [langchain#34891](https://github.com/langchain-ai/langchain/issues/34891) — LiteLLM
+  proxy **silently drops** a structured-output request with no error thrown (the same
+  silent-failure shape this project is trying to eliminate, now confirmed to also
+  happen *inside* the routing layer, not just at the worker-process level).
+  [litellm#7616](https://github.com/BerriAI/litellm/issues/7616) — structured-output
+  validation errors occur through LiteLLM's gateway that do NOT occur calling the
+  provider directly. Every thread's resolution converges on the same fix: **stop
+  routing structured-output calls through the gateway's chat wrapper; call each
+  provider's own native LangChain integration directly.**
+
+**Revised recommendation: hand-rolled key-rotation wrapper, not `ChatLiteLLMRouter`.**
+Keep separate, natively-configured LangChain chat model instances per provider/key —
+`ChatGroq(api_key=key1)`, `ChatGroq(api_key=key2)`, `ChatOllama(...)`, etc. — and write
+a thin round-robin/rate-limit-aware **selector** that picks which already-correct
+instance handles each request. Each instance keeps its own native
+`.with_structured_output()` untouched, because no translation layer sits between
+LangChain and the provider's real API — this is what actually eliminates the
+`json_schema` failure mode, not a workaround around it. This is a real, if less
+heavily-documented, pattern: [robust-llm-chain](https://github.com/jw1222/robust-llm-chain)
+implements exactly this shape ("cross-vendor LLM API failover... streaming-aware,
+worker-coordinated round-robin" as a LangChain `Runnable`).
+
+**What this changes from the original decision:**
+- LiteLLM's *routing* layer (`litellm.Router`, `model_list`, `router_settings`) is
+  **dropped** for this project's use case — the structured-output risk it introduces
+  is worse than the problem it was meant to solve.
+- LiteLLM may still be worth keeping for things it's actually good at and that don't
+  touch structured output — usage/cost tracking, budget logging — as a separate,
+  optional decision, not bundled into the routing fix.
+- The rotation/selection logic itself becomes small, project-owned code again (closer
+  to the originally-rejected `worker_index % len(providers)` idea) — but now informed
+  by *why* the ecosystem doesn't have a mature drop-in for this specific combination
+  (every gateway that tries breaks structured output), not chosen out of not-invented-
+  here. Rate-limit-awareness (the reason a scheduler alone wasn't enough) still needs
+  designing — per-key request/token counters, informed by each provider's documented
+  limits (already inventoried in Slice 2's Cerebras comparison and `providers.yml`).
+- The loud-worker-death requirement is unaffected by this reversal — still needs its
+  own design (heartbeat/status file per worker), independent of which routing
+  mechanism is chosen.
+- Stop-Point 4 (new external dependency) may no longer even trigger, if LiteLLM is
+  dropped entirely rather than kept for cost-tracking — worth confirming explicitly
+  with the architect rather than assuming.
+
 ### Plan for next session
 
-1. **Bring a concrete migration plan before writing code** (Stop-Point 4: new external
-   dependency; also touches `domain/providers.py`'s public shape, so effectively
-   Stop-Point 1/2-adjacent). Plan must show:
-   - New `config/litellm_config.yml` (or equivalent) shape: `model_list` entries for
-     every current provider (Groq ×2 keys, Cerebras, Ollama local, Anthropic, OpenAI),
-     with explicit primary/secondary/tertiary ordering.
+**Superseded by the third research pass above:** the plan below still assumed
+`ChatLiteLLMRouter` as the routing layer. That recommendation was reversed —
+multiple independent teams confirmed the same LiteLLM/gateway structured-output
+failure this project would hit. Bring the **hand-rolled key-rotation wrapper**
+(separate native `ChatGroq`/`ChatOllama`/etc. instances + a thin selector) as the
+concrete plan instead, unless the architect prefers to re-litigate the reversal.
+
+1. **Bring a concrete migration plan before writing code** (Stop-Point 1/2-adjacent —
+   changes `domain/providers.py`'s public shape; Stop-Point 4 only if any new external
+   dependency is actually added, which the hand-rolled approach may avoid entirely).
+   Plan must show:
+   - The selector's rotation strategy (round-robin, or rate-limit-aware using each
+     provider's documented request/token limits already inventoried in Slice 2 and
+     `providers.yml`) and where it lives (`domain/providers.py` vs. a new module).
+   - **`providers.yml` shape (architect-confirmed 2026-08-28):** the existing
+     same-model-different-key pattern (`groq_gpt_oss_20b` /
+     `groq_gpt_oss_20b_fallback` today) gets a new explicit `rotation_group` field —
+     entries sharing a `rotation_group` are interchangeable rotation targets the
+     selector round-robins across; `priority` still governs which group is tried
+     first, falling through to the next group only once the current one is
+     exhausted (all its entries rate-limited/failed). Also add per-entry
+     `rate_limit` metadata (e.g. `requests_per_min`, `tokens_per_day`, sourced from
+     each provider's documented limits) so the selector can skip a near-capped key
+     proactively instead of discovering it via a 429.
+   - Confirmation each provider's own LangChain class keeps `.with_structured_output()`
+     working untouched (it should, by construction — no gateway sits between LangChain
+     and the provider) — verify with a real call per provider before calling this
+     settled, not by inspection alone.
    - Exactly what changes in `domain/providers.py`'s `get_model()` /
      `resolve_default_provider_id()` — signature must stay compatible with every
      existing caller (`flag.py`, `critic.py`, `drift.py`) per the SOLID layering rule;
      nodes/domain callers should need zero changes.
-   - Whether `structured_call.py`'s retry logic still wraps the LiteLLM-backed model
-     (near-certainly yes) and whether its Groq-specific error-code checks need
-     generalizing for LiteLLM's own exception shape.
-   - How `--workers N` maps to LiteLLM's routing (does N still mean N concurrent Python
-     threads calling one shared LiteLLM-routed model, or does LiteLLM's own concurrency
-     handling change that shape?).
+   - Whether `structured_call.py`'s Groq-specific retry logic needs any change at all
+     (likely no, since each provider is still called through its own native LangChain
+     integration, not a translation layer) — confirm explicitly either way.
+   - How `--workers N` maps to instance selection — each `ThreadPoolExecutor` thread
+     calls the selector to get its model instance per request, consistent with the
+     already-confirmed single-process/multi-thread collapse (SqliteSaver + per-thread
+     `thread_id`) above.
+   - Whether LiteLLM is adopted at all going forward for anything unrelated to routing
+     (e.g. cost/usage tracking) — a separate decision, not bundled into this fix.
 2. **Fix loud-failure as an explicit, testable requirement**, not a side effect of the
    migration: a worker that dies for any reason (crash, killed process, unhandled
    exception) must leave an unambiguous record — a non-empty error message in its own
