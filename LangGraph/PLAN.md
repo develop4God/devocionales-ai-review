@@ -714,81 +714,105 @@ failure this project would hit. Bring the **hand-rolled key-rotation wrapper**
 (separate native `ChatGroq`/`ChatOllama`/etc. instances + a thin selector) as the
 concrete plan instead, unless the architect prefers to re-litigate the reversal.
 
-1. **Bring a concrete migration plan before writing code** (Stop-Point 1/2-adjacent —
-   changes `domain/providers.py`'s public shape; Stop-Point 4 only if any new external
-   dependency is actually added, which the hand-rolled approach may avoid entirely).
-   Plan must show:
-   - The selector's rotation strategy (round-robin, or rate-limit-aware using each
-     provider's documented request/token limits already inventoried in Slice 2 and
-     `providers.yml`) and where it lives (`domain/providers.py` vs. a new module).
-   - **`providers.yml` shape (architect-confirmed 2026-08-28):** the existing
-     same-model-different-key pattern (`groq_gpt_oss_20b` /
-     `groq_gpt_oss_20b_fallback` today) gets a new explicit `rotation_group` field —
-     entries sharing a `rotation_group` are interchangeable rotation targets the
-     selector round-robins across; `priority` still governs which group is tried
-     first, falling through to the next group only once the current one is
-     exhausted (all its entries rate-limited/failed). Also add per-entry
-     `rate_limit` metadata (e.g. `requests_per_min`, `tokens_per_day`, sourced from
-     each provider's documented limits) so the selector can skip a near-capped key
-     proactively instead of discovering it via a 429.
-   - Confirmation each provider's own LangChain class keeps `.with_structured_output()`
-     working untouched (it should, by construction — no gateway sits between LangChain
-     and the provider) — verify with a real call per provider before calling this
-     settled, not by inspection alone.
-   - Exactly what changes in `domain/providers.py`'s `get_model()` /
-     `resolve_default_provider_id()` — signature must stay compatible with every
-     existing caller (`flag.py`, `critic.py`, `drift.py`) per the SOLID layering rule;
-     nodes/domain callers should need zero changes.
-   - Whether `structured_call.py`'s Groq-specific retry logic needs any change at all
-     (likely no, since each provider is still called through its own native LangChain
-     integration, not a translation layer) — confirm explicitly either way.
-   - How `--workers N` maps to instance selection — each `ThreadPoolExecutor` thread
-     calls the selector to get its model instance per request, consistent with the
-     already-confirmed single-process/multi-thread collapse (SqliteSaver + per-thread
-     `thread_id`) above.
-   - Whether LiteLLM is adopted at all going forward for anything unrelated to routing
-     (e.g. cost/usage tracking) — a separate decision, not bundled into this fix.
-2. **Fix loud-failure as an explicit, testable requirement**, not a side effect of the
-   migration: a worker that dies for any reason (crash, killed process, unhandled
-   exception) must leave an unambiguous record — a non-empty error message in its own
-   log at minimum; consider a heartbeat/last-seen file per worker so a stalled-but-alive
-   process is distinguishable from a dead one, and a still-pending ledger item is
-   distinguishable from "silently never attempted."
-3. Only after the plan is reviewed and approved: implement, with tests per Gate 5, and
-   the existing test suite run before/after per Gate 4 (`tests/test_providers.py` in
-   particular currently asserts exact model-class construction — expect real changes
-   there, not just additions).
+**Concrete design proposal (2026-08-28, revised same day after architect pushback —
+"that's overengineering and YAGNI, the system is working, saving, and works, the
+only issue is swap the agent easily... just send the command, and the task will be
+complete"):**
+
+The `ThreadPoolExecutor`-collapse / task-directory / adaptive-concurrency design
+originally drafted here was scope well beyond what's actually broken. Correctly
+called out as YAGNI: today's process-per-worker model, shared `--ledger`,
+`apply_shard`-against-the-full-list, and per-item `thread_id`/checkpoint already
+work, are already proven in production (2026-08-27/28 live run), and are not being
+replaced. **The only real problem: adding a provider today requires hand-authoring
+a whole `providers_X.yml` file and pointing `--config` at it.** That's the entire
+fix.
+
+**Minimal fix: a `--provider <id>` flag, no new module, no process-model change.**
+`scripts/run_live_validation.py` already accepts `--config` (an override path to a
+whole providers.yml, used only to change `default_provider`) — add a `--provider`
+flag that selects a `provider_id` from the **existing shared `config/providers.yml`**
+directly, no file-authoring required:
+
+```
+python run_live_validation.py --checkpoint w3.sqlite --ledger run_ledger.jsonl \
+    --provider cerebras_default --shard 3/3 &
+```
+
+To add a 4th worker later, on a different provider, the same file is reused —
+just run the command again with a new `--provider` and `--shard`:
+```
+python run_live_validation.py --checkpoint w4.sqlite --ledger run_ledger.jsonl \
+    --provider groq_gpt_oss_120b --shard 4/4 &
+```
+(Re-sharding to N=4 when a 4th worker joins is the same manual step already implied
+by today's `--shard i/N` design — not new, not solved by this fix, and out of scope
+unless it becomes a real pain in practice.)
+
+**Code change, concretely:**
+- `domain/providers.py`: no change. `get_model(provider_id)` already accepts an
+  explicit `provider_id` — this fix never needed a new module, it needed a caller
+  to actually pass one in from the CLI instead of relying solely on
+  `resolve_default_provider_id()`.
+- `scripts/run_live_validation.py`: add `parser.add_argument("--provider")`; if
+  given, use it directly as the `provider_id` passed into `run_one()`'s existing
+  `get_model(provider_id)` call chain (replacing/supplementing the current
+  `resolve_default_provider_id()` call at line ~313) instead of requiring a whole
+  `--config` file swap to change the default. `--config` stays supported
+  (unchanged use case: overriding `settings.max_retries`/`retry_delay_s` or other
+  process-wide settings), it's just no longer the *only* way to pick a provider.
+- No `rotation_group`, no `rate_limit` fields, no `ProviderSelector` class, no
+  `ThreadPoolExecutor` collapse, no task-directory concept. All of that is
+  explicitly **not being built** — logged here so a future session doesn't
+  resurrect it without the same YAGNI pushback being re-raised first.
+
+**LiteLLM/gateway reversal from the research above still stands** — it was never
+about the process model, it was about `.with_structured_output()` breaking through
+any gateway. That finding is independent of this scope-down and remains valid: do
+not adopt LiteLLM/OpenRouter/Portkey as a routing layer regardless of how small the
+final fix ends up being.
+
+**Loud-failure**, still a real, standalone requirement (confirmed live
+2026-08-27/28, unrelated to provider swap-in): `run_one()`'s existing
+`except Exception` handler (visible around line ~386, "STOPPED on error") already
+writes to stdout/the ledger context on a caught exception — confirm this actually
+fires and is visible for every real failure mode (not just the ones already tested),
+particularly whatever caused the original silent Groq worker death, before
+considering this closed. This may already be adequate; verify with a real induced
+failure (`kill -9` mid-run) rather than assuming either way.
+
+1. **Architect sign-off on the minimal `--provider` flag above** (small enough that
+   Stop-Point 1/2 likely doesn't even trigger — no state schema change, no graph
+   change, purely a CLI/driver-script addition; confirming here rather than assuming).
+2. Only after sign-off: add the `--provider` flag, with a test confirming it
+   overrides `resolve_default_provider_id()`'s default correctly; existing test
+   suite run before/after per Gate 4 (expect zero changes needed in
+   `tests/test_providers.py` — `get_model()` itself is untouched).
+3. Separately, verify the loud-failure behavior for an induced real failure — this
+   can happen independently of the `--provider` flag and doesn't block it.
 
 ### Acceptance criteria
 
-- [ ] A written migration plan (config shape, `providers.py` diff shape, retry-logic
-      disposition) is reviewed and approved by the architect *before* any implementation
-      code is written.
+- [ ] `--provider <id>` lets a new worker join an in-progress run using an existing
+      `providers.yml` entry, with no new config file authored and no change to
+      `--ledger`/`--checkpoint`/`--shard` usage.
 - [ ] `get_model()` / `resolve_default_provider_id()` keep their existing signatures and
       behavior for every current caller — `flag.py`, `critic.py`, `drift.py` require zero
       changes.
-- [ ] Running with `--workers N` (N = 1, 2, 3, or more) requires **no per-run generated
-      config files** — one command, one shared LiteLLM/provider config, works
-      unmodified for any worker count.
-- [ ] A killed/crashed worker produces a non-empty, human-readable error record (log
-      line and/or ledger-adjacent status file) — verified with a real induced failure
-      (e.g. `kill -9` a worker mid-run), not just a code review of the error path.
-- [ ] A daily-quota-exhaustion stop (the real, correctly-working case observed
-      2026-08-28) continues to produce its current clear "STOPPED on daily quota"
-      message — must not regress under the new routing layer.
+- [ ] A killed/crashed worker's failure is verified visible today (existing
+      `except Exception` "STOPPED on error" path) via a real induced failure
+      (`kill -9` mid-run) — confirmed working or fixed, not assumed either way.
+- [ ] A daily-quota-exhaustion stop continues to produce its current clear "STOPPED
+      on daily quota" message — unaffected by this change, confirm no regression.
 - [ ] Re-running the same command after a partial run (some workers died, some
       succeeded) resumes correctly from the shared ledger with no duplicate processing
       and no lost pending items — same guarantee `apply_shard`'s docstring describes
-      today, must still hold.
-- [ ] `structured_call.py`'s Groq/Ollama structured-output retry behavior is proven
-      still active post-migration (via test, not inspection) — not silently dropped
-      because LiteLLM "probably handles retries too."
-- [ ] Full existing test suite passes after migration, with every diff from the current
-      baseline (`tests/test_providers.py` especially) explained, not just "made to
-      pass."
-- [ ] Real end-to-end smoke test: at least one real live item processed successfully
-      through the new routing layer against a real provider (not a mocked/fake key)
-      before declaring the migration done.
+      today, unaffected by this change, confirm no regression.
+- [ ] Full existing test suite passes after the `--provider` flag is added, with any
+      diff from baseline explained.
+- [ ] Real end-to-end smoke test: a new worker launched with `--provider <id>` (an
+      existing `providers.yml` entry, no new file authored) joins an in-progress run
+      and completes real items successfully.
 
 ## Open architecture decisions (not yet made)
 
