@@ -8,6 +8,9 @@ from content_batch_graph.state import BatchState
 
 def drift_check_pass(state: BatchState) -> dict:
     drift_detected, notes = run_drift_check(
-        state["fixed_text"] or "", state["critic_findings"], state["language"]
+        state["fixed_text"] or "",
+        state["critic_findings"],
+        state["language"],
+        provider_id=state.get("provider_id"),
     )
     return {"drift_detected": drift_detected, "drift_notes": notes}

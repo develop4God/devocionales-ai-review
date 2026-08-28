@@ -791,28 +791,58 @@ failure (`kill -9` mid-run) rather than assuming either way.
 3. Separately, verify the loud-failure behavior for an induced real failure — this
    can happen independently of the `--provider` flag and doesn't block it.
 
-### Acceptance criteria
+### Implementation status (2026-08-28) — done, verified live, not yet committed by user request
 
-- [ ] `--provider <id>` lets a new worker join an in-progress run using an existing
-      `providers.yml` entry, with no new config file authored and no change to
-      `--ledger`/`--checkpoint`/`--shard` usage.
-- [ ] `get_model()` / `resolve_default_provider_id()` keep their existing signatures and
-      behavior for every current caller — `flag.py`, `critic.py`, `drift.py` require zero
-      changes.
-- [ ] A killed/crashed worker's failure is verified visible today (existing
-      `except Exception` "STOPPED on error" path) via a real induced failure
-      (`kill -9` mid-run) — confirmed working or fixed, not assumed either way.
-- [ ] A daily-quota-exhaustion stop continues to produce its current clear "STOPPED
-      on daily quota" message — unaffected by this change, confirm no regression.
-- [ ] Re-running the same command after a partial run (some workers died, some
-      succeeded) resumes correctly from the shared ledger with no duplicate processing
-      and no lost pending items — same guarantee `apply_shard`'s docstring describes
-      today, unaffected by this change, confirm no regression.
-- [ ] Full existing test suite passes after the `--provider` flag is added, with any
-      diff from baseline explained.
-- [ ] Real end-to-end smoke test: a new worker launched with `--provider <id>` (an
-      existing `providers.yml` entry, no new file authored) joins an in-progress run
-      and completes real items successfully.
+- [x] **`--provider <id>` implemented.** `state.py` gained `provider_id: str | None`
+      (Stop-Point 2, confirmed with the architect before building); `flag_pass`,
+      `critic_pass`, `drift_check_pass` nodes now pass `state.get("provider_id")`
+      through to their existing (already-`provider_id`-accepting) domain functions.
+      `run_live_validation.py` gained `--provider`, validated fail-fast via
+      `get_model(provider_id)` before any corpus/graph work, seeded into initial
+      graph state. `fix_pass`/`domain/fix.py` intentionally NOT touched — it never
+      accepted a `provider_id` param; that's a pre-existing gap, out of scope here.
+- [x] `get_model()` / `resolve_default_provider_id()` — zero changes, confirmed by
+      diff (only callers changed, not the functions themselves).
+- [x] **Real end-to-end verification, live providers, not mocked** (per this
+      project's own "verify before shipping" standard):
+      - `--provider not_a_real_id` fails fast with a clear `ValueError`, before
+        touching the corpus file.
+      - `--provider cerebras_default` correctly selected Cerebras (surfaced a real,
+        separate, pre-existing issue: that model id 404s on this account today —
+        not caused by this change).
+      - `--provider groq_gpt_oss_120b` ran a real 2-item corpus end-to-end: caught
+        and fixed a deliberately injected "teh" typo, `provider_id` correctly
+        recorded per ledger row.
+      - Omitting `--provider` still correctly falls back to the configured
+        `default_provider` (`groq_gpt_oss_20b_fallback`) — zero regression.
+      - **Two-worker scenario matching the original ask** (different providers,
+        shared ledger, no config file authored for either, second worker launched
+        after the first completed): worker A (`groq_gpt_oss_120b`, shard 1/2) and
+        worker B (`groq_gpt_oss_20b_fallback`, shard 2/2) both ran against the same
+        `--ledger`; worker B correctly saw 1/2 already done and picked up its own
+        remaining item; final ledger shows the correct distinct `provider_id` per
+        row. This is the concrete proof of "just send the command" working.
+- [x] Ollama local dry run attempted first — found genuinely stuck/unresponsive at
+      the infra level (a bare `.invoke()` and even a raw `curl` to Ollama's own
+      `/api/generate` both hung 60s+ with zero output) — confirmed as a local
+      environment issue unrelated to this change, not investigated further since
+      cloud providers gave a complete, real verification instead.
+- [x] Test suite: `tests/test_graph.py` updated (existing stubs needed a
+      `provider_id=None` kwarg added — mechanical, not a logic change) plus 2 new
+      tests: `provider_id` from state reaches `flag_pass`/`critic_pass`'s domain
+      calls, and correctly defaults to `None` when absent. Before: 287 passed / 2
+      pre-existing failures (`test_providers.py`/`test_batch_providers.py`, both
+      caused by `providers.yml`'s current `default_provider` not matching what
+      those tests hardcode — unrelated to this change). After: 289 passed / same 2
+      pre-existing failures, zero new regressions. (A later full-suite run showed 2
+      additional `test_flag.py` failures — traced to real Groq daily-quota
+      exhaustion caused by this session's own live dry-run calls, not a code
+      defect; will clear on quota reset.)
+- [ ] **Not yet verified**: induced worker-death visibility (`kill -9` mid-run) —
+      flagged from the start as a separate, standalone requirement, independent of
+      the `--provider` flag. Still open.
+- [x] Nothing pushed/committed yet — held for explicit review per this project's
+      "nothing gets committed without being shown to the architect first" rule.
 
 ## Open architecture decisions (not yet made)
 
