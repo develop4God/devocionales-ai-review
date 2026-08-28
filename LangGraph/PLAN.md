@@ -518,12 +518,60 @@ processes (2 Groq accounts + 2 local Ollama, each its own `--config`/`--shard`):
 
 **Decision (architect-confirmed 2026-08-28):** adopt **LiteLLM** (Python SDK mode, no
 separate proxy process) as the provider-routing layer, replacing hand-rolled
-`providers_groq1.yml`-style per-worker config files. Rationale and full pros/cons
-researched against current community practice (not assumed) — see chat history
-2026-08-28; short version: `with_fallbacks()`/`configurable_alternatives` are not built
-for multi-key load-balancing across concurrent workers, LiteLLM's `model_list` +
-`router_settings.fallbacks` is the ecosystem's actual answer, and 10×2 languages is
-enough sustained volume to justify the new dependency.
+`providers_groq1.yml`-style per-worker config files.
+
+**Research trail (2026-08-28) — what was checked and what it showed:**
+
+- [LangGraph Send API / map-reduce parallel execution](https://machinelearningplus.com/gen-ai/langgraph-map-reduce-parallel-execution/) —
+  `Send()` fans out N node instances in one graph run, merged via reducers. Ruled out
+  for this driver specifically: each corpus item here is its own `invoke()` →
+  `interrupt()` → `Command(resume=...)` two-phase sequence on its own `thread_id`, not
+  a single-shot input `Send()`/`.batch()` can wrap.
+- [LangGraph parallel-interrupt issues (GitHub: #6624, #6533, #6626)](https://github.com/langchain-ai/langgraph/issues/6624) —
+  confirmed real, open bugs when multiple `interrupt()` calls fire *within one graph
+  invocation* concurrently (identical interrupt IDs, misrouted resumes, lost
+  interrupts). Not directly hit by this driver's pattern (each item is a fully separate
+  `graph.invoke()`, not concurrent interrupts inside one run) but reinforces: don't
+  reach for `Send()`-with-interrupts here.
+- [SqliteSaver thread-safety discussion (LangChain GitHub #23630)](https://github.com/langchain-ai/langchain/discussions/23630) —
+  confirmed a compiled graph with `SqliteSaver` is safe for concurrent invokes *within
+  one process* as long as each gets its own `thread_id` (already true here); the
+  file-level-locking danger is specifically *multiple processes* writing the same
+  `.sqlite` file, which is why the current design gives each worker process its own
+  checkpoint file. Conclusion: real concurrency belongs in one process
+  (`ThreadPoolExecutor` over `run_one`), not N separate OS processes each with their
+  own SqliteSaver file — supports collapsing the multi-process launcher.
+- [`with_fallbacks()` / fallback chains — LangChain OpenTutorial](https://langchain-opentutorial.gitbook.io/langchain-opentutorial/13-langchain-expression-language/11-fallbacks) and
+  [Dynamic Failover and Load Balancing LLMs with LangChain](https://medium.com/@andrewnguonly/dynamic-failover-and-load-balancing-llms-with-langchain-e930a094be61) —
+  confirmed `with_fallbacks()` is sequential failover for *one* call (try A, then B on
+  A's failure) — it has no concept of "N concurrent callers, split across N keys" or
+  per-key rate-limit tracking. This directly killed the first design (one shared
+  `with_fallbacks()` chain for every worker) — every concurrent worker would race the
+  same primary provider first.
+- [`RunnableConfigurableAlternatives` reference](https://reference.langchain.com/python/langchain-core/runnables/configurable/RunnableConfigurableAlternatives) —
+  lets you swap a runnable's provider at call time via config, but still no built-in
+  scheduling/rotation logic across concurrent callers — same gap as `with_fallbacks()`.
+- [LiteLLM proxy/reliability docs](https://docs.litellm.ai/docs/proxy/reliability) —
+  confirmed LiteLLM ships as both an SDK (no separate service — the relevant mode
+  here) and an optional standalone proxy. Its `model_list` + `router_settings` gives
+  real multi-key routing (round-robin / least-busy / usage-based) with per-key
+  rate-limit awareness, which is the actual feature being asked for
+  ("primary, secondary, third, etc, in providers and env").
+- Cross-referenced against other gateway-style tools that came up in the same search
+  (LLMux, Portkey) — LiteLLM was the most-cited/most-mature option across independent
+  sources, not picked from a single source.
+
+**Why LiteLLM over rolling our own scheduler:** a minimal in-house alternative was
+considered (`worker_index % len(providers)`, ~15 lines, no new dependency) and was the
+initial lean for the *current* single-corpus scale. It was reversed once the real
+upcoming scope (10 languages × 2 years, sustained multi-week operation, not a one-shot
+732-item run) was stated — that volume justifies letting a maintained library own
+key-rotation and rate-limit tracking rather than this codebase inventing and
+maintaining its own version of a problem the ecosystem already has a named, common
+solution for. Trade-off is real and explicit: one new external dependency
+(Stop-Point 4), and some redundancy with this project's own Groq-specific error
+handling in `structured_call.py` (LiteLLM won't know about `json_validate_failed`
+etc. — see Scope boundary below).
 
 **Scope boundary — do NOT let this migration silently absorb:**
 - `domain/structured_call.py`'s Groq-specific retry logic (`json_validate_failed`,
