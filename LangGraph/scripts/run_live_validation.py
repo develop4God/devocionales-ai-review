@@ -363,6 +363,7 @@ def main() -> int:
     try:
         with open(args.ledger, "a", encoding="utf-8") as ledger_f:
             for entry_id, field, field_path, text in pending:
+                print(f"  starting {entry_id}:{field}...", file=sys.stderr)
                 while True:
                     try:
                         row = run_one(

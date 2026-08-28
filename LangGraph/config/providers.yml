@@ -39,6 +39,14 @@ providers:
     package: ollama
     model: "gemma4:26b"
     base_url: "http://localhost:11434"
+    # A live 2027 ES validation run on 2026-08-28 observed a single generation
+    # reach 3000+ tokens with no stop token for several minutes, for what should
+    # be a small structured JSON finding -- invisible from run_live_validation.py's
+    # own output the whole time (see issue #5). 1024 gives generous headroom over
+    # a normal finding while forcing early truncation (a catchable parse error,
+    # now logged -- see domain/structured_call.py) instead of a silent multi-
+    # minute hang.
+    num_predict: 1024
 
   - id: cerebras_default
     name: "Cerebras/qwen-3-235b"

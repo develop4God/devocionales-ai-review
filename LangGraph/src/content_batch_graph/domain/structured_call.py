@@ -30,6 +30,7 @@ scenario where retrying is expected to make things worse.
 
 from __future__ import annotations
 
+import sys
 from typing import TypeVar
 
 import openai
@@ -64,7 +65,17 @@ def invoke_structured(chain: Runnable, inputs: dict) -> _T:
             ):
                 raise
             attempt += 1
-        except OutputParserException:
+            print(
+                f"  structured-output retry {attempt}/{_MAX_STRUCTURED_OUTPUT_RETRIES} "
+                f"after openai.BadRequestError ({error_code}): {e}",
+                file=sys.stderr,
+            )
+        except OutputParserException as e:
             if attempt >= _MAX_STRUCTURED_OUTPUT_RETRIES:
                 raise
             attempt += 1
+            print(
+                f"  structured-output retry {attempt}/{_MAX_STRUCTURED_OUTPUT_RETRIES} "
+                f"after OutputParserException: {e}",
+                file=sys.stderr,
+            )

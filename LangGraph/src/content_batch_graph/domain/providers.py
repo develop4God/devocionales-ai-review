@@ -55,6 +55,7 @@ def _build_model(provider: dict[str, Any], max_retries: int) -> BaseChatModel:
         return ChatOllama(
             model=provider["model"],
             base_url=provider.get("base_url", "http://localhost:11434"),
+            num_predict=provider.get("num_predict"),
         )
 
     api_key = os.environ.get(provider["env_var"])

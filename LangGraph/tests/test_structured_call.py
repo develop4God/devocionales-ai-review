@@ -111,3 +111,22 @@ def test_invoke_structured_can_mix_error_types_across_retries():
     result = invoke_structured(chain, {})
     assert result == "ok"
     assert chain.call_count == 3
+
+
+def test_invoke_structured_logs_on_output_parser_retry(capsys):
+    # Issue: a stalled/retrying call on ollama_local was silent, indistinguishable
+    # from a slow-but-working call. A retry must print to stderr so it's visible
+    # in the worker's console output without reading Ollama's own server log.
+    chain = _FakeChain([OutputParserException("could not parse"), "ok"])
+    invoke_structured(chain, {})
+    err = capsys.readouterr().err
+    assert "retry" in err.lower()
+    assert "OutputParserException" in err
+
+
+def test_invoke_structured_logs_on_groq_retry(capsys):
+    chain = _FakeChain([_fake_bad_request_error("json_validate_failed"), "ok"])
+    invoke_structured(chain, {})
+    err = capsys.readouterr().err
+    assert "retry" in err.lower()
+    assert "json_validate_failed" in err

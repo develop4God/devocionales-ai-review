@@ -45,6 +45,42 @@ def test_get_model_local_provider_needs_no_api_key():
     assert type(model).__name__ == "ChatOllama"
 
 
+def test_get_model_passes_num_predict_from_config_for_ollama_package():
+    # ollama_local declares num_predict: 1024 in providers.yml -- a real live run
+    # observed a single generation run away past 3000+ tokens with no stop token
+    # for several minutes (issue #5). Confirms that cap actually reaches the
+    # constructed ChatOllama client instead of being silently ignored.
+    model = get_model("ollama_local")
+    assert model.num_predict == 1024
+
+
+def test_get_model_num_predict_defaults_to_none_when_not_configured(
+    monkeypatch, tmp_path
+):
+    override_config = tmp_path / "custom_providers.yml"
+    override_config.write_text(
+        """
+providers:
+  - id: only_provider_here
+    name: "Test/only-provider"
+    priority: 1
+    enabled: true
+    client_type: local
+    package: ollama
+    model: "test-model"
+
+settings:
+  default_provider: only_provider_here
+  max_retries: 1
+""",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("CONTENT_BATCH_GRAPH_PROVIDERS_CONFIG", str(override_config))
+
+    model = get_model("only_provider_here")
+    assert model.num_predict is None
+
+
 def test_get_model_passes_max_retries_from_config(monkeypatch):
     # settings.max_retries in providers.yml previously wasn't wired into the
     # constructed model at all — a 429 raised immediately instead of retrying with
