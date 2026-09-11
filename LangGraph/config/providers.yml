@@ -138,6 +138,59 @@ providers:
     extra_body:
       reasoning_effort: low
 
+  # 120b on each of the 4 fallback keys -- same accounts as the 20b fallback
+  # entries above, same independent 200K TPD quotas, just pointed at the better
+  # model instead of 20b. Lets 5 parallel workers (main key + 4 fallbacks) all run
+  # 120b with zero shared quota, one worker per key via --provider, rather than
+  # sharing groq_gpt_oss_120b's single key across workers.
+  - id: groq_gpt_oss_120b_fallback
+    name: "Groq/gpt-oss-120b (fallback account)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "openai/gpt-oss-120b"
+    env_var: GROQ_API_KEY_FALLBACK
+    extra_body:
+      reasoning_effort: low
+
+  - id: groq_gpt_oss_120b_fallback2
+    name: "Groq/gpt-oss-120b (fallback account 2)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "openai/gpt-oss-120b"
+    env_var: GROQ_API_KEY_FALLBACK_2
+    extra_body:
+      reasoning_effort: low
+
+  - id: groq_gpt_oss_120b_fallback3
+    name: "Groq/gpt-oss-120b (fallback account 3)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "openai/gpt-oss-120b"
+    env_var: GROQ_API_KEY_FALLBACK_3
+    extra_body:
+      reasoning_effort: low
+
+  - id: groq_gpt_oss_120b_fallback4
+    name: "Groq/gpt-oss-120b (fallback account 4)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "openai/gpt-oss-120b"
+    env_var: GROQ_API_KEY_FALLBACK_4
+    extra_body:
+      reasoning_effort: low
+
   - id: fireworks_deepseek_v4_flash
     name: "Fireworks/deepseek-v4-flash-0731"
     priority: 4
