@@ -34,10 +34,18 @@ def test_get_model_returns_chat_anthropic_when_key_present(monkeypatch):
 def test_get_model_uses_default_provider_when_none_given(monkeypatch):
     # No provider_id given -> resolves settings.default_provider from
     # config/providers.yml, whatever that's currently set to, rather than calling
-    # get_model(explicit_id) directly.
+    # get_model(explicit_id) directly. Compares against resolve_default_provider_id()
+    # rather than hardcoding a provider id, since default_provider has changed more
+    # than once (e.g. Cerebras free tier cutoff 2026-08-17) and a hardcoded id here
+    # goes stale every time it does.
     monkeypatch.setenv("CEREBRAS_API_KEY", "fake-key-for-construction-only")
+    monkeypatch.setenv("GROQ_API_KEY", "fake-key-for-construction-only")
+    monkeypatch.setenv("GROQ_API_KEY_FALLBACK", "fake-key-for-construction-only")
     model = get_model()
-    assert type(model).__name__ == type(get_model("cerebras_gpt_oss_120b")).__name__
+    assert (
+        type(model).__name__
+        == type(get_model(resolve_default_provider_id())).__name__
+    )
 
 
 def test_get_model_local_provider_needs_no_api_key():
