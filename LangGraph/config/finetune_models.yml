@@ -1,0 +1,59 @@
+# Base-model definitions for LoRA fine-tuning via Unsloth.
+# No model is hardcoded in the training script -- add one here, select it by id
+# via --model-id. Everything that varies by base model family lives here:
+# chat_template, tokenizer, and lora_target_modules. The training dataset
+# (Alpaca-format JSON) is model-agnostic and never changes when switching entries.
+#
+# chat_template: the Unsloth/HF template name applied to the tokenizer so
+#   instruction/response turns are wrapped the way this base model was trained
+#   to expect (e.g. Gemma's <start_of_turn> markers). Using the wrong template
+#   doesn't error -- it silently degrades output quality.
+# lora_target_modules: named attention/MLP projection layers this model
+#   architecture exposes for LoRA adapters. Layer names differ by architecture,
+#   so this list must match the specific base model, not just its family.
+
+models:
+  - id: gemma4_4b_e4b
+    name: "Gemma 4 E4B (~4.5B effective)"
+    enabled: true
+    # Confirmed via Unsloth's own model card (huggingface.co/unsloth/gemma-4-E4B-it-unsloth-bnb-4bit),
+    # updated 2026-07-17 with Gemma's official chat template revision.
+    base_model: "unsloth/gemma-4-E4B-it-unsloth-bnb-4bit"
+    # Gemma 4 uses its own updated template (standard system/assistant/user roles),
+    # distinct from Gemma 3's -- NOT "gemma3". Unsloth's FastLanguageModel.from_pretrained
+    # auto-detects the right template from this base_model id in most cases; pass
+    # chat_template explicitly only if Unsloth's auto-detection picks the wrong one.
+    # Leave unset (null) to defer to Unsloth's auto-detection unless verified otherwise.
+    chat_template: null
+    max_seq_length: 2048
+    load_in_4bit: true
+    lora:
+      r: 16
+      lora_alpha: 16
+      lora_dropout: 0
+      target_modules:
+        - q_proj
+        - k_proj
+        - v_proj
+        - o_proj
+        - gate_proj
+        - up_proj
+        - down_proj
+
+  # Placeholder for a future swap -- fill in real values (base_model path,
+  # chat_template, target_modules) from Unsloth's model card before enabling.
+  - id: deepseek_placeholder
+    name: "DeepSeek (not yet configured)"
+    enabled: false
+    base_model: null
+    chat_template: null
+    max_seq_length: 2048
+    load_in_4bit: true
+    lora:
+      r: 16
+      lora_alpha: 16
+      lora_dropout: 0
+      target_modules: []
+
+settings:
+  default_model: gemma4_4b_e4b
