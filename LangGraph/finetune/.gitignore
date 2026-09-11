@@ -1,0 +1,26 @@
+# Local fine-tuning workspace. Only source code (train.py) and small config
+# are meant to be tracked here -- everything below is either reproducible from
+# committed source, or too large/binary to belong in git.
+
+.venv/
+venv/
+
+# Downloaded base-model weights (safetensors, tokenizer files) -- reproducible
+# from LangGraph/config/finetune_models.yml's base_model id, several GB each,
+# never belongs in git.
+models/
+
+# Unsloth's compiled kernel/build cache -- machine-specific, regenerated on
+# every fresh environment.
+unsloth_compiled_cache/
+
+# Training run outputs: intermediate checkpoints and the final LoRA adapter.
+# Revisit this once there's a real artifact-storage decision (e.g. commit only
+# a specific reviewed adapter under a versioned path, same pattern as
+# LangGraph/.gitignore's batch_input/batch_output allowlist exceptions) --
+# nothing here is committed by default until that's decided.
+outputs/
+
+*.log
+__pycache__/
+*.py[cod]
