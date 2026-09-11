@@ -52,6 +52,13 @@ read once, at startup, not polled) -- but NEVER point two workers at different
 --ledger paths for the same run; each would then only see its own progress and
 recompute the shard against a stale/incomplete view of the full item list.
 
+--role is required, with no default: an earlier run silently used roles.yml's
+default_role ("native_reader", typo/grammar/awkward_phrasing) when
+"native_reader_batch" (typo/grammar only) was the actually-intended scope --
+awkward_phrasing is the noisiest, highest-false-positive category, and the
+unnoticed default silently broadened what got flagged. Pass the role you
+actually want, every run.
+
 Usage (two-worker example -- note the shared --ledger, separate --checkpoint):
     uv run python scripts/run_live_validation.py \
         --corpus-file /path/to/Devocional_year_2027_es.json \
@@ -59,6 +66,7 @@ Usage (two-worker example -- note the shared --ledger, separate --checkpoint):
         --checkpoint data/checkpoints/run_worker1.sqlite \
         --ledger data/checkpoints/run_ledger.jsonl \
         --provider groq_gpt_oss_120b \
+        --role native_reader_batch \
         --shard 1/2 &
 
     uv run python scripts/run_live_validation.py \
@@ -67,6 +75,7 @@ Usage (two-worker example -- note the shared --ledger, separate --checkpoint):
         --checkpoint data/checkpoints/run_worker2.sqlite \
         --ledger data/checkpoints/run_ledger.jsonl \
         --provider ollama_local \
+        --role native_reader_batch \
         --shard 2/2 &
 """
 
@@ -161,6 +170,7 @@ def run_one(
     field_path: str,
     language: str,
     provider_id: str | None,
+    role_id: str,
 ) -> dict:
     thread_id = f"{entry_id}:{field}"
     config = {"configurable": {"thread_id": thread_id}}
@@ -173,6 +183,7 @@ def run_one(
             "language": language,
             "entry_id": entry_id,
             "provider_id": provider_id,
+            "role_id": role_id,
         },
         config=config,
     )
@@ -197,6 +208,7 @@ def run_one(
         "field": field,
         "thread_id": thread_id,
         "provider_id": provider_id,
+        "role_id": role_id,
         "raw_findings_count": len(result.get("raw_findings", [])),
         "verified_count": len(final.get("verified_findings", [])),
         "discarded_count": len(final.get("discarded_findings", [])),
@@ -313,6 +325,18 @@ def main() -> int:
         "a specific provider without hand-authoring a separate providers.yml with a "
         "different default_provider. Omit to use the configured default_provider.",
     )
+    parser.add_argument(
+        "--role",
+        required=True,
+        help="A role id from config/roles.yml -- e.g. 'native_reader_batch' for "
+        "typo/grammar only, or 'native_reader' for typo/grammar/awkward_phrasing. "
+        "REQUIRED, no default: a prior run silently used roles.yml's default_role "
+        "('native_reader', which also flags awkward_phrasing -- the noisiest, "
+        "highest-false-positive category) when 'native_reader_batch' (typo/grammar "
+        "only) was the actually-intended scope for this pass. Pass the role you "
+        "actually want every time, rather than relying on whatever roles.yml's "
+        "default happens to be.",
+    )
     args = parser.parse_args()
 
     if args.config:
@@ -322,6 +346,7 @@ def main() -> int:
         get_model,
         resolve_default_provider_id,
     )
+    from content_batch_graph.domain.roles import get_role
     from content_batch_graph.graph import compile_graph
 
     provider_id = args.provider
@@ -334,6 +359,10 @@ def main() -> int:
     else:
         provider_id = resolve_default_provider_id()
     print(f"this worker's provider: {provider_id}")
+
+    role_id = args.role
+    get_role(role_id)  # fails fast if --role names an unknown role id
+    print(f"this worker's role: {role_id}")
 
     Path(args.checkpoint).parent.mkdir(parents=True, exist_ok=True)
 
@@ -374,6 +403,7 @@ def main() -> int:
                             field_path,
                             args.language,
                             provider_id,
+                            role_id,
                         )
                         break
                     except (openai.RateLimitError, openai.BadRequestError) as e:
