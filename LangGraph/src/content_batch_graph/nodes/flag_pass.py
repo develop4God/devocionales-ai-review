@@ -10,6 +10,7 @@ def flag_pass(state: BatchState) -> dict:
     findings = run_flag_pass(
         state["file_text"],
         state["language"],
+        role_id=state.get("role_id"),
         provider_id=state.get("provider_id"),
     )
     return {"raw_findings": findings}

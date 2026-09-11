@@ -52,6 +52,11 @@ class BatchState(TypedDict):
     # model call in this run, if set — None means "use the configured default." Lets
     # a caller (e.g. run_live_validation.py's --provider flag) pick a provider per
     # item without editing providers.yml or pointing at an alternate config file.
+    role_id: str | None  # overrides roles.yml's default_role for flag_pass, if set.
+    # run_live_validation.py requires --role explicitly (no silent fallback) after
+    # a run was found using default_role ("native_reader", which flags
+    # awkward_phrasing) when "native_reader_batch" (typo/grammar only) was the
+    # intended scope — an unnoticed default silently broadened what was flagged.
 
     # ── Flag pass output ────────────────────────────────────────────────────
     raw_findings: list[Finding]  # everything the flag pass claimed, unverified

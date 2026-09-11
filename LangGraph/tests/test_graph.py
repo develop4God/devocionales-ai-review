@@ -15,7 +15,10 @@ def _fresh_db_path() -> str:
 
 
 def _stub_one_finding(
-    source_text: str, language: str, provider_id: str | None = None
+    source_text: str,
+    language: str,
+    role_id: str | None = None,
+    provider_id: str | None = None,
 ) -> list[Finding]:
     if "teh" not in source_text:
         return []
@@ -23,7 +26,10 @@ def _stub_one_finding(
 
 
 def _stub_two_findings(
-    source_text: str, language: str, provider_id: str | None = None
+    source_text: str,
+    language: str,
+    role_id: str | None = None,
+    provider_id: str | None = None,
 ) -> list[Finding]:
     return [
         Finding(quoted_text="teh", issue="Likely typo.", category="typo"),
@@ -110,9 +116,11 @@ def test_graph_threads_provider_id_from_state_into_flag_and_critic_calls(monkeyp
     # providers.yml's default_provider.
     calls = {}
 
-    def _stub_flag_records_provider(source_text, language, provider_id=None):
+    def _stub_flag_records_provider(
+        source_text, language, role_id=None, provider_id=None
+    ):
         calls["flag"] = provider_id
-        return _stub_one_finding(source_text, language, provider_id)
+        return _stub_one_finding(source_text, language, role_id, provider_id)
 
     def _stub_critic_records_provider(
         source_text, findings, language, provider_id=None
@@ -148,7 +156,9 @@ def test_graph_provider_id_defaults_to_none_when_not_given(monkeypatch):
     # crash on a missing key or fabricate a value.
     calls = {}
 
-    def _stub_flag_records_provider(source_text, language, provider_id=None):
+    def _stub_flag_records_provider(
+        source_text, language, role_id=None, provider_id=None
+    ):
         calls["flag"] = provider_id
         return []
 
@@ -354,7 +364,10 @@ def test_graph_applies_only_selected_finding_indices(monkeypatch):
 
 
 def _stub_findings_one_noop_one_real(
-    source_text: str, language: str, provider_id: str | None = None
+    source_text: str,
+    language: str,
+    role_id: str | None = None,
+    provider_id: str | None = None,
 ) -> list[Finding]:
     return [
         Finding(
