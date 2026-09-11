@@ -48,6 +48,10 @@ class BatchState(TypedDict):
     field_path: str | None  # dot-path locating file_text within file_path's JSON, e.g.
     # "data.fr.2025-08-01.0.reflexion" — used by validate_pass to splice
     # fixed_text back in and confirm the real file's structure isn't broken
+    provider_id: str | None  # overrides providers.yml's default_provider for every
+    # model call in this run, if set — None means "use the configured default." Lets
+    # a caller (e.g. run_live_validation.py's --provider flag) pick a provider per
+    # item without editing providers.yml or pointing at an alternate config file.
 
     # ── Flag pass output ────────────────────────────────────────────────────
     raw_findings: list[Finding]  # everything the flag pass claimed, unverified

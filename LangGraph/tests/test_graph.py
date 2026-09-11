@@ -14,13 +14,17 @@ def _fresh_db_path() -> str:
     return tempfile.mktemp(suffix=".sqlite")
 
 
-def _stub_one_finding(source_text: str, language: str) -> list[Finding]:
+def _stub_one_finding(
+    source_text: str, language: str, provider_id: str | None = None
+) -> list[Finding]:
     if "teh" not in source_text:
         return []
     return [Finding(quoted_text="teh", issue="Likely typo.", category="typo")]
 
 
-def _stub_two_findings(source_text: str, language: str) -> list[Finding]:
+def _stub_two_findings(
+    source_text: str, language: str, provider_id: str | None = None
+) -> list[Finding]:
     return [
         Finding(quoted_text="teh", issue="Likely typo.", category="typo"),
         Finding(
@@ -31,7 +35,7 @@ def _stub_two_findings(source_text: str, language: str) -> list[Finding]:
     ]
 
 
-def _stub_critic_valid(source_text, findings, language):
+def _stub_critic_valid(source_text, findings, language, provider_id=None):
     return [
         CriticFinding(
             quoted_text=f["quoted_text"],
@@ -70,7 +74,7 @@ def _stub_fix_produces_invalid_json(file_text, findings):
     return "{not valid json", "Broke it on purpose."
 
 
-def _stub_no_drift(fixed_text, applied_findings, language):
+def _stub_no_drift(fixed_text, applied_findings, language, provider_id=None):
     return False, "No drift found."
 
 
@@ -97,6 +101,68 @@ def test_graph_pauses_at_human_confirm_with_verified_findings(monkeypatch):
     assert payload["rejected_findings"] == []
     assert len(payload["critic_findings"]) == 1
     assert payload["critic_findings"][0]["is_valid"] is True
+
+
+def test_graph_threads_provider_id_from_state_into_flag_and_critic_calls(monkeypatch):
+    # provider_id is optional per-run state (set by run_live_validation.py's
+    # --provider flag) -- when present, every model-calling node must pass it
+    # through to its domain function rather than silently falling back to
+    # providers.yml's default_provider.
+    calls = {}
+
+    def _stub_flag_records_provider(source_text, language, provider_id=None):
+        calls["flag"] = provider_id
+        return _stub_one_finding(source_text, language, provider_id)
+
+    def _stub_critic_records_provider(
+        source_text, findings, language, provider_id=None
+    ):
+        calls["critic"] = provider_id
+        return _stub_critic_valid(source_text, findings, language, provider_id)
+
+    monkeypatch.setattr(flag_pass_module, "run_flag_pass", _stub_flag_records_provider)
+    monkeypatch.setattr(
+        critic_pass_module, "run_critic_pass_batch", _stub_critic_records_provider
+    )
+    graph, _ = compile_graph(_fresh_db_path())
+    config = {"configurable": {"thread_id": "test-provider-id"}}
+
+    graph.invoke(
+        {
+            "file_path": "fake.txt",
+            "file_text": "This has teh typo in it.",
+            "language": "English",
+            "provider_id": "cerebras_default",
+        },
+        config=config,
+    )
+
+    assert calls["flag"] == "cerebras_default"
+    assert calls["critic"] == "cerebras_default"
+
+
+def test_graph_provider_id_defaults_to_none_when_not_given(monkeypatch):
+    # Omitting provider_id from the initial state (today's every-other-caller
+    # behavior) must still work -- get_model() itself treats None as "use
+    # providers.yml's default_provider," so nodes must pass None through, not
+    # crash on a missing key or fabricate a value.
+    calls = {}
+
+    def _stub_flag_records_provider(source_text, language, provider_id=None):
+        calls["flag"] = provider_id
+        return []
+
+    monkeypatch.setattr(flag_pass_module, "run_flag_pass", _stub_flag_records_provider)
+    monkeypatch.setattr(critic_pass_module, "run_critic_pass_batch", _stub_critic_valid)
+    graph, _ = compile_graph(_fresh_db_path())
+    config = {"configurable": {"thread_id": "test-provider-id-default"}}
+
+    graph.invoke(
+        {"file_path": "fake.txt", "file_text": "Clean text.", "language": "English"},
+        config=config,
+    )
+
+    assert calls["flag"] is None
 
 
 def test_graph_resumes_and_records_human_decision(monkeypatch):
@@ -230,7 +296,7 @@ def test_graph_validate_failure_loops_back_to_fix_then_stops_at_cap(monkeypatch)
 
 
 def test_graph_drift_detected_pauses_at_human_confirm_again(monkeypatch):
-    def _stub_drift(fixed_text, applied_findings, language):
+    def _stub_drift(fixed_text, applied_findings, language, provider_id=None):
         return True, "Replacement reads awkwardly in context."
 
     monkeypatch.setattr(flag_pass_module, "run_flag_pass", _stub_one_finding)
@@ -287,7 +353,9 @@ def test_graph_applies_only_selected_finding_indices(monkeypatch):
     assert "very clear" not in final["fixed_text"]
 
 
-def _stub_findings_one_noop_one_real(source_text: str, language: str) -> list[Finding]:
+def _stub_findings_one_noop_one_real(
+    source_text: str, language: str, provider_id: str | None = None
+) -> list[Finding]:
     return [
         Finding(
             quoted_text="teh",
@@ -311,7 +379,7 @@ def test_graph_prune_pass_cuts_noop_finding_before_critic(monkeypatch):
     # surface it in discarded_findings for calibration — not silently vanish it.
     critic_calls = []
 
-    def _stub_critic_records_calls(source_text, findings, language):
+    def _stub_critic_records_calls(source_text, findings, language, provider_id=None):
         critic_calls.extend(findings)
         return [
             CriticFinding(
