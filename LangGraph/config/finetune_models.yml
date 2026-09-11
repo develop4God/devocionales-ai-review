@@ -13,9 +13,38 @@
 #   so this list must match the specific base model, not just its family.
 
 models:
+  # Local test target: this machine's GPU has 4GB VRAM total (~3.7GB free),
+  # below Unsloth's practical ~8GB minimum for a 4B-class QLoRA run (confirmed
+  # 2026-09-11). Gemma 3 1B fits comfortably in 4-bit (~2.5-3GB) and has
+  # published benchmark precedent for this kind of narrow error-detection task
+  # (Fraunhofer IAIS/Uni Bonn: fine-tuned Gemma-3-1B reached MCC 0.77 / F1 0.98
+  # on critical-error detection). Test here first; escalate to gemma4_4b_e4b on
+  # rented cloud GPU only if this proves insufficient on the hard-negative tiers.
+  - id: gemma3_1b
+    name: "Gemma 3 1B (local test target)"
+    enabled: true
+    base_model: "unsloth/gemma-3-1b-it-unsloth-bnb-4bit"
+    chat_template: null  # defer to Unsloth's auto-detection, same rationale as gemma4_4b_e4b below
+    max_seq_length: 2048
+    load_in_4bit: true
+    lora:
+      r: 16
+      lora_alpha: 16
+      lora_dropout: 0
+      target_modules:
+        - q_proj
+        - k_proj
+        - v_proj
+        - o_proj
+        - gate_proj
+        - up_proj
+        - down_proj
+
+  # Sweet-spot target once the approach is validated -- needs ~8-16GB VRAM even
+  # with QLoRA, does not fit this machine's GPU. Rent a cloud GPU to run this.
   - id: gemma4_4b_e4b
     name: "Gemma 4 E4B (~4.5B effective)"
-    enabled: true
+    enabled: false
     # Confirmed via Unsloth's own model card (huggingface.co/unsloth/gemma-4-E4B-it-unsloth-bnb-4bit),
     # updated 2026-07-17 with Gemma's official chat template revision.
     base_model: "unsloth/gemma-4-E4B-it-unsloth-bnb-4bit"
@@ -56,4 +85,4 @@ models:
       target_modules: []
 
 settings:
-  default_model: gemma4_4b_e4b
+  default_model: gemma3_1b
