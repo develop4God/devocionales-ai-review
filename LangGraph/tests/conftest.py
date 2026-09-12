@@ -17,6 +17,13 @@ from batch_common import BatchPaths
 from content_batch_graph.domain import batch_io
 
 
+def pytest_addoption(parser):
+    parser.addoption("--live", action="store_true", help="run real live provider ping")
+    parser.addoption(
+        "--provider-id", default=None, help="provider id to ping (default: config default)"
+    )
+
+
 @pytest.fixture(autouse=True)
 def _isolated_batch_paths(tmp_path, monkeypatch):
     monkeypatch.setattr(batch_io, "PATHS", BatchPaths(tmp_path, env_prefix="LANGGRAPH"))

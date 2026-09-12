@@ -191,6 +191,32 @@ providers:
     extra_body:
       reasoning_effort: low
 
+  # Fifth independent Groq account/key (GROQ_API_KEY_FALLBACK_5), same model --
+  # own 200K TPD quota, added 2026-09-11 for the EN 2027 validation resume.
+  - id: groq_gpt_oss_120b_fallback5
+    name: "Groq/gpt-oss-120b (fallback account 5)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "openai/gpt-oss-120b"
+    env_var: GROQ_API_KEY_FALLBACK_5
+    extra_body:
+      reasoning_effort: low
+
+  - id: groq_gpt_oss_20b_fallback5
+    name: "Groq/gpt-oss-20b (fallback account 5)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "openai/gpt-oss-20b"
+    env_var: GROQ_API_KEY_FALLBACK_5
+    extra_body:
+      reasoning_effort: low
+
   - id: fireworks_deepseek_v4_flash
     name: "Fireworks/deepseek-v4-flash-0731"
     priority: 4
