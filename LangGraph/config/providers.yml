@@ -217,6 +217,18 @@ providers:
     extra_body:
       reasoning_effort: low
 
+  - id: groq_gpt_oss_120b_fallback6
+    name: "Groq/gpt-oss-120b (fallback account 6)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "openai/gpt-oss-120b"
+    env_var: GROQ_API_KEY_FALLBACK_6
+    extra_body:
+      reasoning_effort: low
+
   - id: fireworks_deepseek_v4_flash
     name: "Fireworks/deepseek-v4-flash-0731"
     priority: 4
