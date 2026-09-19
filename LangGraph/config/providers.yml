@@ -217,6 +217,22 @@ providers:
     extra_body:
       reasoning_effort: low
 
+  # Sixth independent Groq account/key, same model -- own 200K TPD quota. The
+  # 120b entry for this same key (groq_gpt_oss_120b_fallback6) already existed;
+  # this fills the missing 20b counterpart so every one of the 7 Groq keys has
+  # both a 120b and 20b provider entry to fall back to.
+  - id: groq_gpt_oss_20b_fallback6
+    name: "Groq/gpt-oss-20b (fallback account 6)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "openai/gpt-oss-20b"
+    env_var: GROQ_API_KEY_FALLBACK_6
+    extra_body:
+      reasoning_effort: low
+
   - id: groq_gpt_oss_120b_fallback6
     name: "Groq/gpt-oss-120b (fallback account 6)"
     priority: 4

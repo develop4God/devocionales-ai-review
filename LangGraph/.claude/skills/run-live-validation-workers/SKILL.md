@@ -1,19 +1,32 @@
 ---
 name: run-live-validation-workers
-description: Verify and generate the commands for a multi-worker run_live_validation.py run (typo/grammar/awkward_phrasing review of a devotional corpus file). Loads before launching any live validation run with more than one worker. Confirms the corpus file exists and has the expected data.<language_key>.<date>[i].<field> shape, the role exists in config/roles.yml, and enough distinct provider ids (each backed by its own real API key) exist in config/providers.yml for the requested worker count — then prints the exact per-worker commands, all sharing one ledger, no shard flag, no shell dispatcher. Use when the user asks to run live validation with N workers, or names a corpus file, role, model, and worker count for a LangGraph review run.
+description: Verify and generate the commands for a multi-worker run_live_validation.py run (typo/grammar/awkward_phrasing review of a devotional corpus file), launched simultaneously via nohup+& with --shard i/N per worker. Loads before launching any live validation run with more than one worker. Confirms the corpus file exists and has the expected data.<language_key>.<date>[i].<field> shape, the role exists in config/roles.yml, and enough distinct provider ids (each backed by its own real API key) exist in config/providers.yml for the requested worker count — then prints the exact per-worker commands. Use when the user asks to run live validation with N workers, or names a corpus file, role, model, and worker count for a LangGraph review run.
 ---
 
 # Run Live Validation — Multi-Worker Command Builder
 
-Every live validation run (ES/PT/EN/FR 2027, etc.) has needed the same manual
+Every live validation run (ES/PT/EN 2027, etc.) has needed the same manual
 steps: find the corpus file, pick a role, pick a model, enumerate enough
 distinct provider ids/keys for N workers, then hand-write N commands. This
-skill does those checks and builds those commands — it does not invoke a
-shell dispatcher and does not use `--shard`. Every worker gets the full
-pending list from one shared `--ledger`; each worker's own pending
-computation (already in `run_live_validation.py`) is what prevents duplicate
-work across workers, confirmed clean (0 duplicates) on the real PT ARC 2027
-run across 13 different provider ids sharing one ledger.
+skill does those checks and builds those commands, matching the pattern
+confirmed from the real PT ARC 2027 run's own launch commands (recovered from
+that session's transcript, 2026-09-18): all N workers launched at the same
+instant via `nohup ... &` in a shell loop, **each with its own `--shard i/N`**,
+all sharing one `--ledger`.
+
+**`--shard` is required for simultaneous launch, not optional.** Without it,
+every worker computes its `pending` list once at startup by reading the
+shared ledger — but `pending` is a fixed snapshot, never re-checked during the
+run. If several workers start within the same few seconds against a
+near-empty ledger, they each get nearly the same full pending list and
+duplicate work across all of them (confirmed directly: an FR 2027 run
+launched without `--shard`, 7 workers simultaneously, produced up to 7x
+duplicate processing on the same entries before the mistake was caught).
+`--shard i/N` partitions the full item list once, deterministically, so
+simultaneously-launched workers each own a disjoint slice from the start —
+no race is possible. This is what "no manual dividing" actually refers to:
+you don't compute the slice boundaries yourself, `--shard` does it, but the
+flag itself must be passed.
 
 ## Inputs to collect from the user (ask if not given)
 
@@ -101,59 +114,106 @@ done
 If fewer than N distinct, populated keys exist, **stop and tell the user** —
 do not silently reduce the worker count or reuse a key across two workers.
 
+### 4. If the shared ledger already exists (resuming a run)
+
+If `--ledger` points at a file with existing rows, `--shard` still applies
+against the FULL item list (not the pending list) — a worker's shard
+membership never shifts as items get done, per `run_live_validation.py`'s own
+module docstring. This is safe to resume with the same N and the same shard
+assignment. If N changes between runs (e.g. adding a worker after some
+finished), every worker must be relaunched with the new N so `--shard i/N`
+values stay consistent — do not mix workers computed against different N.
+
 ## Output: the N commands
 
-One `run_live_validation.py` invocation per worker. All share:
+Launch all N workers **simultaneously**, in the background, via a single
+shell loop — this is the real pattern used for the PT ARC 2027 run. All
+workers share:
 - the same `--corpus-file`
 - the same `--language` / `--language-key` / `--fields`
 - the same `--ledger` path (new path per run — do not reuse another run's
   ledger; pick a name like `data/checkpoints/<year>_<lang>_<version>_review_ledger.jsonl`)
 - the same `--role`
 
-Each worker gets its own `--provider` (one of the verified distinct ids) and
-its own `--checkpoint` (SqliteSaver is not safe for concurrent writers — never
-share a checkpoint file across workers).
-
-**No `--shard` flag** — every worker computes its pending list fresh against
-the shared ledger, so workers naturally divide the remaining work without a
-static partition.
+Each worker gets its own `--provider` (one of the verified distinct ids), its
+own `--checkpoint` (SqliteSaver is not safe for concurrent writers — never
+share a checkpoint file across workers), and `--shard <n>/<N>` (1-indexed).
 
 ```bash
 cd <langgraph_repo_root>
+source .venv/bin/activate  # or use .venv/bin/python directly
 
-# Worker 1
-.venv/bin/python scripts/run_live_validation.py \
-  --corpus-file <corpus_file> \
-  --language <Language> --language-key <lang_key> --fields <fields> \
-  --checkpoint data/checkpoints/<run_name>_worker1.sqlite \
-  --ledger data/checkpoints/<run_name>_ledger.jsonl \
-  --provider <provider_id_1> --role <role_id>
+CORPUS="<corpus_file>"
+LEDGER="data/checkpoints/<run_name>_ledger.jsonl"
+LOGDIR="<scratchpad_dir>"
+mkdir -p data/checkpoints "$LOGDIR"
 
-# Worker 2
-... (same, --provider <provider_id_2>, --checkpoint ..._worker2.sqlite)
+PROVIDERS=(<provider_id_1> <provider_id_2> ... <provider_id_N>)
 
-# ... through Worker N
+for i in "${!PROVIDERS[@]}"; do
+  n=$((i+1))
+  prov=${PROVIDERS[$i]}
+  nohup .venv/bin/python scripts/run_live_validation.py \
+    --corpus-file "$CORPUS" \
+    --language <Language> \
+    --language-key <lang_key> \
+    --fields <fields> \
+    --checkpoint "data/checkpoints/<run_name>_worker${n}.sqlite" \
+    --ledger "$LEDGER" \
+    --provider "$prov" \
+    --role <role_id> \
+    --shard ${n}/${#PROVIDERS[@]} \
+    > "$LOGDIR/<run_name>_worker${n}.log" 2>&1 &
+  echo "started worker $n pid $! provider $prov"
+done
 ```
 
 ## On a worker exiting non-zero
 
 `run_live_validation.py` already stops loudly on quota exhaustion — it prints
 `STOPPED on daily quota after N/M items this run: <error>` to stderr and
-exits 1. This is not silent and is not this skill's job to change.
+exits 1. This is not silent and is not this skill's job to change. Check each
+worker's log file in `$LOGDIR` (not just the ledger row count) to see this.
 
-Fallback is manual, not automatic: relaunch the same command with a different
+Fallback is manual, not automatic: relaunch that one worker with a different
 `--provider` (next fallback id, or a different model family entirely, e.g.
-`groq_gpt_oss_20b*` once every `groq_gpt_oss_120b*` key is exhausted) and a
-fresh `--checkpoint` name, keeping the same `--ledger`. It will pick up
-exactly the items still pending — no duplicate work, per the same pending-list
-logic that makes multi-worker runs safe in the first place.
+`groq_gpt_oss_20b*` once every `groq_gpt_oss_120b*` key is exhausted),
+**the same `--shard i/N` it had** (so it resumes exactly its own slice, no
+overlap with the other N-1 workers), a fresh `--checkpoint` name, and the
+same `--ledger`.
+
+## Verifying a completed or in-progress run
+
+Always check for duplicates, not just row count — row count alone does not
+prove correctness:
+
+```bash
+python3 -c "
+import json
+keys = set()
+rows = 0
+with open('<ledger_path>') as f:
+    for line in f:
+        d = json.loads(line)
+        keys.add((d['entry_id'], d['field']))
+        rows += 1
+print('rows:', rows, 'distinct (entry_id, field):', len(keys))
+print('duplicates:' , rows - len(keys))
+"
+```
+
+`rows` should equal `len(keys)` at all times. If `rows > len(keys)`, workers
+overlapped — this means `--shard` was omitted, or workers were launched with
+inconsistent `N` values, or a worker was relaunched with a different shard
+than the one it originally owned.
 
 ## What this skill does NOT do
 
-- Does not add `--shard` — confirmed unnecessary for this pattern; sharding is
-  a fixed, one-time partition computed at worker startup, not live
-  work-stealing, and isn't needed when every worker already reads the same
-  shared ledger fresh.
+- Does not use `run_live_validation_multi_provider.sh` (removed — a different,
+  dynamic-dispatch design that doesn't match how these runs are actually
+  launched).
+- Does not omit `--shard` — every worker in a simultaneous launch must have
+  one; this was tried once, broke, and is documented above as the reason why.
 - Does not automatically retry a different model on quota exhaustion inside
   the Python script — that is a real behavior change to
   `scripts/run_live_validation.py` and is out of scope unless the user
