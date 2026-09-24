@@ -78,11 +78,11 @@ def test_flag_pass_provider_id_overrides_default(monkeypatch):
     captured = {}
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
-            return SimpleNamespace(findings=[])
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(findings=[])}
 
     def _fake_get_model(provider_id=None):
         captured["provider_id"] = provider_id
@@ -107,14 +107,14 @@ def test_flag_pass_retries_on_retryable_structured_output_errors(
     calls = {"count": 0}
 
     class _FlakyThenOkModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
             calls["count"] += 1
             if calls["count"] == 1:
                 raise _fake_bad_request_error(error_code)
-            return SimpleNamespace(findings=[])
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(findings=[])}
 
     monkeypatch.setattr(
         flag_module, "get_model", lambda provider_id=None: _FlakyThenOkModel()
@@ -131,7 +131,7 @@ def test_flag_pass_does_not_retry_other_bad_request_errors(monkeypatch):
     import content_batch_graph.domain.flag as flag_module
 
     class _AlwaysFailsModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
@@ -153,7 +153,7 @@ def test_flag_pass_raises_after_exhausting_structured_output_retries(monkeypatch
     calls = {"count": 0}
 
     class _AlwaysJsonValidateFailsModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):

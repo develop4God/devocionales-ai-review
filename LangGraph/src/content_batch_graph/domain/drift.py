@@ -58,7 +58,9 @@ def run_drift_check(
     )
 
     persona = _DRIFT_PERSONA.format(language=language)
-    model = get_model(provider_id).with_structured_output(_DriftResponse)
+    model = get_model(provider_id).with_structured_output(
+        _DriftResponse, include_raw=True
+    )
     prompt = ChatPromptTemplate.from_messages(
         [
             ("system", "{persona}"),

@@ -45,11 +45,11 @@ def test_drift_check_provider_id_overrides_default(monkeypatch):
     captured = {}
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
-            return SimpleNamespace(drift_detected=False, notes="fine")
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(drift_detected=False, notes="fine")}
 
     def _fake_get_model(provider_id=None):
         captured["provider_id"] = provider_id

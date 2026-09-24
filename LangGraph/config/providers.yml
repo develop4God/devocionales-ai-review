@@ -40,6 +40,38 @@ providers:
     model: "gemma4:26b"
     base_url: "http://localhost:11434"
 
+  # Smaller Gemma 4 family members, same MTP architecture as gemma4:26b, being
+  # evaluated as faster local options for graph-testing/dev iteration -- not yet
+  # benchmarked against gemma4:26b, priority 99 (ad-hoc tier) until proven.
+  - id: ollama_local_e4b
+    name: "Ollama/gemma4:e4b (local)"
+    priority: 99
+    enabled: true
+    client_type: local
+    package: ollama
+    model: "gemma4:e4b"
+    base_url: "http://localhost:11434"
+
+  - id: ollama_local_12b
+    name: "Ollama/gemma4:12b (local)"
+    priority: 99
+    enabled: true
+    client_type: local
+    package: ollama
+    model: "gemma4:12b"
+    base_url: "http://localhost:11434"
+
+  # Already installed, no MTP -- meantime option for quick review/dev calls
+  # while gemma4:e4b/gemma4:12b are still pulling.
+  - id: ollama_local_qwen3_4b
+    name: "Ollama/qwen3:4b (local)"
+    priority: 99
+    enabled: true
+    client_type: local
+    package: ollama
+    model: "qwen3:4b"
+    base_url: "http://localhost:11434"
+
   - id: cerebras_default
     name: "Cerebras/qwen-3-235b"
     priority: 3

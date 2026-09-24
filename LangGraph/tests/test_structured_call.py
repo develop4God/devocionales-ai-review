@@ -24,6 +24,14 @@ def _fake_bad_request_error(code: str, message: str = "") -> openai.BadRequestEr
     )
 
 
+class _FakeRawMessage:
+    """Minimal stand-in for the AIMessage invoke_structured() reads
+    response_metadata off of, for the cache-debug logging side effect."""
+
+    def __init__(self):
+        self.response_metadata = {}
+
+
 class _FakeChain:
     def __init__(self, side_effects):
         self._side_effects = list(side_effects)
@@ -34,7 +42,7 @@ class _FakeChain:
         effect = self._side_effects.pop(0)
         if isinstance(effect, Exception):
             raise effect
-        return effect
+        return {"raw": _FakeRawMessage(), "parsed": effect}
 
 
 @pytest.mark.parametrize("error_code", ["json_validate_failed", "output_parse_failed"])

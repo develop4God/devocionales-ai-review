@@ -60,13 +60,13 @@ def test_critic_pass_provider_id_overrides_default(monkeypatch):
     captured = {}
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
-            return SimpleNamespace(
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(
                 is_valid=True, replacement_text="fixed", reasoning="why"
-            )
+            )}
 
     def _fake_get_model(provider_id=None):
         captured["provider_id"] = provider_id
@@ -145,7 +145,7 @@ def test_run_critic_pass_dismisses_typo_claim_when_word_is_in_dictionary(monkeyp
     model_called = {"count": 0}
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             model_called["count"] += 1
             return self
 
@@ -182,13 +182,13 @@ def test_run_critic_pass_falls_through_to_model_when_word_not_in_dictionary(
         }
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
-            return SimpleNamespace(
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(
                 is_valid=True, replacement_text="katotohanan", reasoning="why"
-            )
+            )}
 
     monkeypatch.setattr(critic_module, "lookup_word", _fake_lookup_word)
     monkeypatch.setattr(
@@ -225,13 +225,13 @@ def test_run_critic_pass_skips_dictionary_check_for_non_filipino_language(
         return {"word": word, "found": True, "part_of_speech": "x", "definition": "y"}
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
-            return SimpleNamespace(
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(
                 is_valid=True, replacement_text="the", reasoning="why"
-            )
+            )}
 
     monkeypatch.setattr(critic_module, "lookup_word", _fake_lookup_word)
     monkeypatch.setattr(
@@ -254,7 +254,7 @@ def test_run_critic_pass_dismisses_when_languagetool_finds_no_match(monkeypatch)
     model_called = {"count": 0}
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             model_called["count"] += 1
             return self
 
@@ -284,13 +284,13 @@ def test_run_critic_pass_falls_through_when_languagetool_also_flags_it(monkeypat
     import content_batch_graph.domain.critic as critic_module
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
-            return SimpleNamespace(
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(
                 is_valid=True, replacement_text="recibir", reasoning="Confirmed."
-            )
+            )}
 
     monkeypatch.setattr(
         critic_module, "get_model", lambda provider_id=None: _FakeModel()
@@ -319,13 +319,13 @@ def test_run_critic_pass_falls_through_when_languagetool_server_unreachable(
     import content_batch_graph.domain.critic as critic_module
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
-            return SimpleNamespace(
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(
                 is_valid=True, replacement_text="recibir", reasoning="Confirmed."
-            )
+            )}
 
     def _raise(quoted_text, source_text, language):
         raise httpx.ConnectError("simulated LanguageTool server failure")
@@ -357,13 +357,13 @@ def test_run_critic_pass_skips_languagetool_check_for_awkward_phrasing(monkeypat
         called["count"] += 1
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
-            return SimpleNamespace(
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(
                 is_valid=True, replacement_text="a smoother phrase", reasoning="why"
-            )
+            )}
 
     monkeypatch.setattr(
         critic_module, "get_model", lambda provider_id=None: _FakeModel()
@@ -390,13 +390,13 @@ def test_run_critic_pass_skips_languagetool_check_for_unsupported_language(
         called["count"] += 1
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
-            return SimpleNamespace(
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(
                 is_valid=True, replacement_text="fix", reasoning="why"
-            )
+            )}
 
     monkeypatch.setattr(
         critic_module, "get_model", lambda provider_id=None: _FakeModel()
@@ -413,15 +413,15 @@ def test_run_critic_pass_normalizes_hyphen_lookalikes_in_replacement(monkeypatch
     import content_batch_graph.domain.critic as critic_module
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
             # U+2011 NON-BREAKING HYPHEN, as seen from a real Cerebras response —
             # visually identical to "-" but a different character.
-            return SimpleNamespace(
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(
                 is_valid=True, replacement_text="amar‑te", reasoning="why"
-            )
+            )}
 
     monkeypatch.setattr(
         critic_module, "get_model", lambda provider_id=None: _FakeModel()
@@ -494,13 +494,13 @@ def test_run_critic_pass_dismisses_identical_replacement(monkeypatch):
     import content_batch_graph.domain.critic as critic_module
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
-            return SimpleNamespace(
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(
                 is_valid=True, replacement_text="املأنا", reasoning="Fixed."
-            )
+            )}
 
     monkeypatch.setattr(
         critic_module, "get_model", lambda provider_id=None: _FakeModel()
@@ -523,15 +523,15 @@ def test_run_critic_pass_dismisses_proclise_flagged_as_error_in_brazilian_portug
     import content_batch_graph.domain.critic as critic_module
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
-            return SimpleNamespace(
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(
                 is_valid=True,
                 replacement_text="alegrar-me",
                 reasoning="Enclise is more standard.",
-            )
+            )}
 
     monkeypatch.setattr(
         critic_module, "get_model", lambda provider_id=None: _FakeModel()
@@ -556,13 +556,13 @@ def test_run_critic_pass_does_not_dismiss_enclise_flagged_as_error(monkeypatch):
     import content_batch_graph.domain.critic as critic_module
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
-            return SimpleNamespace(
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(
                 is_valid=True, replacement_text="corretamente", reasoning="Typo fix."
-            )
+            )}
 
     monkeypatch.setattr(
         critic_module, "get_model", lambda provider_id=None: _FakeModel()
@@ -586,13 +586,13 @@ def test_run_critic_pass_proclise_dismiss_does_not_apply_to_other_languages(
     import content_batch_graph.domain.critic as critic_module
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
-            return SimpleNamespace(
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(
                 is_valid=True, replacement_text="alegrar-me", reasoning="Fix."
-            )
+            )}
 
     monkeypatch.setattr(
         critic_module, "get_model", lambda provider_id=None: _FakeModel()
@@ -618,13 +618,13 @@ def test_run_critic_pass_skips_dictionary_check_for_non_typo_category(monkeypatc
         return {"word": word, "found": True, "part_of_speech": "x", "definition": "y"}
 
     class _FakeModel:
-        def with_structured_output(self, schema):
+        def with_structured_output(self, schema, include_raw=False):
             return self
 
         def __call__(self, _inputs):
-            return SimpleNamespace(
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(
                 is_valid=True, replacement_text="fixed", reasoning="why"
-            )
+            )}
 
     monkeypatch.setattr(critic_module, "lookup_word", _fake_lookup_word)
     monkeypatch.setattr(

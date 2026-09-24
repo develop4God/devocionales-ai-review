@@ -38,7 +38,9 @@ def run_flag_pass(
     role = get_role(role_id)
     persona = role["persona"].format(language=language)
     flag_response_schema = build_finding_schema(role)
-    model = get_model(provider_id).with_structured_output(flag_response_schema)
+    model = get_model(provider_id).with_structured_output(
+        flag_response_schema, include_raw=True
+    )
 
     prompt = ChatPromptTemplate.from_messages(
         [("system", "{persona}"), ("human", "Text to review:\n{source_text}")]

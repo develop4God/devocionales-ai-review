@@ -36,6 +36,8 @@ import openai
 from langchain_core.exceptions import OutputParserException
 from langchain_core.runnables import Runnable
 
+from content_batch_graph.domain.cache_debug import log_ollama_cache_stats
+
 _T = TypeVar("_T")
 
 _RETRYABLE_GROQ_ERROR_CODES = {"json_validate_failed", "output_parse_failed"}
@@ -47,11 +49,22 @@ def invoke_structured(chain: Runnable, inputs: dict) -> _T:
     Calls chain.invoke(inputs), retrying up to _MAX_STRUCTURED_OUTPUT_RETRIES
     times on a known-flaky structured-output failure (see module docstring).
     Any other exception propagates immediately, unretried.
+
+    Expects the chain's model to have been bound with
+    .with_structured_output(schema, include_raw=True) — chain.invoke() then
+    returns {"raw": AIMessage, "parsed": schema, "parsing_error": ...}. Logs
+    Ollama cache-hit visibility from "raw" (see cache_debug.py) as a side
+    effect, then returns only "parsed" so every caller's contract is unchanged
+    from before include_raw was added.
     """
     attempt = 0
     while True:
         try:
-            return chain.invoke(inputs)
+            result = chain.invoke(inputs)
+            raw_message = result["raw"]
+            if raw_message.response_metadata:
+                log_ollama_cache_stats(raw_message.response_metadata)
+            return result["parsed"]
         except openai.BadRequestError as e:
             # e.body is the error object's own contents directly (e.g.
             # {"message": ..., "code": "json_validate_failed", ...}) — confirmed
