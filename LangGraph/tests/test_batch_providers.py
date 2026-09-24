@@ -10,7 +10,7 @@ def test_get_batch_provider_maps_yml_entry_to_config():
     cfg = get_batch_provider(BATCH_ID)
     assert cfg.provider_id == BATCH_ID
     assert cfg.base_url == "https://api.fireworks.ai/v1"
-    assert cfg.model == "accounts/fireworks/models/gpt-oss-20b"
+    assert cfg.model == "accounts/fireworks/models/deepseek-v4-flash-0731"
     assert cfg.env_var == "FIREWORKS_API_KEY"
     assert cfg.endpoint == "/v1/chat/completions"
     assert cfg.completion_window == "24h"
