@@ -72,6 +72,33 @@ providers:
     model: "qwen3:4b"
     base_url: "http://localhost:11434"
 
+  # Pulled 2026-09-24, not yet benchmarked against this project's review roles.
+  # Supported languages per IBM's own model card: English, German, Spanish,
+  # French, Japanese, Portuguese, Arabic, Czech, Italian, Korean, Dutch, and
+  # Chinese -- relevant since this project's corpus spans ES/EN/FR/PT/AR (and
+  # this list does NOT include Filipino or Hindi, both real corpus languages
+  # here, e.g. the HIOV 2027 seed -- don't assume language coverage beyond
+  # this list without checking first).
+  #
+  # 29.3B DENSE (not MoE, unlike gemma4:26b/qwen3.6) -- expect slower per-token
+  # speed on this machine's CPU/small-GPU setup, closer to gemma4:12b's
+  # observed range than gemma4:e4b's. Has built-in extended reasoning
+  # (enable_thinking / reasoning_effort low|high per its own docs) -- the same
+  # class of risk already confirmed in this codebase for Groq's gpt-oss models
+  # (structured_call.py's docstring): reasoning tokens can eat the whole
+  # completion budget before the structured JSON answer is emitted. If that
+  # failure mode shows up here too, set reasoning_effort via extra_body the
+  # same way the groq_gpt_oss_* entries above do, don't assume it's fine
+  # untested.
+  - id: ollama_local_granite4_2_30b
+    name: "Ollama/granite4.2:30b (local)"
+    priority: 99
+    enabled: true
+    client_type: local
+    package: ollama
+    model: "granite4.2:30b"
+    base_url: "http://localhost:11434"
+
   - id: cerebras_default
     name: "Cerebras/qwen-3-235b"
     priority: 3
@@ -276,6 +303,76 @@ providers:
     env_var: GROQ_API_KEY_FALLBACK_6
     extra_body:
       reasoning_effort: low
+
+  - id: groq_qwen3_8_27b
+    name: "Groq/qwen3.8-27b"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "qwen/qwen3.8-27b"
+    env_var: GROQ_API_KEY
+
+  - id: groq_qwen3_8_27b_fallback
+    name: "Groq/qwen3.8-27b (fallback account)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "qwen/qwen3.8-27b"
+    env_var: GROQ_API_KEY_FALLBACK
+
+  - id: groq_qwen3_8_27b_fallback2
+    name: "Groq/qwen3.8-27b (fallback account 2)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "qwen/qwen3.8-27b"
+    env_var: GROQ_API_KEY_FALLBACK_2
+
+  - id: groq_qwen3_8_27b_fallback3
+    name: "Groq/qwen3.8-27b (fallback account 3)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "qwen/qwen3.8-27b"
+    env_var: GROQ_API_KEY_FALLBACK_3
+
+  - id: groq_qwen3_8_27b_fallback4
+    name: "Groq/qwen3.8-27b (fallback account 4)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "qwen/qwen3.8-27b"
+    env_var: GROQ_API_KEY_FALLBACK_4
+
+  - id: groq_qwen3_8_27b_fallback5
+    name: "Groq/qwen3.8-27b (fallback account 5)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "qwen/qwen3.8-27b"
+    env_var: GROQ_API_KEY_FALLBACK_5
+
+  - id: groq_qwen3_8_27b_fallback6
+    name: "Groq/qwen3.8-27b (fallback account 6)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "qwen/qwen3.8-27b"
+    env_var: GROQ_API_KEY_FALLBACK_6
 
   - id: fireworks_deepseek_v4_flash
     name: "Fireworks/deepseek-v4-flash-0731"
