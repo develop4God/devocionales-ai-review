@@ -517,6 +517,38 @@ def test_run_critic_pass_dismisses_identical_replacement(monkeypatch):
     assert "no-op" in result["critic_reasoning"].lower()
 
 
+def test_run_critic_pass_dismisses_is_valid_true_with_empty_replacement(monkeypatch):
+    # Real bug observed 2026-09-27 (Arabic 2027 qwen3.8-27b re-review): the critic
+    # returned is_valid=True with an empty replacement_text -- violating the
+    # schema's own contract (empty replacement is only valid alongside
+    # is_valid=False) -- so a claim with no actual fix was passed through as a
+    # verified finding.
+    import content_batch_graph.domain.critic as critic_module
+
+    class _FakeModel:
+        def with_structured_output(self, schema, include_raw=False):
+            return self
+
+        def __call__(self, _inputs):
+            return {"raw": SimpleNamespace(response_metadata={}), "parsed": SimpleNamespace(
+                is_valid=True, replacement_text="", reasoning="Hallucinated claim."
+            )}
+
+    monkeypatch.setattr(
+        critic_module, "get_model", lambda provider_id=None: _FakeModel()
+    )
+
+    result = run_critic_pass(
+        "some text with إلى in it",
+        _finding("إلى", "possible typo", category="typo"),
+        "Arabic",
+    )
+
+    assert result["is_valid"] is False
+    assert result["replacement_text"] is None
+    assert "no replacement_text" in result["critic_reasoning"].lower()
+
+
 def test_run_critic_pass_dismisses_proclise_flagged_as_error_in_brazilian_portuguese(
     monkeypatch,
 ):

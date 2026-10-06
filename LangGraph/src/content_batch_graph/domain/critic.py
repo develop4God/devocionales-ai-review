@@ -260,6 +260,13 @@ def run_critic_pass(
             is_valid = False
             replacement_text = None
             reasoning = dismiss_reason
+        elif not replacement_text:
+            # is_valid=True with no replacement_text violates the schema's own
+            # contract (empty replacement is only valid alongside is_valid=False) --
+            # the model claimed a real issue but supplied nothing to fix. Treat as
+            # unusable rather than passing a no-op "verified" finding downstream.
+            is_valid = False
+            reasoning = f"Dismissed: is_valid=True but no replacement_text provided. Original reasoning: {reasoning}"
 
     return CriticFinding(
         quoted_text=finding["quoted_text"],
