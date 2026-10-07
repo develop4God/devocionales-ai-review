@@ -9,6 +9,7 @@ the actual file. No LLM output is ever passed downstream unverified.
 from __future__ import annotations
 
 import re
+import unicodedata
 
 from content_batch_graph.state import Finding, VerifiedFinding
 
@@ -43,6 +44,43 @@ def _found_at_word_boundary(quoted_text: str, source_text: str) -> bool:
     return False
 
 
+def _fold_accents(text: str) -> str:
+    return "".join(
+        c for c in unicodedata.normalize("NFD", text) if unicodedata.category(c) != "Mn"
+    )
+
+
+def _drop_non_ascii(text: str) -> str:
+    return "".join(c for c in text if ord(c) < 128)
+
+
+def _snap_accent_damaged_quote(quoted_text: str, source_text: str) -> str | None:
+    """
+    Some models quote accented text with accents stripped ("allegresse") or the
+    accented letters dropped entirely ("allgresse", "sparer"), so a real finding
+    fails the exact match above and is silently rejected (observed on FR 2027:
+    "rien peut me séparer" and "aux allégresse des autres" were both lost this way).
+    Returns the real span from source_text when exactly one distinct span matches
+    quoted_text after accent folding or dropping non-ASCII letters, else None.
+    Deliberately narrow: no general fuzzy matching, so a hallucinated misspelling
+    can't be snapped onto an unrelated word.
+    """
+    if len(quoted_text) < 4:
+        return None
+    n_words = len(quoted_text.split())
+    tokens = list(re.finditer(r"\S+", source_text))
+    folded, dropped = _fold_accents(quoted_text), _drop_non_ascii(quoted_text)
+    matches: set[str] = set()
+    for i in range(len(tokens) - n_words + 1):
+        span = source_text[tokens[i].start() : tokens[i + n_words - 1].end()]
+        span = re.sub(r"^\W+|\W+$", "", span)
+        if span == quoted_text:
+            continue
+        if _fold_accents(span) == folded or _drop_non_ascii(span) == dropped:
+            matches.add(span)
+    return matches.pop() if len(matches) == 1 else None
+
+
 def verify_finding(finding: Finding, source_text: str) -> VerifiedFinding | None:
     """
     Returns a VerifiedFinding if finding['quoted_text'] exists verbatim in
@@ -60,6 +98,18 @@ def verify_finding(finding: Finding, source_text: str) -> VerifiedFinding | None
             category=finding["category"],
             proposed_text=finding.get("proposed_text"),
             verified=True,
+        )
+    snapped = _snap_accent_damaged_quote(finding["quoted_text"], source_text)
+    if snapped and _found_at_word_boundary(snapped, source_text):
+        # proposed_text came from the same damaged output, so it is not trusted;
+        # critic_pass proposes the replacement from the real text instead.
+        return VerifiedFinding(
+            quoted_text=snapped,
+            issue=finding["issue"],
+            category=finding["category"],
+            proposed_text=None,
+            verified=True,
+            snapped_from=finding["quoted_text"],
         )
     return None
 

@@ -8,7 +8,7 @@ added when the node that needs them is actually being built, not speculatively n
 
 from __future__ import annotations
 
-from typing import Literal, TypedDict
+from typing import Literal, NotRequired, TypedDict
 
 
 class Finding(TypedDict):
@@ -26,6 +26,8 @@ class VerifiedFinding(Finding):
     """A Finding that has been checked against the source file and confirmed present."""
 
     verified: Literal[True]
+    snapped_from: NotRequired[str]  # set only when quoted_text was repaired from an
+    # accent-damaged quote (verify's fallback); holds the model's original quote.
 
 
 class CriticFinding(VerifiedFinding):
@@ -34,6 +36,9 @@ class CriticFinding(VerifiedFinding):
     is_valid: bool  # the critic's judgment: is this actually a real issue?
     replacement_text: str | None  # exact surgical replacement, if is_valid
     critic_reasoning: str  # why, for human review
+    needs_human_review: NotRequired[bool]  # True when is_valid is False only because
+    # the claimed fix/description was wrong while the quoted span still has a real
+    # error -- never auto-applied, but must not be lost as a plain dismissal.
 
 
 class BatchState(TypedDict):

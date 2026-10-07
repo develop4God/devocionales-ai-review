@@ -1,0 +1,2 @@
+[console_scripts]
+content-batch = content_batch_graph.cli:main

@@ -219,8 +219,25 @@ def run_one(
                 "is_valid": cf["is_valid"],
                 "replacement_text": cf.get("replacement_text"),
                 "critic_reasoning": cf["critic_reasoning"],
+                "needs_human_review": cf.get("needs_human_review", False),
             }
             for cf in critic_findings
+        ],
+        # Rejections used to be counted nowhere; recorded so a real finding lost to a
+        # bad quote can be audited later instead of vanishing.
+        "rejected_findings": [
+            {
+                "quoted_text": rf["quoted_text"],
+                "issue": rf["issue"],
+                "proposed_text": rf.get("proposed_text"),
+                "reason": "quoted_text not found in entry text",
+            }
+            for rf in final.get("rejected_findings", [])
+        ],
+        "snapped_findings": [
+            {"quoted_text": vf["quoted_text"], "snapped_from": vf["snapped_from"]}
+            for vf in final.get("verified_findings", [])
+            if vf.get("snapped_from")
         ],
         "applied_indices": apply_indices,
         "fix_summary": final.get("fix_summary"),

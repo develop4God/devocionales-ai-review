@@ -75,3 +75,40 @@ def test_verify_finding_rejects_when_preceded_by_word_character():
     # Boundary check applies to the start of quoted_text too, not just the end.
     result = verify_finding(_finding("ejen"), "mis acciones reflejen mi fe.")
     assert result is None
+
+
+_FR = "Je sais que rien peut me séparer de Ton amour et aux allégresse des autres."
+
+
+def test_verify_finding_snaps_quote_with_dropped_accented_letters():
+    result = verify_finding(_finding("rien peut me sparer"), _FR)
+    assert result is not None
+    assert result["quoted_text"] == "rien peut me séparer"
+    assert result["snapped_from"] == "rien peut me sparer"
+
+
+def test_verify_finding_snaps_quote_with_accents_stripped():
+    result = verify_finding(_finding("allegresse"), _FR)
+    assert result is not None
+    assert result["quoted_text"] == "allégresse"
+
+
+def test_verify_finding_snap_discards_untrusted_proposed_text():
+    finding = Finding(
+        quoted_text="allgresse",
+        issue="plural",
+        category="grammar",
+        proposed_text="allgresses",
+    )
+    result = verify_finding(finding, _FR)
+    assert result is not None
+    assert result["proposed_text"] is None
+
+
+def test_verify_finding_does_not_snap_unrelated_misspelling():
+    assert verify_finding(_finding("eterne"), "Ta gloire éternelle demeure.") is None
+
+
+def test_verify_finding_does_not_snap_when_two_distinct_spans_match():
+    assert verify_finding(_finding("ete"), "un été et un étè") is None
+    assert verify_finding(_finding("etes"), "vous êtes, des étés") is None

@@ -670,3 +670,38 @@ def test_run_critic_pass_skips_dictionary_check_for_non_typo_category(monkeypatc
     )
 
     assert called["count"] == 0
+
+
+def test_run_critic_pass_flags_real_issue_with_wrong_claim_for_human_review(
+    monkeypatch,
+):
+    import content_batch_graph.domain.critic as critic_module
+
+    class _FakeModel:
+        def with_structured_output(self, schema, include_raw=False):
+            return self
+
+        def __call__(self, _inputs):
+            return {
+                "raw": SimpleNamespace(response_metadata={}),
+                "parsed": SimpleNamespace(
+                    is_valid=False,
+                    replacement_text="",
+                    issue_real_but_claim_wrong=True,
+                    reasoning="should be 'des Actes', not 'du'",
+                ),
+            }
+
+    monkeypatch.setattr(
+        critic_module, "get_model", lambda provider_id=None: _FakeModel()
+    )
+    monkeypatch.setattr(
+        critic_module, "find_match_for", lambda q, s, language: {"quoted_text": q}
+    )
+
+    result = run_critic_pass(
+        "le livre de Actes", _finding("de Actes", "missing contraction"), "French"
+    )
+
+    assert result["is_valid"] is False
+    assert result["needs_human_review"] is True
