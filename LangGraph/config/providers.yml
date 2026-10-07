@@ -374,6 +374,93 @@ providers:
     model: "qwen/qwen3.8-27b"
     env_var: GROQ_API_KEY_FALLBACK_6
 
+  # qwen3.8-27b with reasoning_effort: low -- caught 13/14 injected FR errors vs 7/14 at
+  # default (no reasoning), 0 false flags (2026-10-07 calibration). ~13x slower: reasoning
+  # tokens hit Groq's ~1000 output-tokens/min cap. medium/high did no better.
+  - id: groq_qwen3_8_27b_low
+    name: "Groq/qwen3.8-27b low effort (main)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "qwen/qwen3.8-27b"
+    env_var: GROQ_API_KEY
+    extra_body:
+      reasoning_effort: low
+
+  - id: groq_qwen3_8_27b_low_fallback1
+    name: "Groq/qwen3.8-27b low effort (fallback account 1)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "qwen/qwen3.8-27b"
+    env_var: GROQ_API_KEY_FALLBACK
+    extra_body:
+      reasoning_effort: low
+
+  - id: groq_qwen3_8_27b_low_fallback2
+    name: "Groq/qwen3.8-27b low effort (fallback account 2)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "qwen/qwen3.8-27b"
+    env_var: GROQ_API_KEY_FALLBACK_2
+    extra_body:
+      reasoning_effort: low
+
+  - id: groq_qwen3_8_27b_low_fallback3
+    name: "Groq/qwen3.8-27b low effort (fallback account 3)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "qwen/qwen3.8-27b"
+    env_var: GROQ_API_KEY_FALLBACK_3
+    extra_body:
+      reasoning_effort: low
+
+  - id: groq_qwen3_8_27b_low_fallback4
+    name: "Groq/qwen3.8-27b low effort (fallback account 4)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "qwen/qwen3.8-27b"
+    env_var: GROQ_API_KEY_FALLBACK_4
+    extra_body:
+      reasoning_effort: low
+
+  - id: groq_qwen3_8_27b_low_fallback5
+    name: "Groq/qwen3.8-27b low effort (fallback account 5)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "qwen/qwen3.8-27b"
+    env_var: GROQ_API_KEY_FALLBACK_5
+    extra_body:
+      reasoning_effort: low
+
+  - id: groq_qwen3_8_27b_low_fallback6
+    name: "Groq/qwen3.8-27b low effort (fallback account 6)"
+    priority: 4
+    enabled: true
+    client_type: api
+    package: openai
+    base_url: "https://api.groq.com/openai/v1"
+    model: "qwen/qwen3.8-27b"
+    env_var: GROQ_API_KEY_FALLBACK_6
+    extra_body:
+      reasoning_effort: low
+
   - id: fireworks_deepseek_v4_flash
     name: "Fireworks/deepseek-v4-flash-0731"
     priority: 4
