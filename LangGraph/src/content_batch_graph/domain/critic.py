@@ -53,7 +53,10 @@ You will be given the full source text, one quoted span from it, and a claimed \
 issue with that span. Decide:
 1. Is this actually a real issue in correct {language}? If the quoted text is \
    already correct, or the claimed issue is wrong, say so.
-2. If it is a real issue, give the exact replacement text for the quoted span —
+2. If the claim is wrong or its suggested fix is wrong BUT the quoted span still \
+   contains a genuine error, set is_valid false and issue_real_but_claim_wrong true \
+   (a human will look at it) — do not let a bad claim hide a real error.
+3. If it is a real issue, give the exact replacement text for the quoted span —
    the minimal correction, changing nothing beyond what's needed to fix this \
    specific issue.
 
@@ -145,6 +148,11 @@ class _CriticResponse(BaseModel):
         default="",
         description="The exact corrected replacement for quoted_text. Empty if "
         "is_valid is false.",
+    )
+    issue_real_but_claim_wrong: bool = Field(
+        default=False,
+        description="True only when is_valid is false because the claim or its "
+        "suggested fix is wrong, yet the quoted span still contains a real error.",
     )
     reasoning: str = Field(
         description="Brief explanation of the judgment, for a human reviewer."
@@ -277,6 +285,9 @@ def run_critic_pass(
         is_valid=is_valid,
         replacement_text=replacement_text,
         critic_reasoning=reasoning,
+        needs_human_review=bool(
+            getattr(response, "issue_real_but_claim_wrong", False) and not is_valid
+        ),
     )
 
 
