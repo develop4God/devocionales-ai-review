@@ -23,6 +23,16 @@ def run_flag_pass(
     role_id: str | None = None,
     provider_id: str | None = None,
 ) -> list[Finding]:
+    """The findings only; see run_flag_pass_with_reasoning for the full response."""
+    return run_flag_pass_with_reasoning(source_text, language, role_id, provider_id)[0]
+
+
+def run_flag_pass_with_reasoning(
+    source_text: str,
+    language: str,
+    role_id: str | None = None,
+    provider_id: str | None = None,
+) -> tuple[list[Finding], str | None]:
     """
     Calls a real model, acting as the given role (default: native_reader), to review
     source_text written in `language` and return its findings as a verifiable
@@ -33,7 +43,7 @@ def run_flag_pass(
     compare candidate providers/models against the same role and content.
     """
     if not source_text:
-        return []
+        return [], None
 
     role = get_role(role_id)
     persona = role["persona"].format(language=language)
@@ -49,7 +59,7 @@ def run_flag_pass(
     inputs = {"persona": persona, "source_text": source_text}
     response = invoke_structured(chain, inputs)
 
-    return [
+    findings = [
         Finding(
             quoted_text=f.quoted_text,
             issue=f.issue,
@@ -58,3 +68,5 @@ def run_flag_pass(
         )
         for f in response.findings
     ]
+    # Only roles opted in via roles.yml `reasoning: true` carry this field.
+    return findings, getattr(response, "reasoning", None)

@@ -168,3 +168,21 @@ def test_flag_pass_raises_after_exhausting_structured_output_retries(monkeypatch
     with pytest.raises(openai.BadRequestError):
         run_flag_pass("some text", "English")
     assert calls["count"] == 3
+
+
+def test_flag_pass_with_reasoning_returns_findings_and_reasoning(monkeypatch):
+    from langchain_core.runnables import RunnableLambda
+
+    from content_batch_graph.domain import flag
+
+    fake_finding = SimpleNamespace(quoted_text="teh", issue="typo", category="typo", proposed_text="")
+    fake_model = SimpleNamespace(with_structured_output=lambda *a, **k: RunnableLambda(lambda x: x))
+    monkeypatch.setattr(flag, "get_model", lambda provider_id=None: fake_model)
+    monkeypatch.setattr(
+        flag, "invoke_structured",
+        lambda chain, inputs: SimpleNamespace(findings=[fake_finding], reasoning="checked it"),
+    )
+    findings, reasoning = flag.run_flag_pass_with_reasoning("teh cat", "English")
+    assert findings[0]["quoted_text"] == "teh" and findings[0]["proposed_text"] is None
+    assert reasoning == "checked it"
+    assert flag.run_flag_pass("teh cat", "English") == findings

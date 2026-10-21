@@ -33,6 +33,9 @@ CORPUS_FILES = {
     "en": "EN/Devocional_year_2027_en_KJV.json",
     "fr": "FR/Devocional_year_2027_fr_LSG1910.json",
 }
+# A request Groq rejects as too large for the per-minute output budget keeps failing
+# the same way; cap retries so one bad field can't loop forever.
+MAX_RATE_LIMIT_RETRIES = 5
 LANG_NAMES = {"es": "Spanish", "pt": "Portuguese", "en": "English", "fr": "French", "de": "German"}
 # Entry ids drift between triage files and corpus ("1Pedro16-7" vs "1Pedro167");
 # the trailing YYYYMMDD is stable, so index by it.
@@ -140,7 +143,7 @@ def score_field(rows: list[dict], finding_quotes: list[str]) -> dict:
 
 def run_live(fields: dict, lang: str, provider_id: str, role_id: str, out_path: Path) -> None:
     """Flag pass + verify per field (no critic), appending one resumable JSONL row each."""
-    from content_batch_graph.domain.flag import run_flag_pass
+    from content_batch_graph.domain.flag import run_flag_pass_with_reasoning
     from content_batch_graph.domain.verify import verify_findings
 
     done = set()
@@ -149,9 +152,10 @@ def run_live(fields: dict, lang: str, provider_id: str, role_id: str, out_path: 
     pending = [(k, v) for k, v in fields.items() if k not in done]
     with out_path.open("a", encoding="utf-8") as out:
         for n, ((date, field), item) in enumerate(pending, 1):
-            while True:
+            for attempt in range(1, MAX_RATE_LIMIT_RETRIES + 1):
                 try:
-                    raw = run_flag_pass(item["text"], LANG_NAMES[lang], role_id=role_id, provider_id=provider_id)
+                    raw, reasoning = run_flag_pass_with_reasoning(
+                        item["text"], LANG_NAMES[lang], role_id=role_id, provider_id=provider_id)
                     break
                 except (openai.RateLimitError, openai.BadRequestError) as e:
                     kind = classify_rate_limit_error(e)
@@ -160,11 +164,14 @@ def run_live(fields: dict, lang: str, provider_id: str, role_id: str, out_path: 
                     if kind == "daily_quota":
                         print(f"STOPPED on daily quota after {n - 1}/{len(pending)}: {e}", file=sys.stderr)
                         return
+                    if attempt == MAX_RATE_LIMIT_RETRIES:
+                        print(f"STOPPED: {date}:{field} still rate limited after {attempt} tries: {e}", file=sys.stderr)
+                        return
                     time.sleep(parse_retry_after_seconds(e))
             verified, rejected = verify_findings(raw, item["text"])
             quotes = [v["quoted_text"] for v in verified]
             row = {"lang": lang, "date": date, "field": field, "provider_id": provider_id, "role_id": role_id,
-                   "raw": len(raw), "verified_quotes": quotes, "rejected": len(rejected),
+                   "reasoning": reasoning, "raw": len(raw), "verified_quotes": quotes, "rejected": len(rejected),
                    **score_field(item["rows"], quotes)}
             out.write(json.dumps(row, ensure_ascii=False) + "\n")
             out.flush()
