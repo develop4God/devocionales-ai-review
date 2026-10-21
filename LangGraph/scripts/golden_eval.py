@@ -37,6 +37,9 @@ CORPUS_FILES = {
 # the same way; cap retries so one bad field can't loop forever.
 MAX_RATE_LIMIT_RETRIES = 5
 LANG_NAMES = {"es": "Spanish", "pt": "Portuguese", "en": "English", "fr": "French", "de": "German"}
+# Production reviews only these fields; triage rows on others (e.g. `tags`, a list)
+# are out of scope for the critic eval.
+REVIEWED_FIELDS = {"reflexion", "oracion"}
 # Entry ids drift between triage files and corpus ("1Pedro16-7" vs "1Pedro167");
 # the trailing YYYYMMDD is stable, so index by it.
 DATE_LEN = 8
@@ -84,7 +87,7 @@ def recover_fields(lang: str, repo: Path = API_REPO) -> tuple[dict, Counter]:
     drops: Counter = Counter()
     by_field: dict[tuple, list] = defaultdict(list)
     for r in build_rows(lang):
-        if r["label"] != "excluded":
+        if r["label"] != "excluded" and r["field"] in REVIEWED_FIELDS:
             by_field[(r["entry_id"][-DATE_LEN:], r["field"])].append(r)
 
     fields: dict = {}

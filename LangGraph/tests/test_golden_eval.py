@@ -30,3 +30,16 @@ def test_score_field_counts_tp_fp_and_unlabeled():
     rows = [{"label": "positive", "quoted_text": "aaa"}, {"label": "negative", "quoted_text": "bbb"}]
     out = ge.score_field(rows, ["aaa", "bbb", "zzz"])
     assert (out["tp"], out["fp"], out["unlabeled"]) == (1, 1, ["zzz"])
+
+
+def test_recover_fields_skips_non_reviewed_fields(monkeypatch, tmp_path):
+    rows = [
+        {"lang": "fr", "entry_id": "X20270101", "field": "tags", "quoted_text": "a", "label": "positive", "applied_commit": None},
+        {"lang": "fr", "entry_id": "X20270101", "field": "oracion", "quoted_text": "bon", "label": "negative", "applied_commit": None},
+    ]
+    monkeypatch.setattr(ge, "build_rows", lambda lang: rows)
+    corpus = tmp_path / ge.YEARLY / ge.CORPUS_FILES["fr"]
+    corpus.parent.mkdir(parents=True)
+    corpus.write_text('{"data": {"fr": {"d": [{"id": "X20270101", "oracion": "un bon texte", "tags": ["a"]}]}}}')
+    fields, _ = ge.recover_fields("fr", tmp_path)
+    assert list(fields) == [("20270101", "oracion")]
