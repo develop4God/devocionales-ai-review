@@ -18,3 +18,15 @@ def test_index_entries_keys_by_trailing_date_so_drifted_ids_match():
 def test_check_providers_flags_unknown_id():
     [(pid, status)] = ge.check_providers(["no_such_provider"])
     assert status == "NOT IN providers.yml"
+
+
+def test_quotes_match_is_containment_and_whitespace_insensitive():
+    assert ge.quotes_match("je marche  jamais", "je marche jamais seul")
+    assert not ge.quotes_match("foo", "bar")
+    assert not ge.quotes_match("", "bar")
+
+
+def test_score_field_counts_tp_fp_and_unlabeled():
+    rows = [{"label": "positive", "quoted_text": "aaa"}, {"label": "negative", "quoted_text": "bbb"}]
+    out = ge.score_field(rows, ["aaa", "bbb", "zzz"])
+    assert (out["tp"], out["fp"], out["unlabeled"]) == (1, 1, ["zzz"])

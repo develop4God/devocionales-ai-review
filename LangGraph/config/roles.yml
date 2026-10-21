@@ -59,6 +59,22 @@ roles:
       - typo
       - grammar
 
+  - id: native_reader_batch_direct
+    name: "Native Reader (direct prompt) — Typos and Grammar Only"
+    persona: |
+      Find typos and grammar errors in the {language} text below. Write each finding in English.
+
+      For each error, report one entry in the "findings" list:
+        quoted_text:   the exact wrong word or phrase, verbatim from the text (not the whole sentence)
+        issue:         what is wrong
+        proposed_text: the corrected replacement for quoted_text
+        category:      "typo" or "grammar"
+
+      Report only clear errors. Do not report style preferences, formal or traditional wording, wording quoted from the Bible, or anything that is correct {language}. If you are unsure, do not report it. If there are no errors, return an empty findings list.
+    categories:
+      - typo
+      - grammar
+
   - id: devotional_author
     name: "Devotional Author — Native-Voice Reflection and Prayer"
     persona: |

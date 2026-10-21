@@ -11,13 +11,17 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
+import sys
+import time
 from collections import Counter, defaultdict
 from pathlib import Path
 
+import openai
 import yaml
 from dotenv import dotenv_values
 
 from build_golden_set import build_rows
+from run_live_validation import classify_rate_limit_error, parse_retry_after_seconds
 
 LANGGRAPH = Path(__file__).resolve().parent.parent
 API_REPO = Path.home() / "python" / "DevocionalesAPI"
@@ -29,6 +33,7 @@ CORPUS_FILES = {
     "en": "EN/Devocional_year_2027_en_KJV.json",
     "fr": "FR/Devocional_year_2027_fr_LSG1910.json",
 }
+LANG_NAMES = {"es": "Spanish", "pt": "Portuguese", "en": "English", "fr": "French", "de": "German"}
 # Entry ids drift between triage files and corpus ("1Pedro16-7" vs "1Pedro167");
 # the trailing YYYYMMDD is stable, so index by it.
 DATE_LEN = 8
@@ -119,12 +124,72 @@ def check_providers(ids: list[str]) -> list[tuple[str, str]]:
     return out
 
 
+def quotes_match(a: str, b: str) -> bool:
+    """A finding hits a labeled span if either quote contains the other (whitespace-insensitive)."""
+    a, b = " ".join(a.split()), " ".join(b.split())
+    return bool(a and b and (a in b or b in a))
+
+
+def score_field(rows: list[dict], finding_quotes: list[str]) -> dict:
+    """Per-field outcome: which labeled rows the findings hit, and findings matching no label."""
+    hit_pos = [r for r in rows if r["label"] == "positive" and any(quotes_match(q, r["quoted_text"]) for q in finding_quotes)]
+    hit_neg = [r for r in rows if r["label"] == "negative" and any(quotes_match(q, r["quoted_text"]) for q in finding_quotes)]
+    unlabeled = [q for q in finding_quotes if not any(quotes_match(q, r["quoted_text"]) for r in rows)]
+    return {"tp": len(hit_pos), "fp": len(hit_neg), "unlabeled": unlabeled}
+
+
+def run_live(fields: dict, lang: str, provider_id: str, role_id: str, out_path: Path) -> None:
+    """Flag pass + verify per field (no critic), appending one resumable JSONL row each."""
+    from content_batch_graph.domain.flag import run_flag_pass
+    from content_batch_graph.domain.verify import verify_findings
+
+    done = set()
+    if out_path.exists():
+        done = {(r["date"], r["field"]) for r in map(json.loads, out_path.read_text("utf-8").splitlines()) if r.get("provider_id") == provider_id and r.get("role_id") == role_id}
+    pending = [(k, v) for k, v in fields.items() if k not in done]
+    with out_path.open("a", encoding="utf-8") as out:
+        for n, ((date, field), item) in enumerate(pending, 1):
+            while True:
+                try:
+                    raw = run_flag_pass(item["text"], LANG_NAMES[lang], role_id=role_id, provider_id=provider_id)
+                    break
+                except (openai.RateLimitError, openai.BadRequestError) as e:
+                    kind = classify_rate_limit_error(e)
+                    if kind is None:
+                        raise
+                    if kind == "daily_quota":
+                        print(f"STOPPED on daily quota after {n - 1}/{len(pending)}: {e}", file=sys.stderr)
+                        return
+                    time.sleep(parse_retry_after_seconds(e))
+            verified, rejected = verify_findings(raw, item["text"])
+            quotes = [v["quoted_text"] for v in verified]
+            row = {"lang": lang, "date": date, "field": field, "provider_id": provider_id, "role_id": role_id,
+                   "raw": len(raw), "verified_quotes": quotes, "rejected": len(rejected),
+                   **score_field(item["rows"], quotes)}
+            out.write(json.dumps(row, ensure_ascii=False) + "\n")
+            out.flush()
+            print(f"[{n}/{len(pending)}] {date}:{field} verified={len(quotes)} tp={row['tp']} fp={row['fp']}")
+
+
+def summarize_run(out_path: Path, fields: dict, provider_id: str, role_id: str) -> str:
+    rows = [r for r in map(json.loads, out_path.read_text("utf-8").splitlines())
+            if r["provider_id"] == provider_id and r["role_id"] == role_id]
+    npos = sum(1 for f in fields.values() for r in f["rows"] if r["label"] == "positive")
+    tp, fp = sum(r["tp"] for r in rows), sum(r["fp"] for r in rows)
+    unl = sum(len(r["unlabeled"]) for r in rows)
+    prec = f"{tp / (tp + fp):.0%}" if tp + fp else "-"
+    return (f"{provider_id} / {role_id}: fields={len(rows)} TP={tp} FP={fp} unlabeled={unl} "
+            f"precision={prec} recall={tp}/{npos}")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--lang", required=True, choices=sorted(CORPUS_FILES))
     ap.add_argument("--providers", nargs="+", required=True)
-    ap.add_argument("--dry-run", action="store_true", default=True,
-                    help="always on for now: no model calls are implemented yet")
+    ap.add_argument("--live", action="store_true",
+                    help="make real model calls (default is a dry run); one provider only")
+    ap.add_argument("--role", default="native_reader_batch")
+    ap.add_argument("--out", type=Path, help="results JSONL (required with --live)")
     args = ap.parse_args()
 
     fields, drops = recover_fields(args.lang)
@@ -137,7 +202,13 @@ def main() -> None:
         print(f"  {pid}: {status}")
     print(f"planned flag-pass calls: {len(fields)} x {len(args.providers)} = "
           f"{len(fields) * len(args.providers)} (+ critic calls per finding, unknown until run)")
-    print("DRY RUN: no API calls made.")
+    if not args.live:
+        print("DRY RUN: no API calls made.")
+        return
+    if len(args.providers) != 1 or not args.out:
+        raise SystemExit("--live needs exactly one --providers id and --out")
+    run_live(fields, args.lang, args.providers[0], args.role, args.out)
+    print(summarize_run(args.out, fields, args.providers[0], args.role))
 
 
 if __name__ == "__main__":
