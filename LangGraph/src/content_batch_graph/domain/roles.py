@@ -9,7 +9,7 @@ roles.yml, not writing a new function.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Literal, TypedDict
+from typing import Any, Literal, NotRequired, TypedDict
 
 import yaml
 from pydantic import BaseModel, Field, create_model
@@ -25,6 +25,7 @@ class Role(TypedDict):
     name: str
     persona: str
     categories: list[str]
+    reasoning: NotRequired[bool]  # opt-in: response carries a required `reasoning` field
 
 
 def _load_config() -> dict[str, Any]:
@@ -92,8 +93,21 @@ def build_finding_schema(role: Role) -> type[BaseModel]:
         ),
         category=(category_type, Field(description="The category of this finding.")),
     )
+    # Opt-in per role (roles.yml `reasoning: true`): a required field emitted before
+    # `findings`, so the model must always answer — say what it checked — even when
+    # it finds nothing. Roles without it keep the exact original schema.
+    extra_fields: dict[str, Any] = {}
+    if role.get("reasoning"):
+        extra_fields["reasoning"] = (
+            str,
+            Field(
+                description="Briefly, what you checked and what you found. Always "
+                "fill this in, even when the text is correct."
+            ),
+        )
     return create_model(
         "_FlagResponse",
+        **extra_fields,
         findings=(
             list[finding_schema],
             Field(
