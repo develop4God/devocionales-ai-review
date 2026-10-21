@@ -36,6 +36,10 @@ CORPUS_FILES = {
 # A request Groq rejects as too large for the per-minute output budget keeps failing
 # the same way; cap retries so one bad field can't loop forever.
 MAX_RATE_LIMIT_RETRIES = 5
+# Groq's "Request too large ... output tokens per minute" 429 carries no retry-after
+# hint (the shared helper then defaults to 10s); the budget only clears after a full
+# minute, so wait out the whole window.
+PER_MINUTE_WINDOW_S = 65.0
 LANG_NAMES = {"es": "Spanish", "pt": "Portuguese", "en": "English", "fr": "French", "de": "German"}
 # Production reviews only these fields; triage rows on others (e.g. `tags`, a list)
 # are out of scope for the critic eval.
@@ -170,7 +174,7 @@ def run_live(fields: dict, lang: str, provider_id: str, role_id: str, out_path: 
                     if attempt == MAX_RATE_LIMIT_RETRIES:
                         print(f"STOPPED: {date}:{field} still rate limited after {attempt} tries: {e}", file=sys.stderr)
                         return
-                    time.sleep(parse_retry_after_seconds(e))
+                    time.sleep(max(parse_retry_after_seconds(e), PER_MINUTE_WINDOW_S))
             verified, rejected = verify_findings(raw, item["text"])
             quotes = [v["quoted_text"] for v in verified]
             row = {"lang": lang, "date": date, "field": field, "provider_id": provider_id, "role_id": role_id,
